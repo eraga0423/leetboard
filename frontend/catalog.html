@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width", initial-scale="1.0">
+    <title>Message Board</title>
+</head>
+<body>
+    <h1>Message Board</h1>
+    <input type="text" id="username" placeholder="Enter your name">
+    <textarea id="message" placeholder="Enter your message"></textarea>
+    <button onclick="sendMessage()">Send</button>
+    <h2>Messages</h2>
+    <div id="messages"></div>
+    <script>
+        function sendMessage(){
+            const userName = document.getElementById('username').value;
+            const text = document.getElementById('message').value;
+            fetch('/send',{
+                method: 'POST',
+                headers: {'Content-Type': 'applicatio/json'},
+                body: JSON.stringify({username, text}) 
+            }).then(()=>{
+                loadMessage()
+            });
+            fetch('/message')
+                .then(response => response.JSON())
+                .then(data => {
+                    const msgDiv = document.getElementById('messages')
+                    msgDiv.innerHTML = "";
+                    data.forEach(msg => {
+                        msgDiv.innerHTML += ' <p><strong>${msg.username}:</strong> ${msg.text}</p>';
+
+                    });
+                });
+            }
+            setInterval(loadMessage, 3000);
+
+    </script>
+    </body>
+</html>
+    
