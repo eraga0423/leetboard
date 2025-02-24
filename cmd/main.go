@@ -1,6 +1,9 @@
 package main
 
 import (
+	"1337b0rd/internal/governor"
+	"1337b0rd/internal/rest"
+	"context"
 	"log"
 	"net/http"
 	"text/template"
@@ -9,22 +12,26 @@ import (
 )
 
 func main() {
-	// 	// Подключение к базе данных PostgreSQL
-	// 	db, err := sql.Open("postgres", "user=youruser dbname=1337b04rd sslmode=disable")
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// 	defer db.Close()
+	ctx, cancel := context.WithCancel(context.Background())
 
-	// 	// Инициализация слоев
-	// 	repo := adapters.NewPostgresRepository(db)
-	// 	service := core.NewPostService(repo)
-	// 	handler := adapters.NewPostHandler(service)
+	gov := governor.New()
 
-	// 	http.HandleFunc("/post", handler.CreatePostHandler)
+	r := rest.New(gov)
 
-	// 	log.Println("Server running on port 8080")
-	// 	http.ListenAndServe(":8080", nil)
+	go func(ctx context.Context, cancelFunc context.CancelFunc) {
+		err := r.Start(ctx)
+		if err != nil {
+			log.Fatal(err)
+		}
+		cancelFunc()
+	}(ctx, cancel)
+
+	//http.HandleFunc("GET /catalog", CatalogHandler)
+	//fmt.Println("start server")
+	//err := http.ListenAndServe(":9090", nil)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
 }
 
 var templates = map[string]*template.Template{}
@@ -34,8 +41,8 @@ func init() {
 }
 
 const (
-	archivePage = "../frontend/archive.html"
-	catalogPage = "../frontend/catalog.html"
+	archivePage = "frontend/archive.html"
+	catalogPage = "frontend/catalog.html"
 )
 
 func LoadTemplates() {
