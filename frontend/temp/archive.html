@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{.Title}}</title>
+</head>
+<body>
+    <h2>Архив:</h2>
+    <ul>
+        {{range .Posts}}
+            <li>{{.}}</li>
+        {{else}}
+            <li>Нет постов.</li>
+        {{end}}
+    </ul>
+
+    <button onclick="location.href='/create'">создать новый пост</button>
+    <button onclick="location.href='/catalog'">Перейти в каталог</button>
+
+</body>
+</html>
+    

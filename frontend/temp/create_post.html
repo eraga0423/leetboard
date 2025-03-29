@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{.Title}}</title>
+</head>
+<body>
+    <h2>Создать новый пост</h2>
+    <form action="/create" method="POST" enctype="multipart/form-data">
+
+
+        <label for="user_name">Введите ваш ник:</label>
+        <input type="text" id="name" name="name" required>
+    
+        <label for="title">Заголовок</label>
+        <input type="text" id="title" name="title" required>
+
+        <label for="post">Пост:</label>
+        <textarea id="post" name="post" rows="4" required></textarea>
+
+        <label for="image">Загрузить картинку:</label>
+        <input type="file" id="image" name="image">
+
+        <button type="submit">Создать пост</button>
+    </form>
+
+    <button onclick="location.href='/catalog'">Перейти в каталог</button>
+    <button onclick="location.href='/archive'">Перейти в архив</button>
+    
+
+</body>
+</html>
+    
