@@ -9,7 +9,7 @@ import (
 )
 
 func (h *PostsHandler) GetArchive(w http.ResponseWriter, r *http.Request) {
-	data := ""
+	data := "" //здесь ставить governor 
 	fmt.Println("This GET /archive")
 	tmpl := template.Must(template.ParseFiles(constant.Archive))
 	tmpl.Execute(w, data)
