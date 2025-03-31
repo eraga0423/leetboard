@@ -1,16 +1,16 @@
 package handler
 
 import (
-	"1337b0rd/internal/governor/posts"
+	posts_handler "1337b0rd/internal/rest/handler/leetbord"
 	"1337b0rd/internal/types/controller"
 )
 
 type Handler struct {
-	*posts.Posts
+	*posts_handler.PostsHandler
 }
 
 func New(ctrl controller.Controller) *Handler {
 	return &Handler{
-		Posts: posts.New(ctrl),
+		PostsHandler: posts_handler.New(ctrl),
 	}
 }

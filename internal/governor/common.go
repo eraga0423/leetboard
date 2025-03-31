@@ -1,13 +1,13 @@
 package governor
 
-import "1337b0rd/internal/governor/posts"
+import posts_governor "1337b0rd/internal/governor/posts"
 
 type Governor struct {
-	*posts.Posts
+	*posts_governor.PostsGovernor
 }
 
 func New() *Governor {
 	return &Governor{
-		Posts: new(posts.Posts),
+		PostsGovernor: new(posts_governor.PostsGovernor),
 	}
 }

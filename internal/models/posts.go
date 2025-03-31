@@ -8,4 +8,6 @@ type Post struct {
 	PostContent string
 	PostImage   string
 	PostTime    time.Time
+	User
+	Comments
 }
