@@ -1,13 +1,9 @@
 package router
 
-import (
-	"fmt"
-	"net/http"
-)
-
 func (r *Router) post() {
-	r.router.HandleFunc("GET /posts", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello World")
-	})
-
+	r.router.HandleFunc("GET /catalog", r.handler.GetPosts)
+	r.router.HandleFunc("GET /archive", r.handler.GetArchive)
+	r.router.HandleFunc("GET /create", r.handler.GetCreatePost)
+	r.router.HandleFunc("GET /post/{id}", r.handler.GetPostID)
+	r.router.HandleFunc("POST /create", r.handler.PostMethodCreatePost)
 }
