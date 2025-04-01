@@ -2,13 +2,13 @@ package posgres
 
 import (
 	"1337b0rd/internal/config"
-	"1337b0rd/internal/posgres/auth"
+	"1337b0rd/internal/postgres/model"
 	"database/sql"
 	"fmt"
 )
 
 type Postgres struct {
-	*auth.Auth
+	*model.Model
 }
 
 func NewDB(conf *config.PostgresConfig) (*sql.DB, error) {
