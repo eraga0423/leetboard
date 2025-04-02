@@ -8,9 +8,9 @@ import (
 	"1337b0rd/internal/constants"
 )
 
-func (h *PostsHandler) GetArchive(w http.ResponseWriter, r *http.Request) {
+func (h *PostsHandler) GetError(w http.ResponseWriter, r *http.Request) {
 	data := "" // здесь ставить governor
-	fmt.Println("This GET /archive")
-	tmpl := template.Must(template.ParseFiles(constants.Archive))
+	fmt.Println("This GET /error")
+	tmpl := template.Must(template.ParseFiles(constants.Error))
 	tmpl.Execute(w, data)
 }

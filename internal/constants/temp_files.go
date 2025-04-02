@@ -1,4 +1,4 @@
-package constant
+package constants
 
 const (
 	Catalog     = "../frontend/temp/catalog.html"

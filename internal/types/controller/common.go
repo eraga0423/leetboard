@@ -2,13 +2,9 @@ package controller
 
 import "context"
 
-//type Interseptor interface {
-//	Authentificator(context.Context, string)(context.Context, error)
-//}
-
-type Auth interface {
-	SignIn(ctx context.Context) (SignInResp, error)
-	SignUp(ctx context.Context) (SignUpResp, error)
+type Interceptor interface {
+	InterceptorGov(ctx context.Context, sessionID string) context.Context
+	GenerateSessionID() (string, error)
 }
 
 type Leetboard interface {
@@ -19,5 +15,5 @@ type Leetboard interface {
 
 type Controller interface {
 	Leetboard
-	Auth
+	Interceptor
 }
