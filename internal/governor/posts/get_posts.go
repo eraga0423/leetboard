@@ -109,3 +109,18 @@ func (p *PostResp) GetUser() User {
 func (p *PostResp) GetComments() []CommentResp {
 	return p.CommentsResp
 }
+
+func (p *PostResp) GetUserID() int {
+	return p.UserID
+}
+
+func (p *PostResp) GetName() string {
+	return p.UserName
+}
+
+func (p *PostResp) GetAvatar() string {
+	return p.UserAvatar
+}
+// ///////////////////////////////////////////////////////////////////////////////////!
+// 
+func (p *PostResp) GetParentComment()!
