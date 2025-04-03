@@ -20,12 +20,12 @@ func main() {
 
 	r := rest.New(gov)
 	conf := config.NewConfig()
-	_, err := posgres.NewPosgres(&conf.Postgres)
+	p, err := posgres.NewPosgres(&conf.Postgres)
 	if err != nil {
 		slog.Any("failed start database", "postgres")
 		panic(err)
 	}
-	
+
 	go func(ctx context.Context, cancelFunc context.CancelFunc) {
 		err := r.Start(ctx)
 		if err != nil {
@@ -33,7 +33,7 @@ func main() {
 		}
 		cancelFunc()
 	}(ctx, cancel)
-
+	gov.ConfigGov(ctx, conf, p)
 	//http.HandleFunc("GET /catalog", CatalogHandler)
 	//fmt.Println("start server")
 	//err := http.ListenAndServe(":9090", nil)
