@@ -121,6 +121,7 @@ func (p *PostResp) GetName() string {
 func (p *PostResp) GetAvatar() string {
 	return p.UserAvatar
 }
-// ///////////////////////////////////////////////////////////////////////////////////!
-// 
-func (p *PostResp) GetParentComment()!
+
+func (p *PostResp) GetParentComment(){
+	return p.
+}
