@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"1337b0rd/internal/models"
 	"1337b0rd/internal/types/controller"
 )
 
@@ -18,50 +17,39 @@ func (r *PostsGovernor) ListPosts(ctx context.Context) (controller.ListPostsResp
 }
 
 type ListPlayerResp struct {
-	Posts []models.Post
+	Posts []PostResp
 }
+type PostResp struct {
+	PostID           int
+	PostTitle        string
+	PostContent      string
+	PostImage        string
+	PostTime         time.Time
+	UserResp         User
+	CommentsResponse []MonoCommentResp
+}
+
+type User struct {
+	UserID     int
+	UserName   string
+	UserAvatar string
+}
+
 type MonoCommentResp struct {
 	CommentID      int
 	PostID         int
 	CommentContent string
 	CommentImage   string
 	CommentTime    time.Time
+	SubComments    []MonoCommentResp
 }
-
-type SubCommentsResp []MonoCommentResp
-
-type CommentResp struct {
-	ParentComment MonoCommentResp
-	SubCommentsResp
-}
-type CommentsResp []CommentResp
-
-type PostResp struct {
-	PostID      int
-	PostTitle   string
-	PostContent string
-	PostImage   string
-	PostTime    time.Time
-	User
-	CommentsResp
-}
-
-type (
-	UserMetadataResp struct{}
-	User             struct {
-		UserID     int
-		UserName   string
-		UserAvatar string
-		UserMetadataResp
-	}
-)
 
 func (i *ListPlayerResp) GetList() []controller.ItemPostsResp {
 	list := make([]controller.ItemPostsResp, 0, len(i.Posts))
 	for _, p := range i.Posts {
 		list = append(list, p)
 	}
-	return nil
+	return list
 }
 
 func newPost(
@@ -122,6 +110,22 @@ func (p *PostResp) GetAvatar() string {
 	return p.UserAvatar
 }
 
-func (p *PostResp) GetParentComment(){
-	return p.
+func (p *CommentsResp) GetParentComment() []MonoCommentResp {
+	list := make([]controller.ItemMonoComment, 0, len(p.CommentsResp))
+	for _, c := range p.CommentsResp {
+		list = append(list, c.ParentComment)
+	}
+	return list
+}
+
+func (p *CommentsResp) GetSubComment() []MonoCommentResp {
+	list := make([]controller.ItemMonoComment, 0)
+	for _, c := range p {
+		list = append(list, c)
+	}
+	return list
+}
+
+func (p *MonoCommentResp) GetCommentID() int {
+	return p.CommentID
 }

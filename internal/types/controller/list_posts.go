@@ -18,12 +18,10 @@ type ItemPostsResp interface {
 
 type ItemComment interface {
 	GetParentComment() []ItemMonoComment
-	GetSubComment()
-}
-
-type ItemSubComment interface {
 	GetSubComment() []ItemMonoComment
 }
+
+
 
 type ItemMonoComment interface {
 	GetCommentID() int
