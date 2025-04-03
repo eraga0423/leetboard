@@ -14,6 +14,11 @@ type Req struct {
 }
 
 func (h *PostsHandler) PostMethodCreatePost(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseMultipartForm(10 << 20)
+	if err != nil {
+		http.Error(w, "file error", http.StatusBadRequest)
+		return
+	}
 	fmt.Println("This post /create")
 	var NewReq Req
 	name := r.FormValue("name")
