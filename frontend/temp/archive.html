@@ -2,13 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{.Title}}</title>
+    <title>{{.TitlePost}}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-    <h2>Архив:</h2>
+    <h2>Архивные посты:</h2>
     <ul>
         {{range .Posts}}
-            <li>{{.}}</li>
+        <li>
+            <button onclick="location.href='/archive/{{.PostID}}'">
+            {{.Title}}
+            </button>
+        </li>
         {{else}}
             <li>Нет постов.</li>
         {{end}}

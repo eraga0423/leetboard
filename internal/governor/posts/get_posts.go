@@ -8,6 +8,7 @@ import (
 )
 
 func (r *PostsGovernor) ListPosts(ctx context.Context) (controller.ListPostsResp, error) {
+	
 	// sessionID, ok := ctx.Value(constants.SessionIDKey).(string)
 	// if !ok {
 	// 	return nil, fmt.Errorf("user not found in context")

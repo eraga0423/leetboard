@@ -9,6 +9,7 @@ import (
 )
 
 func (m MinioStorage) UploadImage(bucketName, objectName, contentType string, data []byte) (string, error) {
+	
 	client := m.newMinioClient()
 	ctx := context.Background()
 	reader := bytes.NewReader(data)

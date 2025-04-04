@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{.TitlePost}}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <h2>{{.Title}}</h2>
+    <ul>
+        <li>{{.Nick}}</li>
+        <li>{{.Post}}</li>
+    </ul>
+    {{if .ImageURL}}
+        <br>
+        <img src="{{.ImageURL}}" alt="{{.Title}}" width="200">
+    {{end}}
+    <h3>Комментарий:</h3>
+    {{if .Comments}}
+            <ul>
+                {{range .Comments}}
+                    <li>
+                        <b>{{.Nick}} (ID: {{.UserID}})</b> {{.Content}}
+                    </li>
+                    {{end}}
+            </ul>
+    {{else}}
+            <p>Комментариев нету.</p>
+    {{end}}
+    <button onclick="location.href='/create'">создать новый пост</button>
+    <button onclick="location.href='/archive'">Перейти в архив</button>
+
+</body>
+</html>
+    

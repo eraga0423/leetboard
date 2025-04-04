@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"mime"
 	"net/http"
 	"strconv"
 	"text/template"
@@ -48,16 +49,25 @@ func catalog(w http.ResponseWriter, r *http.Request) {
 	data := AllPosts()
 	tmpl := template.Must(template.ParseFiles("temp/catalog.html"))
 
-	tmpl.Execute(w, data)
+	err := tmpl.Execute(w, data)
+	if err != nil {
+
+		HandleError(w, 500)
+		fmt.Println("error catalog")
+		return
+	}
 }
 
 func main() {
+	_ = mime.AddExtensionType(".css", "text/css")
 	http.HandleFunc("/post/{id}", post)
 	http.HandleFunc("/catalog", catalog)
 	http.HandleFunc("/archive", archive)
 	http.HandleFunc("/create", create)
 	http.HandleFunc("/post/{id}/comment", NewComment)
 	fmt.Println("start server")
+	fs := http.FileServer(http.Dir("./static"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		fmt.Println("aaa")
@@ -66,15 +76,20 @@ func main() {
 }
 
 func archive(w http.ResponseWriter, r *http.Request) {
-	// tmpl := template.Must(template.ParseFiles("temp/archive.html"))
-	// data := newTempl{
-	// 	Title: "archive",
-	// 	Posts: []string{"post4", "post5", "post6"},
-	// }
-	// tmpl.Execute(w, data)
+	tmpl := template.Must(template.ParseFiles("temp/archive.html"))
+	data := newTempl{
+		TitlePost: "archive",
+		Posts:     AllPosts().Posts,
+	}
+	err := tmpl.Execute(w, data)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 }
 
 func create(w http.ResponseWriter, r *http.Request) {
+
 	if r.Method == "POST" {
 		var NewReq Req
 		name := r.FormValue("name")
@@ -108,7 +123,12 @@ func create(w http.ResponseWriter, r *http.Request) {
 	data := newTempl{
 		TitlePost: "new post",
 	}
-	tmpl.Execute(w, data)
+
+	err := tmpl.Execute(w, data)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 }
 
 type Req struct {
@@ -158,6 +178,7 @@ func post(w http.ResponseWriter, r *http.Request) {
 
 	err := tmpl.Execute(w, RespPost)
 	if err != nil {
+		HandleError(w, 500)
 		fmt.Println("asdasd", err)
 		return
 	}
@@ -183,4 +204,17 @@ func AddNewComment(newComment Comment, id string) {
 		UserID:  newComment.UserID,
 		Content: newComment.Content,
 	})
+}
+
+var errorTmpl = template.Must(template.ParseFiles("temp/error.html"))
+
+func HandleError(w http.ResponseWriter, status int) {
+	w.WriteHeader(status)
+	err := errorTmpl.Execute(w, map[string]interface{}{
+		"Code": status,
+	})
+	if err != nil {
+		fmt.Println("aaaa")
+		fmt.Println(err)
+	}
 }

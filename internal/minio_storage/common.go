@@ -7,6 +7,3 @@ import (
 type MinioStorage struct {
 	conf *config.MinioStorage
 }
-
-
-
