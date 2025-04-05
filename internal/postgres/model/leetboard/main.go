@@ -2,6 +2,7 @@ package leetboard
 
 import (
 	"1337b0rd/internal/config"
+	"1337b0rd/internal/models"
 	"database/sql"
 	"log/slog"
 )
@@ -22,4 +23,9 @@ func New(
 		logger: logger,
 		db:     db,
 	}
+}
+
+func (m models.Post) CreatePost() models.Post {
+	m.PostID = 5
+	return m
 }
