@@ -2,14 +2,14 @@ package database
 
 import "time"
 
-type OnePost interface {
-	//post
-	GetComments() []Comment
+type OnePostResp interface {
+	// post
+	GetComments(idPost int) []Comment
 }
 
 type Comment interface {
-	GetParentComment() OneComment
-	GetSubComment() []OneComment
+	GetParentComment(idComment int) (OneComment, error)
+	GetSubComment(idParentComment int) []OneComment
 }
 type OneComment interface {
 	GetCommentID() int
@@ -17,4 +17,7 @@ type OneComment interface {
 	GetCommentContent() string
 	GetCommentImage() string
 	GetCommentTime() time.Time
+}
+type OnePostReq interface {
+	ReqPostID() int
 }
