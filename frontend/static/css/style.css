@@ -1,58 +1,95 @@
-body {
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #190061;
-    color: #fafefa;
-    margin: 0;
-    padding: 20px;
+* {
+  box-sizing: border-box;
 }
 
-h1, h2, h3 {
-    color: #ffffff;
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #190061;
+  color: #fafefa;
+  margin: 0;
+  padding: 20px;
+}
+
+h1,
+h2,
+h3 {
+  text-align: center;
+  color: #ffffff;
 }
 
 ul {
-    list-style-type: none;
-    padding: 0;
+  list-style-type: none;
+  padding: 0;
 }
 
 li {
-    margin-bottom: 15px;
+  margin-bottom: 15px;
 }
 
 button {
-    padding: 10px 16px;
-    background-color: #3500D3;
-    color: rgb(255, 255, 255);
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.2s ease-in-out;
+  padding: 10px 16px;
+  background-color: #3500d3;
+  color: rgb(255, 255, 255);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.buttonContainer ul {
+  display: grid;
+  grid-template-columns: repeat(5, 200px);
+  gap: 10px;
+  padding: 0;
+  list-style: none;
+  justify-content: center;
+}
+
+.buttonContainer ul li {
+  width: 100%;
+  padding: 10px;
+}
+
+.buttonPost {
+  width: 100%;
+  height: 100px;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
 button:hover {
-    background-color: #3500D3;
+  background-color: #3500d3;
 }
 
-input[type="text"], textarea {
-    width: 100%;
-    padding: 10px;
-    margin-top: 8px;
-    margin-bottom: 16px;
-    border: 1px solid #daaeae;
-    border-radius: 4px;
-    box-sizing: border-box;
-    font-size: 15px;
+input[type="text"],
+textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  margin-bottom: 16px;
+  border: 1px solid #daaeae;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 15px;
 }
 
 img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 5px;
-    margin-top: 10px;
+  max-width: 100%;
+  height: auto;
+  border-radius: 5px;
+  margin-top: 10px;
 }
 
 .container {
-    max-width: 800px;
-    margin: auto;
+  max-width: 800px;
+  margin: auto;
+}
+
+.buttonArchiveNew {
+  display: flex;
+  justify-self: center;
+  align-items: center;
+  gap: 10px;
+  height: 100px;
 }

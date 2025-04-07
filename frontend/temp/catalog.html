@@ -1,27 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{.TitlePos}}</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
-<body>
-    <h2>Посты:</h2>
-    <ul>
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{.TitlePost}}</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+  </head>
+  <body>
+    <div class="buttonArchiveNew">
+      <button onclick="location.href='/create'">NEW POST</button>
+      <button onclick="location.href='/archive'">ARCHIVE</button>
+    </div>
+    <h2>POSTS</h2>
+    <div class="buttonContainer">
+      <ul>
         {{range .Posts}}
-            <li>
-                <button onclick="location.href='/post/{{.PostID}}'">
-                {{.Title}}
-                </button>
-            </li>
+        <li>
+          <button
+            class="buttonPost"
+            onclick="location.href='/post/{{.PostID}}'"
+          >
+            {{.Title}}
+          </button>
+        </li>
         {{else}}
-            <li>Нет постов.</li>
+        <li>Нет постов.</li>
         {{end}}
-    </ul>
-
-    <button onclick="location.href='/create'">создать новый пост</button>
-    <button onclick="location.href='/archive'">Перейти в архив</button>
-
-</body>
+      </ul>
+    </div>
+  </body>
 </html>
-    

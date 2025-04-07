@@ -51,9 +51,8 @@ func catalog(w http.ResponseWriter, r *http.Request) {
 
 	err := tmpl.Execute(w, data)
 	if err != nil {
-
 		HandleError(w, 500)
-		fmt.Println("error catalog")
+		fmt.Println("error catalog:  ", err)
 		return
 	}
 }
@@ -89,7 +88,6 @@ func archive(w http.ResponseWriter, r *http.Request) {
 }
 
 func create(w http.ResponseWriter, r *http.Request) {
-
 	if r.Method == "POST" {
 		var NewReq Req
 		name := r.FormValue("name")
