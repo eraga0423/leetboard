@@ -18,13 +18,8 @@ type postResp struct {
 	postTime    time.Time
 }
 
-type reqPost struct {
-	l   *Leetboard
-	all allpost
-}
-//
-func (r reqPost) ListPosts() (database.ListPostsResp, error) {
-	rows, err := r.l.db.Query(`
+func (l *Leetboard) ListPosts() (database.ListPostsResp, error) {
+	rows, err := l.db.Query(`
     SELECT 
     post_id,
     title,
@@ -53,14 +48,13 @@ func (r reqPost) ListPosts() (database.ListPostsResp, error) {
 		resPost = append(resPost, p)
 	}
 
-	r.all.posts = resPost
-	return r.all, nil
+	return allpost{posts: resPost}, nil
 }
 
 func (a allpost) GetList() []database.ItemPostsResp {
-	var resPosts []database.ItemPostsResp
-	for _, v := range a.posts {
-		resPosts = append(resPosts, v)
+	resPosts := make([]database.ItemPostsResp, len(a.posts))
+	for num, post := range a.posts {
+		resPosts[num] = post
 	}
 	return resPosts
 }
