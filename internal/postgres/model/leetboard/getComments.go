@@ -6,19 +6,24 @@ import (
 	"1337b0rd/internal/types/database"
 )
 
-type onecomment struct {
-	commentID      int
-	postID         int
-	commentContent string
-	commentImage   string
-	commentTime    time.Time
+type OneCommentData struct {
+	ID      int
+	PostID  int
+	Content string
+	Image   string
+	Time    time.Time
 }
-type comment struct {
-	parentComment onecomment
-	subComments   []onecomment
+type CommentNode struct {
+	Parent   OneCommentData
+	Children []OneCommentData
 }
 
-func (l Leetboard) GetComments(idPost int) ([]database.Comment, error) {
+type OnePostResponse struct {
+	Comments []CommentNode
+}
+
+func (l *Leetboard) OnePost(r database.OnePostReq) (database.OnePostResp, error) {
+	idPost := r.ReqPostID()
 	rows, err := l.db.Query(`
 	SELECT 
     c.comment_id,
@@ -40,88 +45,77 @@ WHERE c.post_id = $1
 		return nil, err
 	}
 	defer rows.Close()
-	var comments []database.Comment
-	commentsMap := make(map[onecomment][]onecomment)
+
+	commentMap := map[int]*CommentNode{}
 	for rows.Next() {
-		var comment onecomment
-		var childComID, childPostID int
-		var childComContent, childComImage string
-		var childComTime time.Time
+		var parentID, parentPostID int
+		var parentContent, parentImage string
+		var parentTime time.Time
+
+		var childID, childPostID int
+		var childContent, childImage string
+		var childTime time.Time
+
 		err := rows.Scan(
-			&comment.commentID,
-			&comment.postID,
-			&comment.commentContent,
-			&comment.commentImage,
-			&comment.commentTime,
-			&childComID,
-			&childPostID,
-			&childComContent,
-			&childComImage,
-			&childComTime,
+			&parentID, &parentPostID, &parentContent, &parentImage, &parentTime,
+			&childID, &childPostID, &childContent, &childImage, &childTime,
 		)
 		if err != nil {
 			return nil, err
 		}
-		value, exist := commentsMap[comment]
-		if exist {
-			value = append(value, onecomment{
-				commentID:      childComID,
-				postID:         childPostID,
-				commentContent: childComContent,
-				commentImage:   childComImage,
-				commentTime:    childComTime,
-			},
-			)
-		} else {
-			value = []onecomment{
-				{
-					commentID:      childComID,
-					postID:         childPostID,
-					commentContent: childComContent,
-					commentImage:   childComImage,
-					commentTime:    childComTime,
+
+		if _, ok := commentMap[parentID]; !ok {
+			commentMap[parentID] = &CommentNode{
+				Parent: OneCommentData{
+					ID:      parentID,
+					PostID:  parentPostID,
+					Content: parentContent,
+					Image:   parentImage,
+					Time:    parentTime,
 				},
 			}
 		}
-		commentsMap[comment] = value
 
+		if childID != 0 {
+			commentMap[parentID].Children = append(commentMap[parentID].Children, OneCommentData{
+				ID:      childID,
+				PostID:  childPostID,
+				Content: childContent,
+				Image:   childImage,
+				Time:    childTime,
+			})
+		}
 	}
 
-	com := make([]database.Comment, len(a.comments))
-	for i := range a.comments {
-		com[i] = a.comments[i]
+	var commentList []CommentNode
+	for _, v := range commentMap {
+		commentList = append(commentList, *v)
 	}
-	return com
+
+	return OnePostResponse{Comments: commentList}, nil
 }
 
-func (c comment) GetSubComment() []database.OneComment {
-	sub := make([]database.OneComment, len(c.subComments))
-	for i, s := range c.subComments {
-		sub[i] = s
+func (r OnePostResponse) GetComments() []database.Comment {
+	comments := make([]database.Comment, len(r.Comments))
+	for num, comment := range r.Comments {
+		comments[num] = comment
 	}
-	return sub
+	return comments
+}
+func (c CommentNode) GetParent() database.OneComment {
+	return c.Parent
 }
 
-func (c comment) GetParentComment() database.OneComment {
-	return c.parentComment
+func (c CommentNode) GetChildren() []database.OneComment {
+	result := make([]database.OneComment, len(c.Children))
+	for i := range c.Children {
+		result[i] = c.Children[i]
+	}
+	return result
 }
 
-func (m onecomment) GetCommentID() int {
-	return m.commentID
-}
-
-func (m onecomment) GetPostID() int {
-	return m.postID
-}
-
-func (m onecomment) GetCommentContent() string {
-	return m.commentContent
-}
-
-func (m onecomment) GetCommentImage() string {
-	return m.commentImage
-}
-
-func (m onecomment) GetCommentTime() time.Time {
-	return m.commentTime
-}
+func (c OneCommentData) GetCommentID() int         { return c.ID }
+func (c OneCommentData) GetPostID() int            { return c.PostID }
+func (c OneCommentData) GetCommentContent() string { return c.Content }
+func (c OneCommentData) GetCommentImage() string   { return c.Image }
+func (c OneCommentData) GetCommentTime() time.Time { return c.Time }

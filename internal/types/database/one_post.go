@@ -4,12 +4,12 @@ import "time"
 
 type OnePostResp interface {
 	// post
-	GetComments(idPost int) []Comment
+	GetComments() []Comment
 }
 
 type Comment interface {
-	GetParentComment(idComment int) (OneComment, error)
-	GetSubComment(idParentComment int) []OneComment
+	GetParent() OneComment
+	GetChildren() []OneComment
 }
 type OneComment interface {
 	GetCommentID() int
