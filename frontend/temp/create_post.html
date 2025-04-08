@@ -1,33 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{.Title}}</title>
-</head>
-<body>
-    <h2>Создать новый пост</h2>
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{.TitlePost}}</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+  </head>
+  <body>
+    <div class="buttonArchiveNew">
+      <button onclick="location.href='/catalog'">CATALOG</button>
+      <button onclick="location.href='/archive'">ARCHIVE</button>
+    </div>
+
+    <h2>NEW POST</h2>
     <form action="/create" method="POST" enctype="multipart/form-data">
+      <label for="user_name">Enter your nickname</label>
+      <input type="text" id="name" name="name" required />
 
+      <label for="title">Title</label>
+      <input type="text" id="title" name="title" required />
 
-        <label for="user_name">Введите ваш ник:</label>
-        <input type="text" id="name" name="name" required>
-    
-        <label for="title">Заголовок</label>
-        <input type="text" id="title" name="title" required>
+      <label for="post">Content</label>
+      <textarea id="post" name="post" rows="4" required></textarea>
 
-        <label for="post">Пост:</label>
-        <textarea id="post" name="post" rows="4" required></textarea>
+      <label for="image">Upload image</label>
+      <input type="file" id="image" name="image" />
 
-        <label for="image">Загрузить картинку:</label>
-        <input type="file" id="image" name="image">
-
-        <button type="submit">Создать пост</button>
+      <button type="submit">Создать пост</button>
     </form>
-
-    <button onclick="location.href='/catalog'">Перейти в каталог</button>
-    <button onclick="location.href='/archive'">Перейти в архив</button>
-    
-
-</body>
+  </body>
 </html>
-    

@@ -1,23 +1,27 @@
 package rest
 
 import (
-	"1337b0rd/internal/rest/handler"
-	"1337b0rd/internal/rest/router"
-	"1337b0rd/internal/types/controller"
 	"context"
 	"net/http"
+
+	"1337b0rd/internal/rest/handler"
+	"1337b0rd/internal/rest/middleware"
+	"1337b0rd/internal/rest/router"
+	"1337b0rd/internal/types/controller"
 )
 
 type Rest struct {
-	//logger *log.Logger
+	// logger *log.Logger
 	router *router.Router
 }
 
 func New(ctrl controller.Controller) *Rest {
 	h := handler.New(ctrl)
-	r := router.New(h)
+	m := middleware.New(ctrl)
+	r := router.New(h, m)
+
 	return &Rest{
-		//logger: logger,
+		// logger: logger,
 		router: r,
 	}
 }
@@ -32,5 +36,4 @@ func (r *Rest) Start(ctx context.Context) error {
 		return err
 	}
 	return nil
-
 }

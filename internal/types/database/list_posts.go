@@ -7,17 +7,9 @@ type ListPostsResp interface {
 }
 
 type ItemPostsResp interface {
-	GetPostID() string
+	GetPostID() int
 	GetTitle() string
 	GetPostContent() string
 	GetPostImageURL() string
 	GetPostTime() time.Time
-	GetComment() []Comment
-}
-
-type Comment interface {
-	GetContent() string
-	GetComment() string
-	GetCommentImageURL() string
-	GetCommentTime() time.Time
 }
