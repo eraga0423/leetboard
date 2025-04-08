@@ -4,6 +4,9 @@ type NewPostReq interface {
 	GetTitle() string
 	GetPostContent() string
 	GetImage() string
+	GetAuthor() (idUser int)
 }
 
-type NewPostResp interface{}
+type NewPostResp interface {
+	CreationPostResp() (idPost int)
+}

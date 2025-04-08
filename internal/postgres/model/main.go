@@ -2,8 +2,8 @@ package model
 
 import (
 	"1337b0rd/internal/config"
-	"1337b0rd/internal/postgres/auth"
-	"1337b0rd/internal/postgres/leetboard"
+	"1337b0rd/internal/postgres/model/auth"
+	"1337b0rd/internal/postgres/model/leetboard"
 	"database/sql"
 	"log/slog"
 )

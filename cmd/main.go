@@ -7,7 +7,7 @@ import (
 
 	"1337b0rd/internal/config"
 	"1337b0rd/internal/governor"
-	"1337b0rd/internal/posgres"
+	posgres "1337b0rd/internal/postgres"
 	"1337b0rd/internal/rest"
 
 	_ "github.com/lib/pq"
@@ -34,6 +34,5 @@ func main() {
 		cancelFunc()
 	}(ctx, cancel)
 	gov.ConfigGov(ctx, conf, p)
-	
-}
 
+}

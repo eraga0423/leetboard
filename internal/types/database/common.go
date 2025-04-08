@@ -3,7 +3,7 @@ package database
 import "context"
 
 type User interface {
-	FindUser(context.Context, FindUserReq) (bool, FindUserResp, error)
+	FindUser(context.Context, FindUserReq) (bool, FindUserResp)
 }
 
 type Post interface {
