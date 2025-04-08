@@ -2,8 +2,9 @@ package middleware
 
 import (
 	"net/http"
-	"strconv"
 	"time"
+
+	"1337b0rd/internal/constants"
 )
 
 func (m *Middleware) Authentificator(next http.Handler) http.Handler {
@@ -17,20 +18,17 @@ func (m *Middleware) Authentificator(next http.Handler) http.Handler {
 				return
 			}
 			cookie = &http.Cookie{
-				Name:     "session_id",
+				Name:     constants.SessionIDKey,
 				Value:    newSessionID,
 				Path:     "/",
 				HttpOnly: true,
 				Expires:  time.Now().Add(7 * 24 * time.Hour),
 			}
 			http.SetCookie(w, cookie)
-		}
-		intSesionID, err := strconv.Atoi(cookie.Value)
-		if err != nil {
-			http.Error(w, "error parse id not string conversion", http.StatusInternalServerError)
 			return
 		}
-		newContext := m.ctrl.InterceptorGov(ctx, intSesionID)
+
+		newContext := m.ctrl.InterceptorGov(ctx, cookie.Value)
 		next.ServeHTTP(w, r.WithContext(newContext))
 	})
 }

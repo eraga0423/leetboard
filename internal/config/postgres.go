@@ -14,7 +14,8 @@ type PostgresConfig struct {
 }
 
 func NewConfigPostrgres() *PostgresConfig {
-	port, _ := strconv.Atoi("PG_PORT")
+	portString := os.Getenv("PG_PORT")
+	port, _ := strconv.Atoi(portString)
 	c := &PostgresConfig{
 		Host:     os.Getenv("PG_HOST"),
 		Port:     port,

@@ -1,16 +1,18 @@
-package posgres
+package postgres
 
 import (
-	"1337b0rd/internal/config"
-	"1337b0rd/internal/postgres/model"
 	"database/sql"
 	"fmt"
 	"log/slog"
+
+	"1337b0rd/internal/config"
+	"1337b0rd/internal/postgres/model"
 )
 
 type Postgres struct {
 	*model.Model
 }
+
 func New(conf *config.PostgresConfig, logger *slog.Logger) (*Postgres, error) {
 	db, err := NewDB(conf)
 	if err != nil {
@@ -18,7 +20,7 @@ func New(conf *config.PostgresConfig, logger *slog.Logger) (*Postgres, error) {
 	}
 
 	return &Postgres{
-		Model: model.New(conf, logger.With(slog.String("module", "model")), db),
+		Model: model.New(logger.With(), db),
 	}, nil
 }
 

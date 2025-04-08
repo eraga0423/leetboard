@@ -7,7 +7,7 @@ RUN go mod download
 
 COPY . .
 
-# RUN go build -o 1337b04rd ./cmd/main.go
+RUN go build -o 1337b04rd ./cmd/main.go
 
 EXPOSE ${REST_API_PORT}
 CMD [ "./1337b04rd" ]

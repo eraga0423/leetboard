@@ -1,6 +1,7 @@
 package leetboard
 
 import (
+	"fmt"
 	"time"
 
 	"1337b0rd/internal/types/database"
@@ -28,6 +29,7 @@ func (l *Leetboard) ListPosts() (database.ListPostsResp, error) {
     post_time
     FROM posts`)
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -37,6 +39,7 @@ func (l *Leetboard) ListPosts() (database.ListPostsResp, error) {
 		var p postResp
 		err := rows.Scan(
 			&p.postID,
+
 			&p.postTitle,
 			&p.postContent,
 			&p.postImage,

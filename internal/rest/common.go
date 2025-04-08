@@ -30,13 +30,12 @@ func New(ctrl controller.Controller) *Rest {
 
 func (r *Rest) Start(ctx context.Context) error {
 	err := mime.AddExtensionType(".css", "text/css")
-	if err !=nil{
+	if err != nil {
 		return err
 	}
 	mux := r.router.Start(ctx)
 	fs := http.FileServer(http.Dir(constants.DirCss))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
-
 	srv := &http.Server{
 		Handler: mux,
 		Addr:    ":8080",

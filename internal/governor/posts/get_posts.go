@@ -23,7 +23,7 @@ func (r *PostsGovernor) ListPosts(ctx context.Context) (controller.ListPostsResp
 			PostTime:    v.GetPostTime(),
 		})
 	}
-	
+
 	r.all.posts = newResp
 	return &r.all, nil
 }
