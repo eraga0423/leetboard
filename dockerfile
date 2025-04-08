@@ -1,4 +1,4 @@
-FROM golang:1.22-alpine
+FROM golang:1.23-alpine
 
 WORKDIR /app
 
@@ -7,7 +7,7 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o 1337b04rd ./cmd/1337b04rd
+# RUN go build -o 1337b04rd ./cmd/main.go
 
 EXPOSE ${REST_API_PORT}
-CMD [ "./1337d0rd" ]
+CMD [ "./1337b04rd" ]

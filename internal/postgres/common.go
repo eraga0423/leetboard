@@ -5,10 +5,21 @@ import (
 	"1337b0rd/internal/postgres/model"
 	"database/sql"
 	"fmt"
+	"log/slog"
 )
 
 type Postgres struct {
 	*model.Model
+}
+func New(conf *config.PostgresConfig, logger *slog.Logger) (*Postgres, error) {
+	db, err := NewDB(conf)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Postgres{
+		Model: model.New(conf, logger.With(slog.String("module", "model")), db),
+	}, nil
 }
 
 func NewDB(conf *config.PostgresConfig) (*sql.DB, error) {

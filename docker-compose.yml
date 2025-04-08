@@ -5,41 +5,42 @@ services:
     image: minio/minio
     container_name: minio
     ports:
-      - "${MINIO_API_PORT}:9000" # S3 API
-      - "${MINIO_CONSOLE_PORT}:9001" # Web консоль
+      - "${MINIO_API_PORT}:9000"
+      - "${MINIO_CONSOLE_PORT}:9001"
     environment:
-      MINIO_ROOT_USER: $MINIO_ROOT_USER
-      MINIO_ROOT_PASSWORD: $MINIO_ROOT_PASSWORD
+      MINIO_ROOT_USER: "${MINIO_ROOT_USER}"
+      MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD}"
     volumes:
-      - ./minio_data:/data # данные будут лежать в ./minio_data
+      - ./minio_data:/data
     command: server /data --console-address ":9001"
     restart: unless-stopped
+
   app:
     build: .
     ports:
       - "${REST_API_PORT}:${REST_API_PORT}"
     depends_on:
-      - postgress
+      - postgres
       - minio
-    envoirment:
+    environment:
       - PG_HOST=${PG_HOST}
       - PG_PORT=${PG_PORT}
       - PG_NAME=${PG_NAME}
       - PG_USER=${PG_USER}
       - PG_PASSWORD=${PG_PASSWORD}
-      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
-      - REST_RICK_PORT=${REST_RICK_PORT}
-  postrgres:
-    image: postrgres:16-alpine
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
     ports:
       - "${PG_PORT}:5432"
     environment:
-      - PG_PORT=${PG_PORT}
-      - PG_NAME=${PG_NAME}
-      - PG_USER=${PG_USER}
+      POSTGRES_DB: "${PG_NAME}"
+      POSTGRES_USER: "${PG_USER}"
+      POSTGRES_PASSWORD: "${PG_PASSWORD}"
     volumes:
       - pgdata:/var/lib/postgresql/data
+
 volumes:
   pgdata:
   miniodata:

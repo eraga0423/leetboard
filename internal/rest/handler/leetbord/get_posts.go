@@ -9,8 +9,8 @@ import (
 	"1337b0rd/internal/constants"
 )
 
-func (h *PostsHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
-	var data allPost
+func  (h *PostsHandler)GetPosts(w http.ResponseWriter, r *http.Request) { //
+	var data AllPost
 	ctx := r.Context()
 	fmt.Println("This GET /posts")
 	resp, err := h.ctrl.ListPosts(ctx)
@@ -26,7 +26,7 @@ func (h *PostsHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 	
 
 	for _, v := range resp.GetList() {
-		data.posts = append(data.posts, postResp{
+		data.Posts = append(data.Posts, PostResp{
 			PostID:      v.GetPostID(),
 			PostTitle:   v.GetTitle(),
 			PostContent: v.GetPostContent(),
@@ -38,13 +38,19 @@ func (h *PostsHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 	
 	tmpl := template.Must(template.ParseFiles(constants.Catalog))
 
-	tmpl.Execute(w, data)
+	err = tmpl.Execute(w, data)
+	if err !=nil{
+
+		fmt.Println(err ,"rest : method List posts")
+		http.Error(w, "dont list post", 499) /////////////////////////
+		return
+	}
 }
 
-type allPost struct {
-	posts []postResp
+type AllPost struct {
+	Posts []PostResp
 }
-type postResp struct {
+type PostResp struct {
 	
 	PostID      int
 	PostTitle   string
