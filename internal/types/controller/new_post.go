@@ -1,9 +1,9 @@
 package controller
 
 type NewPostReq interface {
-	GetTitle() string
-	GetPostContent() string
-	GetImage() string
+	// GetTitle() string
+	// GetPostContent() string
+	// GetImage() string
 }
 
 type NewPostResp interface{}
