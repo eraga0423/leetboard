@@ -58,7 +58,11 @@ func catalog(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	_ = mime.AddExtensionType(".css", "text/css")
+	err := mime.AddExtensionType(".css", "text/css")
+	if err !=nil{
+		fmt.Println("css          ",err)
+		return
+	}
 	http.HandleFunc("/post/{id}", post)
 	http.HandleFunc("/catalog", catalog)
 	http.HandleFunc("/archive", archive)
@@ -67,7 +71,7 @@ func main() {
 	fmt.Println("start server")
 	fs := http.FileServer(http.Dir("./static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
-	err := http.ListenAndServe(":8080", nil)
+	err = http.ListenAndServe(":8080", nil)
 	if err != nil {
 		fmt.Println("aaa")
 		return

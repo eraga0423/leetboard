@@ -20,7 +20,7 @@ func main() {
 
 	r := rest.New(gov)
 	conf := config.NewConfig()
-	p, err := posgres.NewPosgres(&conf.Postgres)
+	p, err := posgres.New(&conf.Postgres, nil)
 	if err != nil {
 		slog.Any("failed start database", "postgres")
 		panic(err)
