@@ -8,7 +8,7 @@ import (
 	"1337b0rd/internal/constants"
 )
 
-func (i *Interceptor) InterceptorGov(ctx context.Context, sessionID int) context.Context {
+func (i *Interceptor) InterceptorGov(ctx context.Context, sessionID string) context.Context {
 	return context.WithValue(ctx, constants.SessionIDKey, sessionID)
 }
 

@@ -1,11 +1,11 @@
 package model
 
 import (
-	"1337b0rd/internal/config"
-	"1337b0rd/internal/postgres/model/auth"
-	"1337b0rd/internal/postgres/model/leetboard"
 	"database/sql"
 	"log/slog"
+
+	"1337b0rd/internal/postgres/model/auth"
+	"1337b0rd/internal/postgres/model/leetboard"
 )
 
 type Model struct {
@@ -14,12 +14,11 @@ type Model struct {
 }
 
 func New(
-	conf *config.PostgresConfig,
 	logger *slog.Logger,
 	db *sql.DB,
 ) *Model {
 	return &Model{
-		Auth:      auth.New(conf, logger.With(slog.String("component", "auth")), db),
-		Leetboard: leetboard.New(conf, logger.With(slog.String("component", "leetboard")), db),
+		Auth:      auth.New(logger.With(), db),
+		Leetboard: leetboard.New(logger.With(), db),
 	}
 }

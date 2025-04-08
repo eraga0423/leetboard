@@ -23,23 +23,34 @@ services:
       - postgres
       - minio
     environment:
-      - PG_HOST=${PG_HOST}
+      - PG_HOST=postgres
       - PG_PORT=${PG_PORT}
       - PG_NAME=${PG_NAME}
       - PG_USER=${PG_USER}
       - PG_PASSWORD=${PG_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://postgres:${PG_PORT} || exit 1"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+
 
   postgres:
     image: postgres:16-alpine
     container_name: postgres
     ports:
-      - "${PG_PORT}:5432"
+      - "${PG_PORT}:5432" # Убедитесь, что порт правильный
     environment:
       POSTGRES_DB: "${PG_NAME}"
       POSTGRES_USER: "${PG_USER}"
       POSTGRES_PASSWORD: "${PG_PASSWORD}"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER} -d ${PG_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   pgdata:
