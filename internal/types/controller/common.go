@@ -3,7 +3,7 @@ package controller
 import "context"
 
 type Interceptor interface {
-	InterceptorGov(ctx context.Context, sessionID string) context.Context
+	InterceptorGov(ctx context.Context, sessionID int) context.Context
 	GenerateSessionID() (string, error)
 }
 

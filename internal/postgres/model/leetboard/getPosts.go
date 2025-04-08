@@ -22,7 +22,7 @@ type reqPost struct {
 	l   *Leetboard
 	all allpost
 }
-//
+
 func (r reqPost) ListPosts() (database.ListPostsResp, error) {
 	rows, err := r.l.db.Query(`
     SELECT 

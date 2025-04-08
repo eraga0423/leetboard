@@ -1,5 +1,11 @@
 package database
 
+import "context"
+
+type User interface {
+	FindUser(context.Context, FindUserReq) (bool, FindUserResp, error)
+}
+
 type Post interface {
 	ListPosts() (ListPostsResp, error)
 	CreatePost(NewPostReq) (NewPostResp, error)
@@ -10,4 +16,5 @@ type Post interface {
 
 type Database interface {
 	Post
+	User
 }

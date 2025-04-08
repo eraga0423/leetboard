@@ -11,6 +11,7 @@ type PostsGovernor struct {
 	conf      *config.Config
 	db        database.Database
 	miniostor miniostorage.MinioStorage /////////////////
+	all allPost
 }
 
 func New(conf *config.Config, db database.Database) *PostsGovernor { //, minio miniostorage.MinioStorage

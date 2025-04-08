@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -24,7 +25,12 @@ func (m *Middleware) Authentificator(next http.Handler) http.Handler {
 			}
 			http.SetCookie(w, cookie)
 		}
-		newContext := m.ctrl.InterceptorGov(ctx, cookie.Value)
+		intSesionID, err := strconv.Atoi(cookie.Value)
+		if err != nil {
+			http.Error(w, "error parse id not string conversion", http.StatusInternalServerError)
+			return
+		}
+		newContext := m.ctrl.InterceptorGov(ctx, intSesionID)
 		next.ServeHTTP(w, r.WithContext(newContext))
 	})
 }
