@@ -9,8 +9,8 @@ type Interceptor interface {
 
 type Leetboard interface {
 	ListPosts(context.Context) (ListPostsResp, error)
-	NewPost(context.Context, NewPostReq) (NewPostResp, error)
-	RemovePost(context.Context, string) error
+	// NewPost(context.Context, NewPostReq) (NewPostResp, error)
+	// RemovePost(context.Context, string) error
 }
 
 type Controller interface {
