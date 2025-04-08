@@ -20,7 +20,7 @@ func (h *PostsHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if resp==nil{
-
+///////////////////////
 	}
 
 	
@@ -45,6 +45,7 @@ type allPost struct {
 	posts []postResp
 }
 type postResp struct {
+	
 	PostID      int
 	PostTitle   string
 	PostContent string
