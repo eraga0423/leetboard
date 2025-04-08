@@ -3,7 +3,7 @@ package database
 type Post interface {
 	ListPosts() (ListPostsResp, error)
 	CreatePost(NewPostReq) (NewPostResp, error)
-	DeletePost(RemovePostReq) error
+	DeletePost(RemovePostReq) (bool, error)
 	OnePost(OnePostReq) (OnePostResp, error)
 	// CreateComment(idPost string) error
 }
