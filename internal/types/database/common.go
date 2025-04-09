@@ -1,7 +1,7 @@
 package database
 
 type User interface {
-	// FindUser(context.Context, FindUserReq) (bool, FindUserResp)
+	FindUser(FindUserReq) (bool, FindUserResp)
 }
 
 type Post interface {
