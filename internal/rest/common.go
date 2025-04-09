@@ -1,11 +1,13 @@
 package rest
 
 import (
+	"1337b0rd/internal/config"
 	"context"
+	"fmt"
+	"log"
 	"mime"
 	"net/http"
 
-	"1337b0rd/internal/constants"
 	"1337b0rd/internal/rest/handler"
 	"1337b0rd/internal/rest/middleware"
 	"1337b0rd/internal/rest/router"
@@ -24,23 +26,25 @@ func New(ctrl controller.Controller) *Rest {
 
 	return &Rest{
 		// logger: logger,
+
 		router: r,
 	}
 }
 
-func (r *Rest) Start(ctx context.Context) error {
+func (r *Rest) Start(ctx context.Context, conf *config.APIConfig) error {
 	err := mime.AddExtensionType(".css", "text/css")
 	if err != nil {
+		log.Print("add extension type css error")
 		return err
 	}
 	mux := r.router.Start(ctx)
-	fs := http.FileServer(http.Dir(constants.DirCss))
-	http.Handle("/static/", http.StripPrefix("/static/", fs))
 	srv := &http.Server{
 		Handler: mux,
-		Addr:    ":8080",
+		Addr:    fmt.Sprintf(":%s", conf.Rest.Port),
 	}
+	log.Print("server start port: ", conf.Rest.Port)
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Print("add extension type css error", err.Error())
 		return err
 	}
 	return nil

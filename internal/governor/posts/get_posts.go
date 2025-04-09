@@ -2,6 +2,7 @@ package posts_governor
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"1337b0rd/internal/types/controller"
@@ -11,6 +12,7 @@ func (r *PostsGovernor) ListPosts(ctx context.Context) (controller.ListPostsResp
 	var newResp []postResp
 	dataBaseResp, err := r.db.ListPosts()
 	if err != nil {
+		log.Print("method:", " listsPost", " err:", err, " dir:", " governor")
 		return nil, err
 	}
 	listResp := dataBaseResp.GetList()
