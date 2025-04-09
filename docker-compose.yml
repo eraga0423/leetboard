@@ -28,6 +28,13 @@ services:
       - PG_NAME=${PG_NAME}
       - PG_USER=${PG_USER}
       - PG_PASSWORD=${PG_PASSWORD}
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+      - MINIO_API_PORT=${MINIO_API_PORT}
+      - REST_API_HOST=${REST_API_HOST}
+      - REST_API_PORT=${REST_API_PORT}
+      - REST_RICK_HOST=${REST_RICK_HOST}
+      - REST_RICK_PORT=${REST_RICK_PORT}
     healthcheck:
       test: ["CMD-SHELL", "curl --fail http://postgres:${PG_PORT} || exit 1"]
       interval: 10s
@@ -39,7 +46,7 @@ services:
     image: postgres:16-alpine
     container_name: postgres
     ports:
-      - "${PG_PORT}:5432" # Убедитесь, что порт правильный
+      - "${PG_PORT}:${PG_PORT}" # Убедитесь, что порт правильный
     environment:
       POSTGRES_DB: "${PG_NAME}"
       POSTGRES_USER: "${PG_USER}"
@@ -51,6 +58,22 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  migrate:
+    image: migrate/migrate
+    profiles: [ "tools" ]
+    entrypoint: [
+      "migrate",
+      "-path",
+      "./migrations",
+      "-database",
+      "postgres://${PG_USER}:${PG_PASSWORD}@db:5432/${PG_NAME}?sslmode=disable"
+    ]
+    volumes:
+      - ./internal/postgres/migrations:/migrations
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 volumes:
   pgdata:

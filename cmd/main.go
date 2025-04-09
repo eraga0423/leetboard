@@ -25,14 +25,14 @@ func main() {
 		slog.Any("failed start database", "postgres")
 		panic(err)
 	}
-	go func(ctx context.Context, cancelFunc context.CancelFunc) {
-		err := r.Start(ctx)
+	go func(ctx context.Context, cancelFunc context.CancelFunc, apiConfig config.APIConfig) {
+		err := r.Start(ctx, &apiConfig)
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		cancelFunc()
-	}(ctx, cancel)
+	}(ctx, cancel, conf.API)
 	gov.ConfigGov(ctx, conf, p)
 	<-ctx.Done()
 }

@@ -1,7 +1,7 @@
 package posts_handler
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 	"text/template"
 	"time"
@@ -9,20 +9,17 @@ import (
 	"1337b0rd/internal/constants"
 )
 
-func (h *PostsHandler) GetPosts(w http.ResponseWriter, r *http.Request) { //
+func (h *PostsHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
+	tmpl := template.Must(template.ParseFiles(constants.Catalog))
 	var data AllPost
 	ctx := r.Context()
-	fmt.Println("This GET /posts")
+	log.Print("method:", " getPosts", " dir:", " rest")
 	resp, err := h.ctrl.ListPosts(ctx)
 	if err != nil {
-		fmt.Println("rest : method List posts")
-		http.Error(w, err.Error(), 499) /////////////////////////////////////
+		h.HandleError(w, 400)
+		log.Print("error:", err)
 		return
 	}
-	if resp == nil {
-		///////////////////////
-	}
-
 	for _, v := range resp.GetList() {
 		data.Posts = append(data.Posts, PostResp{
 			PostID:      v.GetPostID(),
@@ -33,13 +30,10 @@ func (h *PostsHandler) GetPosts(w http.ResponseWriter, r *http.Request) { //
 		})
 	}
 
-	tmpl := template.Must(template.ParseFiles(constants.Catalog))
-
 	err = tmpl.Execute(w, data)
 	if err != nil {
-
-		fmt.Println(err, "rest : method List posts!!!!!!!!!!!")
-		http.Error(w, "dont list post", 499) /////////////////////////
+		h.HandleError(w, 400)
+		log.Print("method", "getPosts", "error:", err)
 		return
 	}
 }

@@ -27,5 +27,6 @@ func New(h *handler.Handler, midd *middleware.Middleware) *Router {
 
 func (r *Router) Start(_ context.Context) *http.ServeMux {
 	r.post()
+	r.style()
 	return r.router
 }
