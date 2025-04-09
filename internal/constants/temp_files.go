@@ -7,5 +7,5 @@ const (
 	Error       = "frontend/temp/error.html"
 	CreatePost  = "frontend/temp/create_post.html"
 	Post        = "frontend/temp/post.html"
-	DirCss      = "frontend/static/css"
+	DirCss      = "frontend/static"
 )

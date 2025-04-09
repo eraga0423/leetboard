@@ -16,5 +16,5 @@ func (r *Router) post() {
 
 func (r *Router) style() {
 	fs := http.FileServer(http.Dir(constants.DirCss))
-	http.Handle("/static/", http.StripPrefix("/static/", fs))
+	r.router.Handle("/static/", http.StripPrefix("/static/", fs))
 }

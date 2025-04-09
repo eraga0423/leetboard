@@ -12,6 +12,7 @@ import (
 func (h *PostsHandler) GetPostID(w http.ResponseWriter, r *http.Request) {
 	tmpl := template.Must(template.ParseFiles(constants.Post))
 	id := r.PathValue("id")
+	
 	data := id // здесь будет governor
 	fmt.Println("This GET /post/id")
 	err := tmpl.Execute(w, data)

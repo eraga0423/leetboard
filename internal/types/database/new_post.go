@@ -3,8 +3,8 @@ package database
 type NewPostReq interface {
 	GetTitle() string
 	GetPostContent() string
-	GetImage() string
-	GetAuthor() (idUser int)
+	GetImage() []byte
+	GetAuthor() (idUser string)
 }
 
 type NewPostResp interface {
