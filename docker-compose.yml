@@ -65,9 +65,10 @@ services:
     entrypoint: [
       "migrate",
       "-path",
-      "./migrations",
+      "/migrations",
       "-database",
-      "postgres://${PG_USER}:${PG_PASSWORD}@db:5432/${PG_NAME}?sslmode=disable"
+      "postgres://${PG_USER}:${PG_PASSWORD}@postgres:5432/${PG_NAME}?sslmode=disable",
+      "up"
     ]
     volumes:
       - ./internal/postgres/migrations:/migrations
