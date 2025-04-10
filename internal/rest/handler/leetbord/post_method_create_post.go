@@ -4,6 +4,7 @@ import (
 	"1337b0rd/internal/constants"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 )
 
@@ -57,7 +58,7 @@ func (h *PostsHandler) PostMethodCreatePost(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	fmt.Println("asdasd", NewReq)
+	log.Print("this new request:   ", NewReq)
 }
 
 func (r *req) GetTitle() string {

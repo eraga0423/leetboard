@@ -4,7 +4,7 @@ type NewPostReq interface {
 	GetTitle() string
 	GetPostContent() string
 	GetImage() string
-	GetAuthorSession() (idSessionUser int)
+	GetAuthorSession() (idSessionUser string)
 }
 
 type NewPostResp interface {

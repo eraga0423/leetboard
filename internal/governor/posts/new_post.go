@@ -15,33 +15,49 @@ type req struct {
 }
 
 type resp struct {
-	title     string
-	content   string
-	nick      string
-	postImage string
-	authorID  string
+	title           string
+	content         string
+	nick            string
+	postImage       string
+	authorSessionID string
+}
+
+func (r resp) GetTitle() string {
+	return r.title
+}
+
+func (r resp) GetPostContent() string {
+	return r.content
+}
+
+func (r resp) GetImage() string {
+	return r.postImage
+}
+
+func (r resp) GetAuthorSession() (idSessionUser string) {
+	return r.authorSessionID
 }
 
 func (p PostsGovernor) NewPost(_ context.Context, request controller.NewPostReq) (controller.NewPostResp, error) {
 	postImage := request.GetImage()
 	authID := request.GetAuthorID()
-	typeJPFPNG, err := p.checkImageType(postImage)
+	typeJPGPNG, err := p.checkImageType(postImage)
 	if err != nil {
 		log.Print("dir: ", "governor", "method: ", "checkImageType", err.Error())
 		return nil, err
 	}
-	postImageURL, err := p.miniostor.UploadImage(authID, authID, typeJPFPNG, postImage)
+	postImageURL, err := p.miniostor.UploadImage(authID, authID, typeJPGPNG, postImage)
 	if err != nil {
 		log.Print("dir: ", "governor", "method: ", "minioUploadImage", err.Error())
 		return nil, err
 	}
 	newResp := new(resp)
 	newResp = &resp{
-		title:     request.GetTitle(),
-		content:   request.GetPostContent(),
-		nick:      request.GetName(),
-		authorID:  authID,
-		postImage: postImageURL,
+		title:           request.GetTitle(),
+		content:         request.GetPostContent(),
+		nick:            request.GetName(),
+		authorSessionID: authID,
+		postImage:       postImageURL,
 	}
 
 	_, err = p.db.CreatePost(newResp)
@@ -50,21 +66,3 @@ func (p PostsGovernor) NewPost(_ context.Context, request controller.NewPostReq)
 	}
 	return nil, nil
 }
-
-func (r *req) GetTitle() string {
-	return r.title
-}
-
-func (r *req) GetPostContent() string {
-	return r.content
-}
-
-func (r *req) GetImage() []byte {
-	return r.postImage
-}
-
-func (r *req) GetName() string {
-	return r.nick
-}
-
-func (r *req) GetAuthor() string { return r.authorID }
