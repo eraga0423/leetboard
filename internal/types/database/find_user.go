@@ -1,14 +1,10 @@
 package database
 
 type FindUserReq interface {
-	GetSessionID() int
-}
-type FindUserResp interface {
-	UserRespFunc() (UserResp, error)
+	GetSessionID() string
 }
 
-type UserResp interface {
+type FindUserResp interface {
 	GetUserName() string
-	GetUserAvatar() string
 	GetUserImageURL() string
 }

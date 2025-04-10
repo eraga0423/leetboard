@@ -13,5 +13,3 @@ type ItemPostsResp interface {
 	GetPostImageURL() string
 	GetPostTime() time.Time
 }
-
-

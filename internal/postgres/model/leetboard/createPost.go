@@ -2,7 +2,6 @@ package leetboard
 
 import (
 	"1337b0rd/internal/types/database"
-	"errors"
 	"time"
 )
 
@@ -10,7 +9,7 @@ func (l *Leetboard) CreatePost(req database.NewPostReq) (database.NewPostResp, e
 	title := req.GetTitle()
 	content := req.GetPostContent()
 	image := req.GetImage()
-	authID := req.GetAuthor()
+	authSessionID := req.GetAuthorSession()
 	curTime := time.Now()
 	sql := l.db.QueryRow(`
 	INSERT INTO posts
@@ -19,21 +18,31 @@ func (l *Leetboard) CreatePost(req database.NewPostReq) (database.NewPostResp, e
 	RETURING post_id
 	`, title, content, image, curTime,
 	)
-	var postID int
+	var postID, authorID int
 	err := sql.Scan(
 		&postID,
 	)
 	if err != nil {
 		return nil, err
 	}
-	if postID == 0 {
-		return nil, errors.New("idpost does not assign")
+
+	sql = l.db.QueryRow(`
+	SELECT user_id
+	FROM users
+	WHERE session_id = $1
+	`, authSessionID)
+	err = sql.Scan(
+		&authorID,
+	)
+	if err != nil {
+		return nil, err
 	}
+
 	_, err = l.db.Exec(`
 	INSERT INTO user_post
 	(post_id, user_id)
 	VALUE($1, $2)
-	`, postID, authID,
+	`, postID, authorID,
 	)
 	if err != nil {
 		return nil, err
