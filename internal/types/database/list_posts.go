@@ -2,7 +2,7 @@ package database
 
 import "time"
 
-//for catalog - post
+// for catalog - post
 type ListPostsResp interface {
 	GetList() []ItemPostsResp
 }
