@@ -6,10 +6,12 @@ type User interface {
 
 type Post interface {
 	ListPosts() (ListPostsResp, error)
-	CreatePost(NewPostReq) (NewPostResp, error)
+	// CreatePost(NewPostReq) (NewPostResp, error)
 	// DeletePost(RemovePostReq) (bool, error)
 	OnePost(OnePostReq) (OnePostResp, error)
+	OneArchivePost(OnePostArchiveReq) (ArchiveOnePostResp, error)
 	// CreateComment(idPost string) error
+	ListArchivePosts() (ListPostsArchiveResp, error)
 }
 
 type Database interface {
