@@ -18,7 +18,7 @@ type ItemPostsResp interface {
 //for archive - post
 
 type ListPostsArchiveResp interface {
-	GetList() []ItemPostsResp
+	GetArchiveList() []ItemPostsArchiveResp
 }
 
 type ItemPostsArchiveResp interface {
