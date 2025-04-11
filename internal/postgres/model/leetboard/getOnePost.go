@@ -34,7 +34,8 @@ func returnOnePost(idPost int, db *sql.DB) (onePost, error) {
 	LEFT JOIN users_posts up ON up.post_id=p.post_id
 	LEFT JOIN users u ON u.user_id = up.user_id
 	WHERE 
-	p.post_id = $1`, idPost)
+	p.post_id = $1
+	AND p.deletion = FALSE`, idPost)
 	var o onePost
 	err := sql.Scan(
 		&o.onePostTitle,
