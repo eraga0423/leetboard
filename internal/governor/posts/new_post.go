@@ -22,23 +22,23 @@ type resp struct {
 	authorSessionID string
 }
 
-func (r resp) GetTitle() string {
+func (r *resp) GetTitle() string {
 	return r.title
 }
 
-func (r resp) GetPostContent() string {
+func (r *resp) GetPostContent() string {
 	return r.content
 }
 
-func (r resp) GetImage() string {
+func (r *resp) GetImage() string {
 	return r.postImage
 }
 
-func (r resp) GetAuthorSession() (idSessionUser string) {
+func (r *resp) GetAuthorSession() (idSessionUser string) {
 	return r.authorSessionID
 }
 
-func (p PostsGovernor) NewPost(_ context.Context, request controller.NewPostReq) (controller.NewPostResp, error) {
+func (p *PostsGovernor) NewPost(_ context.Context, request controller.NewPostReq) (controller.NewPostResp, error) {
 	postImage := request.GetImage()
 	authID := request.GetAuthorID()
 	typeJPGPNG, err := p.checkImageType(postImage)

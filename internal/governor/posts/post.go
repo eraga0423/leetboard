@@ -25,7 +25,7 @@ func New(conf *config.Config, db database.Database) *PostsGovernor { //, minio m
 	}
 }
 
-func (p PostsGovernor) checkImageType(data []byte) (string, error) {
+func (p *PostsGovernor) checkImageType(data []byte) (string, error) {
 	switch {
 	case bytes.HasPrefix(data, []byte{0xFF, 0xD8, 0xFF}):
 		return "image/jpeg", nil

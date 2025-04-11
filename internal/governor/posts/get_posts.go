@@ -61,10 +61,10 @@ func (p *postResp) GetPostContent() string {
 	return p.PostContent
 }
 
-func (p postResp) GetPostImageURL() string {
+func (p *postResp) GetPostImageURL() string {
 	return p.GetPostImageURL()
 }
 
-func (p postResp) GetPostTime() time.Time {
+func (p *postResp) GetPostTime() time.Time {
 	return p.PostTime
 }
