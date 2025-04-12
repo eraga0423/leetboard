@@ -18,3 +18,4 @@ func (r *Router) style() {
 	fs := http.FileServer(http.Dir(constants.DirCss))
 	r.router.Handle("/static/", http.StripPrefix("/static/", fs))
 }
+

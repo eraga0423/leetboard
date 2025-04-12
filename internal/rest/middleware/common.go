@@ -1,9 +1,13 @@
 package middleware
 
-import "1337b0rd/internal/types/controller"
+import (
+	"1337b0rd/internal/types/controller"
+	"1337b0rd/internal/types/rick_morty"
+)
 
 type Middleware struct {
-	ctrl controller.Controller
+	ctrl      controller.Controller
+	mortyRick rick_morty.RestRickAndMorty
 }
 
 func New(ctrl controller.Controller) *Middleware {
