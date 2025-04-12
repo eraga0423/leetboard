@@ -6,7 +6,8 @@ func (l *Leetboard) DeletePost(r database.RemovePostReq) (bool, error) {
 	idPost := r.GetPostID()
 
 	_, err := l.db.Exec(`
-	DELETE FROM posts
+	UPDATE posts
+	deletion = TRUE
 	WHERE post_id = $1
 	`, idPost)
 	if err != nil {

@@ -2,42 +2,42 @@ package database
 
 import "time"
 
-type OnePostResp interface {
-	GetOnePost() RespOnePost
-	GetComments() []Comment
+type ArchiveOnePostResp interface {
+	GetOnePost() ArchiveRespOnePost
+	GetComments() []ArchiveComment
 }
 
-type Comment interface {
-	GetParent() OneComment
-	GetChildren() []OneComment
+type ArchiveComment interface {
+	GetParent() ArchiveOneComment
+	GetChildren() []ArchiveOneComment
 }
-type OneComment interface {
+type ArchiveOneComment interface {
 	GetCommentID() int
 	GetPostID() int
-	GetAuthor() RespCommentAuthor
+	GetAuthor() ArchiveRespCommentAuthor
 	GetCommentContent() string
 	GetCommentImage() string
 	GetCommentTime() time.Time
 }
-type RespOnePost interface {
+type ArchiveRespOnePost interface {
 	GetTitle() string
 	GetPostContent() string
 	GetPostUrlImage() string
 	GetPostTime() time.Time
-	GetAuthorPost() RespOnePostAuthor
+	GetAuthorPost() ArchiveRespOnePostAuthor
 }
 
-type RespOnePostAuthor interface {
+type ArchiveRespOnePostAuthor interface {
 	GetName() string
 	GetImageURL() string
 	GetSessionID() string
 }
-type RespCommentAuthor interface {
+type ArchiveRespCommentAuthor interface {
 	GetName() string
 	GetImageURL() string
 	GetSessionID() string
 }
 
-type OnePostReq interface {
+type ArchiveOnePostReq interface {
 	ReqPostID() int
 }
