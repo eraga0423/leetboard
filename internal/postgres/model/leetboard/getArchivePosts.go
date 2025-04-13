@@ -7,11 +7,11 @@ import (
 	"1337b0rd/internal/types/database"
 )
 
-type allpost struct {
-	posts []postResp
+type allArchivepost struct {
+	posts []postArchiveResp
 }
 
-type postResp struct {
+type postArchiveResp struct {
 	postID      int
 	postTitle   string
 	postContent string
@@ -19,7 +19,7 @@ type postResp struct {
 	postTime    time.Time
 }
 
-func (l *Leetboard) ListPosts() (database.ListPostsResp, error) {
+func (l *Leetboard) ListArchivePosts() (database.ListPostsArchiveResp, error) {
 	rows, err := l.db.Query(`
     SELECT 
     p.post_id,
@@ -32,22 +32,21 @@ LEFT JOIN comments c ON c.post_id = p.post_id
 WHERE (
    
     c.comment_time IS NOT NULL AND 
-    c.comment_time >= NOW() - INTERVAL '15 minutes'
+    c.comment_time < NOW() - INTERVAL '15 minutes'
 ) OR (
    
     c.comment_time IS NULL AND 
-    p.post_time >= NOW() - INTERVAL '10 minutes'
-)
-`)
+    p.post_time < NOW() - INTERVAL '10 minutes'
+)`)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
 	defer rows.Close()
 
-	var resPost []postResp
+	var resPost []postArchiveResp
 	for rows.Next() {
-		var p postResp
+		var p postArchiveResp
 		err := rows.Scan(
 			&p.postID,
 
@@ -62,33 +61,33 @@ WHERE (
 		resPost = append(resPost, p)
 	}
 
-	return allpost{posts: resPost}, nil
+	return allArchivepost{posts: resPost}, nil
 }
 
-func (a allpost) GetList() []database.ItemPostsResp {
-	resPosts := make([]database.ItemPostsResp, len(a.posts))
+func (a allArchivepost) GetArchiveList() []database.ItemPostsArchiveResp {
+	resPosts := make([]database.ItemPostsArchiveResp, len(a.posts))
 	for num, post := range a.posts {
 		resPosts[num] = post
 	}
 	return resPosts
 }
 
-func (p postResp) GetPostID() int {
+func (p postArchiveResp) GetPostID() int {
 	return p.postID
 }
 
-func (p postResp) GetTitle() string {
+func (p postArchiveResp) GetTitle() string {
 	return p.postTitle
 }
 
-func (p postResp) GetPostContent() string {
+func (p postArchiveResp) GetPostContent() string {
 	return p.postContent
 }
 
-func (p postResp) GetPostImageURL() string {
+func (p postArchiveResp) GetPostImageURL() string {
 	return p.postImage
 }
 
-func (p postResp) GetPostTime() time.Time {
+func (p postArchiveResp) GetPostTime() time.Time {
 	return p.postTime
 }

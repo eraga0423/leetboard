@@ -1,9 +1,11 @@
 package leetboard
 
 import (
-	"1337b0rd/internal/types/database"
 	"database/sql"
+	"errors"
 	"time"
+
+	"1337b0rd/internal/types/database"
 )
 
 type onePost struct {
@@ -33,9 +35,19 @@ func returnOnePost(idPost int, db *sql.DB) (onePost, error) {
 	FROM posts p
 	LEFT JOIN users_posts up ON up.post_id=p.post_id
 	LEFT JOIN users u ON u.user_id = up.user_id
-	WHERE 
-	p.post_id = $1
-	AND p.deletion = FALSE`, idPost)
+	LEFT JOIN comments c ON c.post_id = p.post_id
+	WHERE (
+    (
+        c.comment_time IS NOT NULL AND 
+        c.comment_time >= NOW() - INTERVAL '15 minutes'
+    ) 
+    OR 
+    (
+        c.comment_time IS NULL AND 
+        p.post_time >= NOW() - INTERVAL '10 minutes'
+    )
+)
+AND p.post_id = $1`, idPost)
 	var o onePost
 	err := sql.Scan(
 		&o.onePostTitle,
@@ -48,6 +60,9 @@ func returnOnePost(idPost int, db *sql.DB) (onePost, error) {
 	)
 	if err != nil {
 		return onePost{}, err
+	}
+	if o.onePostTitle == "" {
+		return onePost{}, errors.New("post empty")
 	}
 	return o, nil
 }

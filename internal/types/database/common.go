@@ -1,20 +1,21 @@
 package database
 
-type User interface {
-	FindUser(FindUserReq) (bool, FindUserResp)
+type UserAvatars interface {
+	ListCharacters() (ResponseCharacters, error)
+	UpdateCharacters(RequestCharacters) error
+	InserCartoonCharacters(InsertCharacters) error
 }
 
 type Post interface {
 	ListPosts() (ListPostsResp, error)
 	CreatePost(NewPostReq) (NewPostResp, error)
-	DeletePost(RemovePostReq) (bool, error)
 	OnePost(OnePostReq) (OnePostResp, error)
 	OneArchivePost(ArchiveOnePostReq) (ArchiveOnePostResp, error)
-	// CreateComment(idPost string) error
+	CreateComment(NewReqComment) error
 	ListArchivePosts() (ListPostsArchiveResp, error)
 }
 
 type Database interface {
 	Post
-	User
+	UserAvatars
 }
