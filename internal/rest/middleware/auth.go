@@ -10,7 +10,7 @@ import (
 func (m *Middleware) Authentificator(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("session_id")
-
+		ctx := r.Context()
 		if err != nil || cookie.Value == "" {
 			newSessionID, err := m.ctrl.GenerateSessionID()
 			if err != nil {
@@ -28,9 +28,7 @@ func (m *Middleware) Authentificator(next http.Handler) http.Handler {
 			return
 		}
 
-		//newContext := m.ctrl.InterceptorGov(ctx, cookie.Value)
-		//next.ServeHTTP(w, r.WithContext(newContext))
+		newContext := m.ctrl.InterceptorGov(ctx, cookie.Value)
+		next.ServeHTTP(w, r.WithContext(newContext))
 	})
 }
-
-func (m *Middleware) setSessionCookies() http.Handler {}
