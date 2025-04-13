@@ -4,6 +4,7 @@ type Config struct {
 	API      APIConfig
 	Postgres PostgresConfig
 	Minio    MinioStorage
+	Redis    RedisConfig
 }
 
 func NewConfig() *Config {
@@ -11,5 +12,6 @@ func NewConfig() *Config {
 		API:      *NewConfigAPI(),
 		Postgres: *NewConfigPostrgres(),
 		Minio:    *NewConfigMinio(),
+		Redis:    *NewRedisConfig(),
 	}
 }
