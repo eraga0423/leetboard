@@ -12,5 +12,10 @@ func (h *PostsHandler) GetArchive(w http.ResponseWriter, r *http.Request) {
 	data := "" // здесь ставить governor
 	fmt.Println("This GET /archive")
 	tmpl := template.Must(template.ParseFiles(constants.Archive))
-	tmpl.Execute(w, data)
+	err := tmpl.Execute(w, data)
+	if err != nil {
+		h.HandleError(w, http.StatusInternalServerError)
+		return
+	}
+
 }

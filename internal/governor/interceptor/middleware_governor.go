@@ -4,12 +4,20 @@ import (
 	"context"
 	"crypto/rand"
 	"fmt"
-
-	"1337b0rd/internal/constants"
 )
 
+type findUserReqInters struct {
+	sessionID string
+}
+
 func (i *Interceptor) InterceptorGov(ctx context.Context, sessionID string) context.Context {
-	return context.WithValue(ctx, constants.SessionIDKey, sessionID)
+	// sessionIDReq := findUserReqInters{
+	// 	sessionID: sessionID,
+	// }
+	// context.WithValue(ctx, constants.SessionIDKey, sessionID)
+	// i.db.FindUser(sessionIDReq)
+
+	return ctx
 }
 
 func (m *Interceptor) GenerateSessionID() (string, error) {
@@ -27,4 +35,8 @@ func (m *Interceptor) GenerateSessionID() (string, error) {
 		newID[8:10],
 		newID[10:16],
 	), nil
+}
+
+func (f findUserReqInters) GetSessionID() string {
+	return f.sessionID
 }

@@ -22,7 +22,7 @@ func New() *Governor {
 }
 
 func (g *Governor) ConfigGov(ctx context.Context, conf *config.Config, db database.Database) {
-	*g.Interceptor = *interceptor.New(conf)
+	*g.Interceptor = *interceptor.New(conf, db)
 	*g.PostsGovernor = *posts_governor.New(conf, db)
 	
 }

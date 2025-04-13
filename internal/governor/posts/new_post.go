@@ -19,7 +19,9 @@ type resp struct {
 	content         string
 	nick            string
 	postImage       string
+	avatarImage     string
 	authorSessionID string
+	status          string
 }
 
 func (r *resp) GetTitle() string {
@@ -46,7 +48,12 @@ func (p *PostsGovernor) NewPost(_ context.Context, request controller.NewPostReq
 		log.Print("dir: ", "governor", "method: ", "checkImageType", err.Error())
 		return nil, err
 	}
-	postImageURL, err := p.miniostor.UploadImage(authID, authID, typeJPGPNG, postImage)
+	newID, err := p.interceptor.GenerateSessionID()
+	if err != nil {
+		log.Print("dir: ", "governor", "method", "GenerateSessionID", err.Error())
+		return nil, err
+	}
+	postImageURL, err := p.miniostor.UploadImage(newID, authID, typeJPGPNG, postImage)
 	if err != nil {
 		log.Print("dir: ", "governor", "method: ", "minioUploadImage", err.Error())
 		return nil, err
