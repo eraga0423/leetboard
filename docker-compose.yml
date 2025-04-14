@@ -35,6 +35,8 @@ services:
       - REST_API_PORT=${REST_API_PORT}
       - REST_RICK_HOST=${REST_RICK_HOST}
       - REST_RICK_PORT=${REST_RICK_PORT}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_HOST=${REDIS_HOST}
     healthcheck:
       test: ["CMD-SHELL", "curl --fail http://postgres:${PG_PORT} || exit 1"]
       interval: 10s
@@ -75,7 +77,15 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-
+  redis:
+    image: redis:7.2
+    container_name: redis
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}"
+    volumes:
+      - redis-data:/data
+    command: [ "redis-server", "--appendonly", "yes" ]
 volumes:
   pgdata:
   miniodata:
+  redis-data:
