@@ -3,8 +3,8 @@ package controller
 import "context"
 
 type Interceptor interface {
-	InterceptorGov(ctx context.Context, sessionID string) context.Context
-	GenerateSessionID() (string, error)
+	InterceptorGov(ctx context.Context) (RespAvatar, error)
+	//GetAvatarsInRedis(ctx context.Context) (RespAvatars, error)
 }
 
 type Leetboard interface {

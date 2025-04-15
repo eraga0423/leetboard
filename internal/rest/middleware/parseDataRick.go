@@ -35,5 +35,5 @@ func parsOneAvatar(list []avatar) avatar {
 	}
 	//////////////////////////////////////////
 
-	return
+	return avatar{}
 }
