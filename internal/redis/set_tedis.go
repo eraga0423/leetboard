@@ -85,22 +85,22 @@ func (m MyRedis) RefreshAvatars(ctx context.Context) (redistypes.RespAvatars, er
 	return &avatars{allAvatars: result}, nil
 }
 
-func (a avatar) GetID() int {
+func (a *avatar) GetID() int {
 	return a.id
 }
-func (a avatar) GetName() string {
+func (a *avatar) GetName() string {
 	return a.name
 }
-func (a avatar) GetImageURL() string {
+func (a *avatar) GetImageURL() string {
 	return a.image
 }
-func (a avatar) GetStatus() bool {
+func (a *avatar) GetStatus() bool {
 	return a.status
 }
-func (a avatars) GetAvatars() []redistypes.Avatar {
+func (a *avatars) GetAvatars() []redistypes.Avatar {
 	resAvatars := make([]redistypes.Avatar, len(a.allAvatars))
 	for i, allAvatar := range a.allAvatars {
-		resAvatars[i] = allAvatar
+		resAvatars[i] = &allAvatar
 	}
 	return resAvatars
 }

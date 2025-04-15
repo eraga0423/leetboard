@@ -3,6 +3,6 @@ CREATE TABLE IF NOT EXISTS users (
   name VARCHAR(150)  NOT NULL UNIQUE,
   user_avatar TEXT,
   session_id TEXT,
-  cartoon_id int,
-  used_queue int
+  cartoon_id INT,
+  used_queue INT
 );

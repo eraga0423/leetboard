@@ -1,6 +1,7 @@
 package interceptor
 
 import (
+	"1337b0rd/internal/types/controller"
 	"context"
 	"crypto/rand"
 	"fmt"
@@ -9,18 +10,39 @@ import (
 type findUserReqInters struct {
 	sessionID string
 }
+type respAvatar struct {
+	name     string
+	id       int
+	imageUrl string
+	sesionID string
+}
 
-func (i *Interceptor) InterceptorGov(ctx context.Context, sessionID string) context.Context {
+func (i *Interceptor) InterceptorGov(ctx context.Context) (controller.RespAvatar, error) {
+	resp, err := i.redis.GetAvatarInRedis(ctx)
+	if err != nil {
+		return nil, err
+	}
+	newGen, err := i.generateSessionID()
+	if err != nil {
+		return nil, err
+	}
+	newRespAvatar := respAvatar{
+		name:     resp.GetName(),
+		id:       resp.GetID(),
+		imageUrl: resp.GetImageURL(),
+		sesionID: newGen,
+	}
+
 	// sessionIDReq := findUserReqInters{
 	// 	sessionID: sessionID,
 	// }
 	// context.WithValue(ctx, constants.SessionIDKey, sessionID)
 	// i.db.FindUser(sessionIDReq)
 
-	return ctx
+	return &newRespAvatar, nil
 }
 
-func (m *Interceptor) GenerateSessionID() (string, error) {
+func (i *Interceptor) generateSessionID() (string, error) {
 	newID := make([]byte, 16)
 	_, err := rand.Read(newID)
 	if err != nil {
@@ -37,6 +59,19 @@ func (m *Interceptor) GenerateSessionID() (string, error) {
 	), nil
 }
 
-func (f findUserReqInters) GetSessionID() string {
-	return f.sessionID
+//func (f findUserReqInters) GetSessionID() string {
+//	return f.sessionID
+//}
+
+func (a *respAvatar) GetID() int {
+	return a.id
+}
+func (a *respAvatar) GetImageURL() string {
+	return a.imageUrl
+}
+func (a *respAvatar) GetName() string {
+	return a.name
+}
+func (a *respAvatar) GetSessionID() string {
+	return a.sesionID
 }

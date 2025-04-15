@@ -33,8 +33,6 @@ services:
       - MINIO_API_PORT=${MINIO_API_PORT}
       - REST_API_HOST=${REST_API_HOST}
       - REST_API_PORT=${REST_API_PORT}
-      - REST_RICK_HOST=${REST_RICK_HOST}
-      - REST_RICK_PORT=${REST_RICK_PORT}
       - REDIS_PORT=${REDIS_PORT}
       - REDIS_HOST=${REDIS_HOST}
     healthcheck:
@@ -42,7 +40,6 @@ services:
       interval: 10s
       retries: 5
       timeout: 5s
-
 
   postgres:
     image: postgres:16-alpine
@@ -63,15 +60,17 @@ services:
 
   migrate:
     image: migrate/migrate
-    profiles: [ "tools" ]
-    entrypoint: [
-      "migrate",
-      "-path",
-      "/migrations",
-      "-database",
-      "postgres://${PG_USER}:${PG_PASSWORD}@postgres:5432/${PG_NAME}?sslmode=disable",
-      "up"
-    ]
+    profiles: ["tools"]
+    entrypoint:
+      [
+        "migrate",
+        "-path",
+        "/migrations",
+        "-database",
+        "postgres://${PG_USER}:${PG_PASSWORD}@postgres:5432/${PG_NAME}?sslmode=disable",
+        "up",
+      ]
+
     volumes:
       - ./internal/postgres/migrations:/migrations
     depends_on:
@@ -84,7 +83,7 @@ services:
       - "${REDIS_PORT}:${REDIS_PORT}"
     volumes:
       - redis-data:/data
-    command: [ "redis-server", "--appendonly", "yes" ]
+    command: ["redis-server", "--appendonly", "yes"]
 volumes:
   pgdata:
   miniodata:
