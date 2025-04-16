@@ -17,7 +17,11 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	gov := governor.New()
-
+	err := gov.Interceptor.FetchAndCacheAvatar(ctx)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	r := rest.New(gov)
 	conf := config.NewConfig()
 	p, err := postgres.New(&conf.Postgres, nil)

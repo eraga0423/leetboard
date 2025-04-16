@@ -6,6 +6,7 @@ type NewPostReq interface {
 	GetImage() []byte
 	GetName() string
 	GetAuthorID() string
+	GetSesionID() string
 }
 
 type NewPostResp interface {
