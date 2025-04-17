@@ -28,7 +28,6 @@ func (i *Interceptor) FetchAndCacheAvatar(ctx context.Context) error {
 	//
 	//
 	/// check database
-	//i.redis.GetAvatarInRedis(ctx)
 
 	list, err := i.parseAvatar.ParseDataJson()
 	if err != nil {

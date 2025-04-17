@@ -1,12 +1,13 @@
 package controller
 
+import "io"
+
 type NewPostReq interface {
 	GetTitle() string
 	GetPostContent() string
-	GetImage() []byte
+	GetImage() io.Reader
 	GetName() string
-	GetAuthorID() string
-	GetSesionID() string
+	GetAuthorIDSession() string
 }
 
 type NewPostResp interface {

@@ -9,11 +9,11 @@ import (
 )
 
 type req struct {
-	authorID string
-	title    string
-	content  string
-	nick     string
-	fileByte []byte
+	authorIDSession string
+	title           string
+	content         string
+	nick            string
+	fileIO          io.Reader
 }
 
 func (h *PostsHandler) PostMethodCreatePost(w http.ResponseWriter, r *http.Request) {
@@ -35,20 +35,15 @@ func (h *PostsHandler) PostMethodCreatePost(w http.ResponseWriter, r *http.Reque
 		http.Error(w, "Не удалось добавить файл", http.StatusBadRequest)
 		return
 	}
-	var newFile []byte
-	if file != nil {
-		newFile, err = io.ReadAll(file)
-		if err != nil {
-			return
-		}
-		defer file.Close()
-	}
+
+	defer file.Close()
+
 	NewReq = &req{
-		title:    title,
-		fileByte: newFile,
-		content:  postText,
-		nick:     name,
-		authorID: authorID.Value,
+		title:           title,
+		fileIO:          file,
+		content:         postText,
+		nick:            name,
+		authorIDSession: authorID.Value,
 	}
 
 	_, err = h.ctrl.NewPost(ctx, NewReq)
@@ -69,14 +64,13 @@ func (r *req) GetPostContent() string {
 	return r.content
 }
 
-func (r *req) GetImage() []byte {
-	return r.fileByte
+func (r *req) GetImage() io.Reader {
+	return r.fileIO
 }
 
 func (r *req) GetName() string {
 	return r.nick
 }
-
-func (r *req) GetAuthorID() string {
-	return r.authorID
+func (r *req) GetAuthorIDSession() string {
+	return r.authorIDSession
 }
