@@ -2,6 +2,7 @@ package posts_handler
 
 import (
 	"1337b0rd/internal/constants"
+	"1337b0rd/internal/types/controller"
 	"fmt"
 	"io"
 	"log"
@@ -13,7 +14,12 @@ type req struct {
 	title           string
 	content         string
 	nick            string
-	fileIO          io.Reader
+	fileData        metadata
+}
+type metadata struct {
+	fileIO      io.Reader
+	objectSize  int64
+	contentType string
 }
 
 func (h *PostsHandler) PostMethodCreatePost(w http.ResponseWriter, r *http.Request) {
@@ -28,11 +34,14 @@ func (h *PostsHandler) PostMethodCreatePost(w http.ResponseWriter, r *http.Reque
 	name := r.FormValue("name")
 	title := r.FormValue("title")
 	postText := r.FormValue("post")
-	file, _, err := r.FormFile("image")
-	authorID, err := r.Cookie(constants.SessionIDKey)
-
+	file, fileHeader, err := r.FormFile("image")
 	if err != nil && err != http.ErrMissingFile {
-		http.Error(w, "Не удалось добавить файл", http.StatusBadRequest)
+		h.HandleError(w, http.StatusBadRequest)
+		return
+	}
+
+	authorID, err := r.Cookie(constants.SessionIDKey)
+	if err != nil {
 		return
 	}
 
@@ -40,10 +49,14 @@ func (h *PostsHandler) PostMethodCreatePost(w http.ResponseWriter, r *http.Reque
 
 	NewReq = &req{
 		title:           title,
-		fileIO:          file,
 		content:         postText,
 		nick:            name,
 		authorIDSession: authorID.Value,
+		fileData: metadata{
+			fileIO:      file,
+			objectSize:  fileHeader.Size,
+			contentType: fileHeader.Header.Get("Content-Type"),
+		},
 	}
 
 	_, err = h.ctrl.NewPost(ctx, NewReq)
@@ -64,8 +77,10 @@ func (r *req) GetPostContent() string {
 	return r.content
 }
 
-func (r *req) GetImage() io.Reader {
-	return r.fileIO
+func (r *req) GetImage() controller.ItemMetaData {
+	var result controller.ItemMetaData
+	result = &r.fileData
+	return result
 }
 
 func (r *req) GetName() string {
@@ -73,4 +88,14 @@ func (r *req) GetName() string {
 }
 func (r *req) GetAuthorIDSession() string {
 	return r.authorIDSession
+}
+
+func (m *metadata) GetFileIO() io.Reader {
+	return m.fileIO
+}
+func (m *metadata) GetObjectSize() int64 {
+	return m.objectSize
+}
+func (m *metadata) GetContentType() string {
+	return m.contentType
 }

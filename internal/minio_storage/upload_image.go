@@ -1,28 +1,47 @@
 package miniostorage
 
 import (
-	"bytes"
+	"1337b0rd/internal/types/storage"
 	"context"
-	"time"
-
 	"github.com/minio/minio-go/v7"
+	"io"
+	"time"
 )
 
-func (m MinioStorage) UploadImage(bucketName, objectName, contentType string, data []byte) (string, error) {
-	
-	client := m.newMinioClient()
-	ctx := context.Background()
-	reader := bytes.NewReader(data)
+type dataImageReq struct {
+	bucketName  string
+	objectName  string
+	objectSize  int64
+	contentType string
+	metadata    io.Reader
+}
+type dataImageRes struct {
+	imageURL string
+}
 
-	_, err := client.PutObject(ctx, bucketName, objectName, reader, int64(len(data)), minio.PutObjectOptions{
-		ContentType: contentType,
+func (m MinioStorage) UploadImage(ctx context.Context, req storage.DataImageReq) (storage.DataImageRes, error) {
+	newReq := dataImageReq{
+		bucketName:  req.GetBucketName(),
+		objectName:  req.GetObjectName(),
+		objectSize:  req.GetObjectSize(),
+		contentType: req.GetContentType(),
+		metadata:    req.GetMetadata(),
+	}
+
+	_, err := m.client.PutObject(ctx, newReq.bucketName, newReq.objectName, newReq.metadata, newReq.objectSize, minio.PutObjectOptions{
+		ContentType: newReq.contentType,
 	})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	newURL, err := client.PresignedGetObject(ctx, bucketName, objectName, time.Hour*24, nil)
+	newURL, err := m.client.PresignedGetObject(ctx, newReq.bucketName, newReq.objectName, time.Hour*24, nil)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return newURL.String(), nil
+
+	return &dataImageRes{imageURL: newURL.String()}, nil
+}
+
+func (d *dataImageRes) GetImageURL() string {
+	return d.imageURL
 }

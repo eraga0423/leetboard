@@ -1,6 +1,7 @@
 package main
 
 import (
+	miniostorage "1337b0rd/internal/minio_storage"
 	"context"
 	"log"
 	"log/slog"
@@ -24,6 +25,7 @@ func main() {
 	}
 	r := rest.New(gov)
 	conf := config.NewConfig()
+	miniostorage.NewMinioStorage(conf, ctx)
 	p, err := postgres.New(&conf.Postgres, nil)
 	if err != nil {
 		slog.Any("failed start database", "postgres")
