@@ -1,12 +1,13 @@
 package posts_handler
 
 import (
+	"fmt"
+	"log"
+	"mime/multipart"
+	"net/http"
+
 	"1337b0rd/internal/constants"
 	"1337b0rd/internal/types/controller"
-	"fmt"
-	"io"
-	"log"
-	"net/http"
 )
 
 type req struct {
@@ -17,7 +18,7 @@ type req struct {
 	fileData        metadata
 }
 type metadata struct {
-	fileIO      io.Reader
+	fileIO      multipart.File
 	objectSize  int64
 	contentType string
 }
@@ -60,7 +61,6 @@ func (h *PostsHandler) PostMethodCreatePost(w http.ResponseWriter, r *http.Reque
 	}
 
 	_, err = h.ctrl.NewPost(ctx, NewReq)
-
 	if err != nil {
 		h.HandleError(w, 400)
 		return
@@ -86,16 +86,19 @@ func (r *req) GetImage() controller.ItemMetaData {
 func (r *req) GetName() string {
 	return r.nick
 }
+
 func (r *req) GetAuthorIDSession() string {
 	return r.authorIDSession
 }
 
-func (m *metadata) GetFileIO() io.Reader {
+func (m *metadata) GetFileIO() multipart.File {
 	return m.fileIO
 }
+
 func (m *metadata) GetObjectSize() int64 {
 	return m.objectSize
 }
+
 func (m *metadata) GetContentType() string {
 	return m.contentType
 }

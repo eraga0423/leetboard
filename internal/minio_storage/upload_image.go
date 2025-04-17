@@ -1,11 +1,13 @@
 package miniostorage
 
 import (
-	"1337b0rd/internal/types/storage"
 	"context"
-	"github.com/minio/minio-go/v7"
-	"io"
+	"mime/multipart"
 	"time"
+
+	"1337b0rd/internal/types/storage"
+
+	"github.com/minio/minio-go/v7"
 )
 
 type dataImageReq struct {
@@ -13,7 +15,7 @@ type dataImageReq struct {
 	objectName  string
 	objectSize  int64
 	contentType string
-	metadata    io.Reader
+	metadata    multipart.File
 }
 type dataImageRes struct {
 	imageURL string
@@ -25,7 +27,7 @@ func (m MinioStorage) UploadImage(ctx context.Context, req storage.DataImageReq)
 		objectName:  req.GetObjectName(),
 		objectSize:  req.GetObjectSize(),
 		contentType: req.GetContentType(),
-		metadata:    req.GetMetadata(),
+		metadata:    req.GetMetaData(),
 	}
 
 	_, err := m.client.PutObject(ctx, newReq.bucketName, newReq.objectName, newReq.metadata, newReq.objectSize, minio.PutObjectOptions{

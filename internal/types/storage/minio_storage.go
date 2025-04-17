@@ -1,13 +1,15 @@
 package storage
 
-import "io"
+import (
+	"mime/multipart"
+)
 
 type DataImageReq interface {
 	GetBucketName() string
 	GetObjectName() string
 	GetObjectSize() int64
 	GetContentType() string
-	GetMetaData() io.Reader
+	GetMetaData() multipart.File
 }
 type DataImageRes interface {
 	GetImageURL() string

@@ -1,6 +1,8 @@
 package controller
 
-import "io"
+import (
+	"mime/multipart"
+)
 
 type NewPostReq interface {
 	GetTitle() string
@@ -11,10 +13,9 @@ type NewPostReq interface {
 }
 
 type ItemMetaData interface {
-	GetFileIO() io.Reader
+	GetFileIO() multipart.File
 	GetObjectSize() int64
 	GetContentType() string
 }
 
-type NewPostResp interface {
-}
+type NewPostResp interface{}

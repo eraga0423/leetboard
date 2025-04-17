@@ -1,12 +1,13 @@
 package posts_governor
 
 import (
-	"1337b0rd/internal/constants"
-	"1337b0rd/internal/types/controller"
 	"context"
 	"fmt"
-	"io"
 	"log"
+	"mime/multipart"
+
+	"1337b0rd/internal/constants"
+	"1337b0rd/internal/types/controller"
 )
 
 type req struct {
@@ -31,7 +32,7 @@ type reqStorage struct {
 	objectName  string
 	objectSize  int64
 	contentType string
-	metaData    io.Reader
+	metaData    multipart.File
 }
 
 func (r *resp) GetTitle() string {
@@ -88,13 +89,15 @@ func (s *reqStorage) GetBucketName() string {
 func (s *reqStorage) GetObjectName() string {
 	return s.objectName
 }
+
 func (s *reqStorage) GetObjectSize() int64 {
 	return s.objectSize
-
 }
+
 func (s *reqStorage) GetContentType() string {
 	return s.contentType
 }
-func (s *reqStorage) GetMetaData() io.Reader {
+
+func (s *reqStorage) GetMetaData() multipart.File {
 	return s.metaData
 }
