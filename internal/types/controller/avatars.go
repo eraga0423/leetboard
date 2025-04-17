@@ -15,4 +15,5 @@ type Avatar interface {
 	GetName() string
 	GetID() int
 	GetImageURL() string
+	GetStatus() bool
 }

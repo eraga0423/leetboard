@@ -1,6 +1,8 @@
 package controller
 
-import "context"
+import (
+	"context"
+)
 
 type Interceptor interface {
 	InterceptorGov(ctx context.Context) (RespAvatar, error)

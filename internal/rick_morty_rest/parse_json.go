@@ -10,6 +10,7 @@ import (
 type parseJson struct {
 	Name  string `json:"name"`
 	Image string `json:"image"`
+	ID    string `json:"id"`
 }
 type parseJsons struct {
 	Posts []parseJson `json:"results"`

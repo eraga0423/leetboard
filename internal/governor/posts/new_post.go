@@ -1,16 +1,19 @@
 package posts_governor
 
 import (
+	"1337b0rd/internal/constants"
 	"1337b0rd/internal/types/controller"
 	"context"
+	"fmt"
+	"io"
+	"log"
 )
 
 type req struct {
-	title     string
-	content   string
-	nick      string
-	postImage []byte
-	authorID  string
+	title    string
+	content  string
+	nick     string
+	authorID string
 }
 
 type resp struct {
@@ -21,6 +24,14 @@ type resp struct {
 	avatarImage     string
 	authorSessionID string
 	status          string
+}
+
+type reqStorage struct {
+	bucketName  string
+	objectName  string
+	objectSize  int64
+	contentType string
+	metaData    io.Reader
 }
 
 func (r *resp) GetTitle() string {
@@ -39,32 +50,51 @@ func (r *resp) GetAuthorSession() (idSessionUser string) {
 	return r.authorSessionID
 }
 
-func (p *PostsGovernor) NewPost(_ context.Context, request controller.NewPostReq) (controller.NewPostResp, error) {
-	//postImage := request.GetImage()
-	//authID := request.GetAuthorID()
-	//typeJPGPNG, err := p.checkImageType(postImage)
-	//if err != nil {
-	//	log.Print("dir: ", "governor", "method: ", "checkImageType", err.Error())
-	//	return nil, err
-	//}
-	
-	////postImageURL, err := p.miniostor.UploadImage(newID, authID, typeJPGPNG, postImage)
-	////if err != nil {
-	////	log.Print("dir: ", "governor", "method: ", "minioUploadImage", err.Error())
-	////	return nil, err
-	////}
-	//newResp := new(resp)
-	//newResp = &resp{
-	//	title:           request.GetTitle(),
-	//	content:         request.GetPostContent(),
-	//	nick:            request.GetName(),
-	//	authorSessionID: authID,
-	//	postImage:       postImageURL,
-	//}
-	//
-	//_, err = p.db.CreatePost(newResp)
-	//if err != nil {
-	//	return nil, err
-	//}
+func (p *PostsGovernor) NewPost(ctx context.Context, request controller.NewPostReq) (controller.NewPostResp, error) {
+	idSession := request.GetAuthorIDSession()
+	newReqStorage := reqStorage{
+		bucketName:  fmt.Sprintf("%s/%s", constants.BucketPosts, idSession),
+		objectName:  idSession,
+		objectSize:  request.GetImage().GetObjectSize(),
+		contentType: request.GetImage().GetContentType(),
+		metaData:    request.GetImage().GetFileIO(),
+	}
+
+	postImageURL, err := p.miniostor.UploadImage(ctx, &newReqStorage)
+	if err != nil {
+		log.Print("dir: ", "governor", "method: ", "minioUploadImage", err.Error())
+		return nil, err
+	}
+	newResp := new(resp)
+	newResp = &resp{
+		title:           request.GetTitle(),
+		content:         request.GetPostContent(),
+		nick:            request.GetName(),
+		authorSessionID: request.GetAuthorIDSession(), /////////////////////////////////////////////////
+		postImage:       postImageURL.GetImageURL(),
+	}
+
+	_, err = p.db.CreatePost(newResp)
+	if err != nil {
+		return nil, err
+	}
 	return nil, nil
+}
+
+func (s *reqStorage) GetBucketName() string {
+	return s.bucketName
+}
+
+func (s *reqStorage) GetObjectName() string {
+	return s.objectName
+}
+func (s *reqStorage) GetObjectSize() int64 {
+	return s.objectSize
+
+}
+func (s *reqStorage) GetContentType() string {
+	return s.contentType
+}
+func (s *reqStorage) GetMetaData() io.Reader {
+	return s.metaData
 }

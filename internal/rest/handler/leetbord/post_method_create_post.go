@@ -2,6 +2,7 @@ package posts_handler
 
 import (
 	"1337b0rd/internal/constants"
+	"1337b0rd/internal/types/controller"
 	"fmt"
 	"io"
 	"log"
@@ -9,11 +10,16 @@ import (
 )
 
 type req struct {
-	authorID string
-	title    string
-	content  string
-	nick     string
-	fileByte []byte
+	authorIDSession string
+	title           string
+	content         string
+	nick            string
+	fileData        metadata
+}
+type metadata struct {
+	fileIO      io.Reader
+	objectSize  int64
+	contentType string
 }
 
 func (h *PostsHandler) PostMethodCreatePost(w http.ResponseWriter, r *http.Request) {
@@ -28,27 +34,29 @@ func (h *PostsHandler) PostMethodCreatePost(w http.ResponseWriter, r *http.Reque
 	name := r.FormValue("name")
 	title := r.FormValue("title")
 	postText := r.FormValue("post")
-	file, _, err := r.FormFile("image")
-	authorID, err := r.Cookie(constants.SessionIDKey)
-
+	file, fileHeader, err := r.FormFile("image")
 	if err != nil && err != http.ErrMissingFile {
-		http.Error(w, "Не удалось добавить файл", http.StatusBadRequest)
+		h.HandleError(w, http.StatusBadRequest)
 		return
 	}
-	var newFile []byte
-	if file != nil {
-		newFile, err = io.ReadAll(file)
-		if err != nil {
-			return
-		}
-		defer file.Close()
+
+	authorID, err := r.Cookie(constants.SessionIDKey)
+	if err != nil {
+		return
 	}
+
+	defer file.Close()
+
 	NewReq = &req{
-		title:    title,
-		fileByte: newFile,
-		content:  postText,
-		nick:     name,
-		authorID: authorID.Value,
+		title:           title,
+		content:         postText,
+		nick:            name,
+		authorIDSession: authorID.Value,
+		fileData: metadata{
+			fileIO:      file,
+			objectSize:  fileHeader.Size,
+			contentType: fileHeader.Header.Get("Content-Type"),
+		},
 	}
 
 	_, err = h.ctrl.NewPost(ctx, NewReq)
@@ -69,14 +77,25 @@ func (r *req) GetPostContent() string {
 	return r.content
 }
 
-func (r *req) GetImage() []byte {
-	return r.fileByte
+func (r *req) GetImage() controller.ItemMetaData {
+	var result controller.ItemMetaData
+	result = &r.fileData
+	return result
 }
 
 func (r *req) GetName() string {
 	return r.nick
 }
+func (r *req) GetAuthorIDSession() string {
+	return r.authorIDSession
+}
 
-func (r *req) GetAuthorID() string {
-	return r.authorID
+func (m *metadata) GetFileIO() io.Reader {
+	return m.fileIO
+}
+func (m *metadata) GetObjectSize() int64 {
+	return m.objectSize
+}
+func (m *metadata) GetContentType() string {
+	return m.contentType
 }

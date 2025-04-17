@@ -11,10 +11,11 @@ type findUserReqInters struct {
 	sessionID string
 }
 type respAvatar struct {
-	name     string
-	id       int
-	imageUrl string
-	sesionID string
+	name      string
+	id        int
+	imageUrl  string
+	status    bool
+	sessionID string
 }
 
 func (i *Interceptor) InterceptorGov(ctx context.Context) (controller.RespAvatar, error) {
@@ -27,18 +28,11 @@ func (i *Interceptor) InterceptorGov(ctx context.Context) (controller.RespAvatar
 		return nil, err
 	}
 	newRespAvatar := respAvatar{
-		name:     resp.GetName(),
-		id:       resp.GetID(),
-		imageUrl: resp.GetImageURL(),
-		sesionID: newGen,
+		name:      resp.GetName(),
+		id:        resp.GetID(),
+		imageUrl:  resp.GetImageURL(),
+		sessionID: newGen,
 	}
-
-	// sessionIDReq := findUserReqInters{
-	// 	sessionID: sessionID,
-	// }
-	// context.WithValue(ctx, constants.SessionIDKey, sessionID)
-	// i.db.FindUser(sessionIDReq)
-
 	return &newRespAvatar, nil
 }
 
@@ -59,10 +53,6 @@ func (i *Interceptor) generateSessionID() (string, error) {
 	), nil
 }
 
-//func (f findUserReqInters) GetSessionID() string {
-//	return f.sessionID
-//}
-
 func (a *respAvatar) GetID() int {
 	return a.id
 }
@@ -72,6 +62,7 @@ func (a *respAvatar) GetImageURL() string {
 func (a *respAvatar) GetName() string {
 	return a.name
 }
+
 func (a *respAvatar) GetSessionID() string {
-	return a.sesionID
+	return a.sessionID
 }

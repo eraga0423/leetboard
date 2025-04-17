@@ -9,10 +9,11 @@ import (
 )
 
 type avatar struct {
-	id     int
-	name   string
-	image  string
-	status bool
+	id        int
+	name      string
+	image     string
+	status    bool
+	sessionID string
 }
 type avatars struct {
 	allAvatars []avatar

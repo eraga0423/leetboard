@@ -1,11 +1,19 @@
 package controller
 
+import "io"
+
 type NewPostReq interface {
 	GetTitle() string
 	GetPostContent() string
-	GetImage() []byte
+	GetImage() ItemMetaData
 	GetName() string
-	GetAuthorID() string
+	GetAuthorIDSession() string
+}
+
+type ItemMetaData interface {
+	GetFileIO() io.Reader
+	GetObjectSize() int64
+	GetContentType() string
 }
 
 type NewPostResp interface {
