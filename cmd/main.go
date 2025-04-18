@@ -5,6 +5,9 @@ import (
 	"context"
 	"log"
 	"log/slog"
+	"os"
+	"os/signal"
+	"time"
 
 	"1337b0rd/internal/config"
 	"1337b0rd/internal/governor"
@@ -23,6 +26,24 @@ func main() {
 		log.Println(err)
 		return
 	}
+	go func(ctx context.Context) {
+		ticker := time.NewTicker(time.Minute * 5)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				err := gov.Interceptor.BackupAvatars(ctx)
+				if err != nil {
+					log.Print(err)
+					return
+				}
+				log.Print("auto save backup succesfully")
+			}
+		}
+
+	}(ctx)
 	r := rest.New(gov)
 	conf := config.NewConfig()
 	miniostorage.NewMinioStorage(conf, ctx)
@@ -40,5 +61,21 @@ func main() {
 		cancelFunc()
 	}(ctx, cancel, conf.API)
 	gov.ConfigGov(ctx, conf, p)
+
+	go func(cancelFunc context.CancelFunc) {
+		shutdown := make(chan os.Signal, 1)   // Create channel to signify s signal being sent
+		signal.Notify(shutdown, os.Interrupt) // When an interrupt is sent, notify the channel
+
+		sig := <-shutdown
+		slog.Any("signal", sig)
+		err := gov.Interceptor.BackupAvatars(ctx)
+		if err != nil {
+			log.Print(err)
+			return
+		}
+		log.Print("auto save backup succesfully")
+		cancelFunc()
+	}(cancel)
+
 	<-ctx.Done()
 }
