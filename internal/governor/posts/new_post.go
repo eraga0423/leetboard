@@ -71,7 +71,7 @@ func (p *PostsGovernor) NewPost(ctx context.Context, request controller.NewPostR
 		title:           request.GetTitle(),
 		content:         request.GetPostContent(),
 		nick:            request.GetName(),
-		authorSessionID: request.GetAuthorIDSession(), /////////////////////////////////////////////////
+		authorSessionID: idSession,
 		postImage:       postImageURL.GetImageURL(),
 	}
 

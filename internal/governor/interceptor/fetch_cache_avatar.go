@@ -20,44 +20,54 @@ type avatar struct {
 }
 
 func (i *Interceptor) FetchAndCacheAvatar(ctx context.Context) error {
-	_, err := i.db.ListCharacters()
-	if err != errors.New("characters are emppty") {
-		return nil
-	} else if err != nil {
-		return err
-	}
-	//
-	//
-	//
-	//
-	///
-	//
-	//
-	//
-	/// check database
+	databaseList, err := i.db.ListCharacters()
+	newList := reqAvatars{}
+	if err == errors.New("characters are emppty") {
+		list, err := i.parseAvatar.ParseDataJson()
+		if err != nil {
+			return err
+		}
 
-	list, err := i.parseAvatar.ParseDataJson()
+		for _, v := range list.RespParseDataJson() {
+			newList.avatars = append(newList.avatars, avatar{
+				name:     v.GetName(),
+				id:       v.GetId(),
+				imageURL: v.GetImage(),
+				status:   v.GetStatus(),
+			})
+		}
+		err = i.db.InserCartoonCharacters(&newList)
+		if err != nil {
+			return err
+		}
+		err = i.redis.SetAvatarsInRedis(&newList, ctx)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
 	if err != nil {
 		return err
 	}
-	newList := reqAvatars{}
-	for _, v := range list.RespParseDataJson() {
+	list := databaseList.GetCharacters()
+	for _, v := range list {
 		newList.avatars = append(newList.avatars, avatar{
-			name:     v.GetName(),
-			id:       v.GetId(),
-			imageURL: v.GetImage(),
-			status:   v.GetStatus(),
+			name:     v.GetCharacterName(),
+			id:       v.GetCharacterId(),
+			imageURL: v.GetCharacterImage(),
+			status:   v.GetCharacterStatus(),
 		})
 	}
-	err = i.db.InserCartoonCharacters(&newList)
-	if err != nil {
-		return err
-	}
-	
 	err = i.redis.SetAvatarsInRedis(&newList, ctx)
 	if err != nil {
 		return err
 	}
+	//////надо time ticker
+	err = i.db.InserCartoonCharacters(&newList)
+	if err != nil {
+		return err
+	}
+	//////////////
 	return nil
 }
 
