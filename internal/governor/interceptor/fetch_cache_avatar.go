@@ -2,7 +2,7 @@ package interceptor
 
 import (
 	"context"
-	"errors"
+	"log"
 
 	"1337b0rd/internal/types/database"
 	redistypes "1337b0rd/internal/types/redis"
@@ -20,9 +20,17 @@ type avatar struct {
 }
 
 func (i *Interceptor) FetchAndCacheAvatar(ctx context.Context) error {
+	log.Print("fetch and cache avatar")
 	databaseList, err := i.db.ListCharacters()
+
+	if err != nil {
+		log.Print("error in fetch and cache avatar")
+		return err
+
+	}
 	newList := reqAvatars{}
-	if err == errors.New("characters are emppty") {
+	if databaseList == nil {
+		log.Print("characters are emptyy")
 		list, err := i.parseAvatar.ParseDataJson()
 		if err != nil {
 			return err
@@ -46,9 +54,7 @@ func (i *Interceptor) FetchAndCacheAvatar(ctx context.Context) error {
 		}
 		return nil
 	}
-	if err != nil {
-		return err
-	}
+
 	list := databaseList.GetCharacters()
 	for _, v := range list {
 		newList.avatars = append(newList.avatars, avatar{
@@ -62,12 +68,7 @@ func (i *Interceptor) FetchAndCacheAvatar(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	//////надо time ticker
-	err = i.db.InserCartoonCharacters(&newList)
-	if err != nil {
-		return err
-	}
-	//////////////
+
 	return nil
 }
 
