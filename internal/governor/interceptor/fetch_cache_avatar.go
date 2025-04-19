@@ -22,12 +22,12 @@ type avatar struct {
 func (i *Interceptor) FetchAndCacheAvatar(ctx context.Context) error {
 	log.Print("fetch and cache avatar")
 	databaseList, err := i.db.ListCharacters()
-
+	log.Print("fetch and cache avatar1")
 	if err != nil {
 		log.Print("error in fetch and cache avatar")
 		return err
-
 	}
+	log.Print("fetch and cache avatar2")
 	newList := reqAvatars{}
 	if databaseList == nil {
 		log.Print("characters are emptyy")
@@ -54,7 +54,7 @@ func (i *Interceptor) FetchAndCacheAvatar(ctx context.Context) error {
 		}
 		return nil
 	}
-
+	log.Print("fetch and cache avatar3")
 	list := databaseList.GetCharacters()
 	for _, v := range list {
 		newList.avatars = append(newList.avatars, avatar{
@@ -64,11 +64,13 @@ func (i *Interceptor) FetchAndCacheAvatar(ctx context.Context) error {
 			status:   v.GetCharacterStatus(),
 		})
 	}
+	log.Print("fetch and cache avatar4")
 	err = i.redis.SetAvatarsInRedis(&newList, ctx)
+	log.Print("fetch and cache avatar5")
 	if err != nil {
 		return err
 	}
-
+	log.Print("fetch and cache avatar5")
 	return nil
 }
 
