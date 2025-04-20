@@ -14,7 +14,7 @@ type Leetboard interface {
 	NewPost(context.Context, NewPostReq) (NewPostResp, error)
 	ListArchivePosts(context.Context) (ListArchivePostsResp, error)
 	OnePostGov(req OnePostReq, ctx context.Context) (OnePostResp, error)
-	OneArchivePostGov(ArchiveOnePostReq, ctx context.Context) (ArchiveOnePostResp, error)
+	OneArchivePostGov(ArchiveOnePostReq, context.Context) (ArchiveOnePostResp, error)
 }
 
 type Controller interface {
