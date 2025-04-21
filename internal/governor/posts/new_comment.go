@@ -26,6 +26,7 @@ type metaDataComment struct {
 	contentType string
 }
 
+// ///////////////////
 func (g *PostsGovernor) NewComment(req controller.NewCommentReq, ctx context.Context) (controller.NewCommentResp, error) {
 	fileSize := req.GetImageComment().GetObjectSize()
 	sessionID := req.GetSessionID()
