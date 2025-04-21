@@ -38,20 +38,37 @@ type reqStorage struct {
 func (r *resp) GetTitle() string {
 	return r.title
 }
-
 func (r *resp) GetPostContent() string {
 	return r.content
 }
-
 func (r *resp) GetImage() string {
 	return r.postImage
 }
-
 func (r *resp) GetAuthorSession() (idSessionUser string) {
 	return r.authorSessionID
 }
 
+func (s *reqStorage) GetBucketName() string {
+	return s.bucketName
+}
+func (s *reqStorage) GetObjectName() string {
+	return s.objectName
+}
+func (s *reqStorage) GetObjectSize() int64 {
+	return s.objectSize
+}
+func (s *reqStorage) GetContentType() string {
+	return s.contentType
+}
+func (s *reqStorage) GetMetaData() multipart.File {
+	return s.metaData
+}
+
 func (p *PostsGovernor) NewPost(ctx context.Context, request controller.NewPostReq) (controller.NewPostResp, error) {
+	name := request.GetFormName()
+	if name == "" {
+		name = request.GetDefaultName()
+	}
 	idSession := request.GetAuthorIDSession()
 	newReqStorage := reqStorage{
 		bucketName:  fmt.Sprintf("%s/%s", constants.BucketPosts, idSession),
@@ -70,7 +87,7 @@ func (p *PostsGovernor) NewPost(ctx context.Context, request controller.NewPostR
 	newResp = &resp{
 		title:           request.GetTitle(),
 		content:         request.GetPostContent(),
-		nick:            request.GetName(),
+		nick:            name,
 		authorSessionID: idSession,
 		postImage:       postImageURL.GetImageURL(),
 	}
@@ -80,24 +97,4 @@ func (p *PostsGovernor) NewPost(ctx context.Context, request controller.NewPostR
 		return nil, err
 	}
 	return nil, nil
-}
-
-func (s *reqStorage) GetBucketName() string {
-	return s.bucketName
-}
-
-func (s *reqStorage) GetObjectName() string {
-	return s.objectName
-}
-
-func (s *reqStorage) GetObjectSize() int64 {
-	return s.objectSize
-}
-
-func (s *reqStorage) GetContentType() string {
-	return s.contentType
-}
-
-func (s *reqStorage) GetMetaData() multipart.File {
-	return s.metaData
 }

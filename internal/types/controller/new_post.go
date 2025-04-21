@@ -8,7 +8,9 @@ type NewPostReq interface {
 	GetTitle() string
 	GetPostContent() string
 	GetImage() ItemMetaData
-	GetName() string
+	GetFormName() string
+	GetDefaultName() string
+	GetAvatarImageURL() string
 	GetAuthorIDSession() string
 }
 
