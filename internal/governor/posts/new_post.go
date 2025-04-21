@@ -83,12 +83,13 @@ func (p *PostsGovernor) NewPost(ctx context.Context, request controller.NewPostR
 		log.Print("dir: ", "governor", "method: ", "minioUploadImage", err.Error())
 		return nil, err
 	}
-	newResp := new(resp)
-	newResp = &resp{
+
+	newResp := &resp{
 		title:           request.GetTitle(),
 		content:         request.GetPostContent(),
 		nick:            name,
 		authorSessionID: idSession,
+		avatarImage:     request.GetAvatarImageURL(),
 		postImage:       postImageURL.GetImageURL(),
 	}
 
