@@ -7,14 +7,11 @@ import (
 	"fmt"
 )
 
-type findUserReqInters struct {
-	sessionID string
-}
+
 type respAvatar struct {
 	name      string
 	id        int
 	imageUrl  string
-	status    bool
 	sessionID string
 }
 

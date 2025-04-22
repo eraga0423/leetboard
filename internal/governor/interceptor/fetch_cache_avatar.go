@@ -2,7 +2,7 @@ package interceptor
 
 import (
 	"context"
-	"errors"
+	"log"
 
 	"1337b0rd/internal/types/database"
 	redistypes "1337b0rd/internal/types/redis"
@@ -20,44 +20,57 @@ type avatar struct {
 }
 
 func (i *Interceptor) FetchAndCacheAvatar(ctx context.Context) error {
-	_, err := i.db.ListCharacters()
-	if err != errors.New("characters are emppty") {
-		return nil
-	} else if err != nil {
-		return err
-	}
-	//
-	//
-	//
-	//
-	///
-	//
-	//
-	//
-	/// check database
-
-	list, err := i.parseAvatar.ParseDataJson()
+	log.Print("fetch and cache avatar")
+	databaseList, err := i.db.ListCharacters()
+	log.Print("fetch and cache avatar1")
 	if err != nil {
+		log.Print("error in fetch and cache avatar")
 		return err
 	}
+	log.Print("fetch and cache avatar2")
 	newList := reqAvatars{}
-	for _, v := range list.RespParseDataJson() {
+	if databaseList == nil {
+		log.Print("characters are emptyy")
+		list, err := i.parseAvatar.ParseDataJson()
+		if err != nil {
+			return err
+		}
+
+		for _, v := range list.RespParseDataJson() {
+			newList.avatars = append(newList.avatars, avatar{
+				name:     v.GetName(),
+				id:       v.GetId(),
+				imageURL: v.GetImage(),
+				status:   v.GetStatus(),
+			})
+		}
+		err = i.db.InserCartoonCharacters(&newList)
+		if err != nil {
+			return err
+		}
+		err = i.redis.SetAvatarsInRedis(&newList, ctx)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	log.Print("fetch and cache avatar3")
+	list := databaseList.GetCharacters()
+	for _, v := range list {
 		newList.avatars = append(newList.avatars, avatar{
-			name:     v.GetName(),
-			id:       v.GetId(),
-			imageURL: v.GetImage(),
-			status:   v.GetStatus(),
+			name:     v.GetCharacterName(),
+			id:       v.GetCharacterId(),
+			imageURL: v.GetCharacterImage(),
+			status:   v.GetCharacterStatus(),
 		})
 	}
-	err = i.db.InserCartoonCharacters(&newList)
-	if err != nil {
-		return err
-	}
-	
+	log.Print("fetch and cache avatar4")
 	err = i.redis.SetAvatarsInRedis(&newList, ctx)
+	log.Print("fetch and cache avatar5")
 	if err != nil {
 		return err
 	}
+	log.Print("fetch and cache avatar5")
 	return nil
 }
 

@@ -1,20 +1,20 @@
 package posts_handler
 
 import (
-	"fmt"
 	"log"
 	"mime/multipart"
 	"net/http"
 
-	"1337b0rd/internal/constants"
 	"1337b0rd/internal/types/controller"
 )
 
 type req struct {
 	authorIDSession string
+	formName        string
+	defaultName     string
+	avatarImageURL  string
 	title           string
 	content         string
-	nick            string
 	fileData        metadata
 }
 type metadata struct {
@@ -24,39 +24,35 @@ type metadata struct {
 }
 
 func (h *PostsHandler) PostMethodCreatePost(w http.ResponseWriter, r *http.Request) {
+	log.Print("This post /create")
 	ctx := r.Context()
-	err := r.ParseMultipartForm(10 << 20)
-	if err != nil {
-		http.Error(w, "file error", http.StatusBadRequest)
-		return
-	}
-	fmt.Println("This post /create")
-	NewReq := new(req)
+
 	name := r.FormValue("name")
 	title := r.FormValue("title")
 	postText := r.FormValue("post")
-	file, fileHeader, err := r.FormFile("image")
-	if err != nil && err != http.ErrMissingFile {
+
+	newFile, err := checkFile(r)
+	if err != nil {
 		h.HandleError(w, http.StatusBadRequest)
 		return
 	}
-
-	authorID, err := r.Cookie(constants.SessionIDKey)
+	newCookie, err := parseCookie(r)
 	if err != nil {
+		h.HandleError(w, http.StatusInternalServerError)
 		return
 	}
 
-	defer file.Close()
-
-	NewReq = &req{
+	NewReq := &req{
 		title:           title,
 		content:         postText,
-		nick:            name,
-		authorIDSession: authorID.Value,
+		formName:        name,
+		defaultName:     newCookie.name,
+		avatarImageURL:  newCookie.avatarImageURL,
+		authorIDSession: newCookie.sessionID,
 		fileData: metadata{
-			fileIO:      file,
-			objectSize:  fileHeader.Size,
-			contentType: fileHeader.Header.Get("Content-Type"),
+			fileIO:      newFile.fileIO,
+			objectSize:  newFile.objectSize,
+			contentType: newFile.contentType,
 		},
 	}
 
@@ -69,36 +65,16 @@ func (h *PostsHandler) PostMethodCreatePost(w http.ResponseWriter, r *http.Reque
 	log.Print("this new request:   ", NewReq)
 }
 
-func (r *req) GetTitle() string {
-	return r.title
-}
-
-func (r *req) GetPostContent() string {
-	return r.content
-}
+func (r *req) GetTitle() string               { return r.title }
+func (r *req) GetPostContent() string         { return r.content }
+func (r *req) GetFormName() string            { return r.formName }
+func (r *req) GetAuthorIDSession() string     { return r.authorIDSession }
+func (r *req) GetDefaultName() string         { return r.defaultName }
+func (r *req) GetAvatarImageURL() string      { return r.avatarImageURL }
+func (m *metadata) GetFileIO() multipart.File { return m.fileIO }
+func (m *metadata) GetObjectSize() int64      { return m.objectSize }
+func (m *metadata) GetContentType() string    { return m.contentType }
 
 func (r *req) GetImage() controller.ItemMetaData {
-	var result controller.ItemMetaData
-	result = &r.fileData
-	return result
-}
-
-func (r *req) GetName() string {
-	return r.nick
-}
-
-func (r *req) GetAuthorIDSession() string {
-	return r.authorIDSession
-}
-
-func (m *metadata) GetFileIO() multipart.File {
-	return m.fileIO
-}
-
-func (m *metadata) GetObjectSize() int64 {
-	return m.objectSize
-}
-
-func (m *metadata) GetContentType() string {
-	return m.contentType
+	return &r.fileData
 }
