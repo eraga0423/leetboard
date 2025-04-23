@@ -23,13 +23,10 @@ func (i *Interceptor) FetchAndCacheAvatar(ctx context.Context) error {
 	log.Print("fetch and cache avatar")
 	databaseList, err := i.db.ListCharacters()
 	log.Print("fetch and cache avatar1")
-	if err != nil {
-		log.Print("error in fetch and cache avatar")
-		return err
-	}
+
 	log.Print("fetch and cache avatar2")
 	newList := reqAvatars{}
-	if databaseList == nil {
+	if len(databaseList.GetCharacters()) == 0 {
 		log.Print("characters are emptyy")
 		list, err := i.parseAvatar.ParseDataJson()
 		if err != nil {
@@ -41,7 +38,7 @@ func (i *Interceptor) FetchAndCacheAvatar(ctx context.Context) error {
 				name:     v.GetName(),
 				id:       v.GetId(),
 				imageURL: v.GetImage(),
-				status:   v.GetStatus(),
+				status:   false,
 			})
 		}
 		err = i.db.InserCartoonCharacters(&newList)
@@ -53,6 +50,10 @@ func (i *Interceptor) FetchAndCacheAvatar(ctx context.Context) error {
 			return err
 		}
 		return nil
+	}
+	if err != nil {
+		log.Print("fetch and cache avatar3")
+		return err
 	}
 	log.Print("fetch and cache avatar3")
 	list := databaseList.GetCharacters()

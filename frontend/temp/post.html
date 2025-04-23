@@ -20,20 +20,43 @@
     <br />
     <img src="{{.ImageURL}}" alt="{{.Title}}" width="200" />
     {{end}}
-    <h3>Комментарий:</h3>
+    <h3>Комментарии:</h3>
     {{if .Comments}}
     <ul>
       {{range .Comments}}
-      <li><b>{{.Nick}} (ID: {{.UserID}})</b> {{.Content}}</li>
+      <!-- Родительский комментарий -->
+      <li id="comment-{{.parentComment.commentID}}">
+          <b>{{.ParentComment.Author.Name}} (ID: {{.ParentComment.CommentID}})</b>: {{.ParentComment.CommentContent}}<br>
+          <a href="#comment-form" onclick="replyTo({{.ParentComment.CommentID}})">Ответить</a>
+        </li>
+      <!-- Дочерние комментарии (вложенный 1 уровень) -->
+        {{range .ChildrenComment}}
+          <li style="margin-left: 30px;" id="comment-{{.CommentID}}">
+            └─ <b>{{.author.name}} (ID: {{.СommentID}})</b> → ответ на #{{.postID}} {{$.parentComment.author.name}}:<br>
+            {{.commentContent}}<br>
+            <a href="#comment-form" onclick="replyTo({{.CommentID}})">Ответить</a>
+          </li>
+        {{end}}
+
       {{end}}
     </ul>
     {{else}}
     <p>Комментариев нету.</p>
     {{end}}
-    <form method="POST" action="{{.IDPost}}/comment">
+    <form method="POST" action="{{.IDPost}}/comment" id="comment-form">
+      <input type="hidden" name="post_id" value="{{.IDPost}}" />
+      <input type="hidden" name="parent_id" id="parent-comment-id" value="0" />
       <label for="new_comment">Введите коммент:</label>
-      <input type="text" id="new_comment" name="new_comment" required />
+      <input type="text" id="new_comment" name="comment_content" required />
       <button type="submit">Отправить</button>
     </form>
+    <script>
+      function replyTo(commentID) {
+        document.getElementById("parent-comment-id").value = commentID;
+        document.getElementById("new_comment").placeholder = "Ответ на #" + commentID;
+        document.getElementById("new_comment").focus();
+      }
+    </script>
+
   </body>
 </html>

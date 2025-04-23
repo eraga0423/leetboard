@@ -14,9 +14,10 @@ type Interceptor struct {
 	parseAvatar *rickmortyrest.RickAndMorty
 }
 
-func New(conf *config.Config, db database.Database) *Interceptor {
+func New(conf *config.Config, db database.Database, r *my_redis.MyRedis) *Interceptor {
 	return &Interceptor{
-		db:   db,
-		conf: conf,
+		db:    db,
+		conf:  conf,
+		redis: r,
 	}
 }

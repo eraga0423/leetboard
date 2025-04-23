@@ -10,7 +10,7 @@ import (
 type parseJson struct {
 	Name  string `json:"name"`
 	Image string `json:"image"`
-	ID    string `json:"id"`
+	ID    int    `json:"id"`
 }
 type parseJsons struct {
 	Posts []parseJson `json:"results"`
@@ -32,12 +32,18 @@ func (p *RickAndMorty) ParseDataJson() (rick_morty.RespDataJson, error) {
 	return &data, err
 }
 func (p *parseJsons) RespParseDataJson() []rick_morty.DataJson {
-
-	return nil
+	newJsons := make([]rick_morty.DataJson, len(p.Posts))
+	for i, post := range p.Posts {
+		newJsons[i] = &post
+	}
+	return newJsons
 }
 func (p *parseJson) GetName() string {
 	return p.Name
 }
 func (p *parseJson) GetImage() string {
 	return p.Image
+}
+func (p *parseJson) GetId() int {
+	return p.ID
 }

@@ -30,10 +30,9 @@ func (m MyRedis) SetAvatarsInRedis(avatars redistypes.ReqAvatars, ctx context.Co
 		})
 	}
 
-	rdb := m.newClient()
 	for _, v := range respAvatars {
 		key := fmt.Sprintf("avatar:%d", v.id)
-		err := rdb.HSet(ctx, key, map[string]interface{}{
+		err := m.newClient.HSet(ctx, key, map[string]interface{}{
 			"name":   v.name,
 			"image":  v.image,
 			"status": v.status,
@@ -47,16 +46,16 @@ func (m MyRedis) SetAvatarsInRedis(avatars redistypes.ReqAvatars, ctx context.Co
 
 func (m MyRedis) RefreshAvatars(ctx context.Context) (redistypes.RespAvatars, error) {
 	result := []avatar{}
-	client := m.newClient()
+
 	var cursor uint64
 	for {
-		keys, nextCursor, err := client.Scan(ctx, cursor, "avatar:*", 100).Result()
+		keys, nextCursor, err := m.newClient.Scan(ctx, cursor, "avatar:*", 100).Result()
 		if err != nil {
 			return nil, err
 
 		}
 		for _, v := range keys {
-			results, err := client.HGetAll(ctx, v).Result()
+			results, err := m.newClient.HGetAll(ctx, v).Result()
 			if err != nil {
 				return nil, err
 

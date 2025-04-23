@@ -10,28 +10,28 @@ import (
 
 func (m MyRedis) GetAvatarInRedis(ctx context.Context) (controller.RespAvatar, error) {
 	result := avatar{}
-	client := m.newClient()
+
 	var cursor uint64
 
 	for {
-		keys, nextCursor, err := client.Scan(ctx, cursor, "avatar:*", 100).Result()
+		keys, nextCursor, err := m.newClient.Scan(ctx, cursor, "avatar:*", 100).Result()
 		if err != nil {
 			return nil, err
 		}
 
 		for _, v := range keys {
-			status, err := client.HGet(ctx, v, "status").Result()
+			status, err := m.newClient.HGet(ctx, v, "status").Result()
 			if err != nil {
 				return nil, err
 			}
 
 			if status == "1" {
-				data, err := client.HGetAll(ctx, v).Result()
+				data, err := m.newClient.HGetAll(ctx, v).Result()
 				if err != nil {
 					return nil, err
 				}
 
-				err = client.HSet(ctx, v, "status", "0").Err()
+				err = m.newClient.HSet(ctx, v, "status", "0").Err()
 				if err != nil {
 					return nil, err
 				}
@@ -57,7 +57,7 @@ func (m MyRedis) GetAvatarInRedis(ctx context.Context) (controller.RespAvatar, e
 		cursor = nextCursor
 	}
 
-	if err := m.resetAvatars(ctx, client); err != nil {
+	if err := m.resetAvatars(ctx, m.newClient); err != nil {
 		return nil, err
 	}
 
