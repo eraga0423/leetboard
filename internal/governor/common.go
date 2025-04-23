@@ -1,6 +1,7 @@
 package governor
 
 import (
+	my_redis "1337b0rd/internal/redis"
 	"context"
 
 	"1337b0rd/internal/config"
@@ -21,8 +22,8 @@ func New() *Governor {
 	}
 }
 
-func (g *Governor) ConfigGov(ctx context.Context, conf *config.Config, db database.Database) {
-	*g.Interceptor = *interceptor.New(conf, db)
+func (g *Governor) ConfigGov(_ context.Context, conf *config.Config, db database.Database, r *my_redis.MyRedis) {
+	*g.Interceptor = *interceptor.New(conf, db, r)
 	*g.PostsGovernor = *posts_governor.New(conf, db)
-	
+
 }

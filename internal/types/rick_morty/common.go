@@ -12,5 +12,4 @@ type DataJson interface {
 	GetId() int
 	GetName() string
 	GetImage() string
-	GetStatus() bool
 }

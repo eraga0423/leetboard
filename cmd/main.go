@@ -2,6 +2,7 @@ package main
 
 import (
 	miniostorage "1337b0rd/internal/minio_storage"
+	my_redis "1337b0rd/internal/redis"
 	"context"
 	"log"
 	"log/slog"
@@ -21,11 +22,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	gov := governor.New()
-	err := gov.Interceptor.FetchAndCacheAvatar(ctx)
-	if err != nil {
-		log.Println(err)
-		return
-	}
+
 	go func(ctx context.Context) {
 		ticker := time.NewTicker(time.Minute * 5)
 		defer ticker.Stop()
@@ -47,7 +44,8 @@ func main() {
 	r := rest.New(gov)
 	conf := config.NewConfig()
 	miniostorage.NewMinioStorage(conf, ctx)
-	p, err := postgres.New(&conf.Postgres, nil)
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	p, err := postgres.New(&conf.Postgres, logger)
 	if err != nil {
 		slog.Any("failed start database", "postgres")
 		panic(err)
@@ -60,8 +58,13 @@ func main() {
 
 		cancelFunc()
 	}(ctx, cancel, conf.API)
-	gov.ConfigGov(ctx, conf, p)
-
+	myRedis := my_redis.NewMyRedis(gov, conf)
+	gov.ConfigGov(ctx, conf, p, myRedis)
+	err = gov.Interceptor.FetchAndCacheAvatar(ctx)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	go func(cancelFunc context.CancelFunc) {
 		shutdown := make(chan os.Signal, 1)   // Create channel to signify s signal being sent
 		signal.Notify(shutdown, os.Interrupt) // When an interrupt is sent, notify the channel
