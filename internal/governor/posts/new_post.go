@@ -65,6 +65,7 @@ func (s *reqStorage) GetMetaData() multipart.File {
 }
 
 func (p *PostsGovernor) NewPost(ctx context.Context, request controller.NewPostReq) (controller.NewPostResp, error) {
+	log.Println("post: new post", "dir: governor")
 	name := request.GetFormName()
 	if name == "" {
 		name = request.GetDefaultName()
@@ -77,7 +78,9 @@ func (p *PostsGovernor) NewPost(ctx context.Context, request controller.NewPostR
 		contentType: request.GetImage().GetContentType(),
 		metaData:    request.GetImage().GetFileIO(),
 	}
-
+	if p.miniostor == nil {
+		return resp{}, fmt.Errorf("minio storage is nil")
+	}
 	postImageURL, err := p.miniostor.UploadImage(ctx, &newReqStorage)
 	if err != nil {
 		log.Print("dir: ", "governor", "method: ", "minioUploadImage", err.Error())
@@ -92,9 +95,13 @@ func (p *PostsGovernor) NewPost(ctx context.Context, request controller.NewPostR
 		avatarImage:     request.GetAvatarImageURL(),
 		postImage:       postImageURL.GetImageURL(),
 	}
-
+	if p.db == nil {
+		log.Print("dir: ", "governor", "db is nil")
+		return newResp, nil
+	}
 	_, err = p.db.CreatePost(newResp)
 	if err != nil {
+		log.Print("dir: ", "governor", "method: ", "db.CreatePost", "  ERROR:  ", err.Error())
 		return nil, err
 	}
 	return nil, nil

@@ -13,7 +13,8 @@
     <h2>ARCHIVE POSTS</h2>
     <div class="buttonContainer">
       <ul>
-        {{range .Posts}}
+        {{range .ArchivePosts}}
+          {{.Title}}
         <li>
           <button
             class="buttonPost"
@@ -23,7 +24,7 @@
           </button>
         </li>
         {{else}}
-        <li>Нет постов.</li>
+        <li>NO POSTS.</li>
         {{end}}
       </ul>
     </div>

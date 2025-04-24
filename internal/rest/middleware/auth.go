@@ -17,6 +17,18 @@ type respAvatar struct {
 
 func (m *Middleware) Authentificator(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		//defer func() {
+		//	if err := recover(); err != nil {
+		//		slog.Error(
+		//			"panic recovered",
+		//			"method", r.Method,
+		//			"url", r.URL.String(),
+		//			"panic", err,
+		//		)
+		//		http.Error(w, "internal server error", http.StatusInternalServerError)
+		//
+		//	}
+		//}()
 		cookie, err := r.Cookie("session_id")
 		ctx := r.Context()
 		if err != nil || cookie.Value == "" {

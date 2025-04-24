@@ -16,7 +16,8 @@ import (
 
 type Rest struct {
 	// logger *log.Logger
-	router *router.Router
+	router  *router.Router
+	handler *handler.Handler
 }
 
 func New(ctrl controller.Controller) *Rest {
@@ -26,8 +27,8 @@ func New(ctrl controller.Controller) *Rest {
 
 	return &Rest{
 		// logger: logger,
-
-		router: r,
+		handler: h,
+		router:  r,
 	}
 }
 
