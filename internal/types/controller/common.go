@@ -6,7 +6,6 @@ import (
 
 type Interceptor interface {
 	InterceptorGov(ctx context.Context) (RespAvatar, error)
-	//GetAvatarsInRedis(ctx context.Context) (RespAvatars, error)
 }
 
 type Leetboard interface {

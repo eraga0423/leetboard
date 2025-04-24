@@ -44,7 +44,7 @@ func (m MyRedis) SetAvatarsInRedis(avatars redistypes.ReqAvatars, ctx context.Co
 	return nil
 }
 
-func (m MyRedis) RefreshAvatars(ctx context.Context) (redistypes.RespAvatars, error) {
+func (m MyRedis) RefreshAvatarInRedis(ctx context.Context) (redistypes.RespAvatars, error) {
 	result := []avatar{}
 
 	var cursor uint64

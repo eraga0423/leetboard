@@ -100,10 +100,9 @@ func (p *PostsGovernor) NewPost(ctx context.Context, request controller.NewPostR
 		avatarImage:     request.GetAvatarImageURL(),
 		postImage:       imageURL,
 	}
-	if p.db == nil {
-		log.Print("dir: ", "governor", "db is nil")
-		return newResp, nil
-	}
+
+	log.Println(newResp) //////////////////////////////////////////
+
 	_, err := p.db.CreatePost(newResp)
 	if err != nil {
 		log.Print("dir: ", "governor", "method: ", "db.CreatePost", "  ERROR:  ", err.Error())
