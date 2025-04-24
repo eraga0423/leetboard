@@ -22,8 +22,8 @@ func (l *Leetboard) CreatePost(req database.NewPostReq) (database.NewPostResp, e
 	sql := tx.QueryRow(`
 	INSERT INTO posts
 	(title, post_content, post_image, post_time)
-	VALUE($1, $2, $3, $4)
-	RETURING post_id
+	VALUES($1, $2, $3, $4)
+	RETURNING post_id
 	`, title, content, image, curTime,
 	)
 	var postID, authorID int
@@ -49,7 +49,7 @@ func (l *Leetboard) CreatePost(req database.NewPostReq) (database.NewPostResp, e
 	_, err = tx.Exec(`
 	INSERT INTO user_post
 	(post_id, user_id)
-	VALUE($1, $2)
+	VALUES($1, $2)
 	`, postID, authorID,
 	)
 	if err != nil {

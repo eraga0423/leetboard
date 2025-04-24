@@ -41,10 +41,11 @@ func main() {
 		}
 
 	}(ctx)
+	////////////////////rickmortyrest.NewRickAndMorty()
 	r := rest.New(gov)
 	conf := config.NewConfig()
-	miniostorage.NewMinioStorage(conf, ctx)
-	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	ms := miniostorage.NewMinioStorage(conf, ctx)
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil)) ///////////
 	p, err := postgres.New(&conf.Postgres, logger)
 	if err != nil {
 		slog.Any("failed start database", "postgres")
@@ -59,7 +60,7 @@ func main() {
 		cancelFunc()
 	}(ctx, cancel, conf.API)
 	myRedis := my_redis.NewMyRedis(gov, conf)
-	gov.ConfigGov(ctx, conf, p, myRedis)
+	gov.ConfigGov(ctx, conf, p, myRedis, ms)
 	err = gov.Interceptor.FetchAndCacheAvatar(ctx)
 	if err != nil {
 		log.Println(err)

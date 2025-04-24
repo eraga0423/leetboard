@@ -24,21 +24,27 @@ type metaData struct {
 }
 
 func checkFile(r *http.Request) (metaData, error) {
+
 	err := r.ParseMultipartForm(10 << 20)
 	if err != nil {
 		return metaData{}, err
 	}
 	file, header, err := r.FormFile("image")
-	defer file.Close()
+
 	if err != nil {
 		if errors.Is(err, http.ErrMissingFile) {
 			return metaData{
-				objectSize: 0,
+				fileIO:      nil,
+				objectSize:  0,
+				contentType: "",
 			}, nil
 		} else {
 			return metaData{}, err
 		}
 
+	}
+	if file == nil {
+		defer file.Close()
 	}
 	contentType := header.Header.Get("Content-Type")
 	if contentType != "image/jpeg" && contentType != "image/png" {

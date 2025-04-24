@@ -10,14 +10,15 @@ import (
 )
 
 type listArchivePostsResp struct {
-	archivePosts []onePostArchive
+	TitlePost    string
+	ArchivePosts []OnePostArchive
 }
-type onePostArchive struct {
-	postID       int
-	title        string
-	postContent  string
-	postImageURL string
-	postTime     time.Time
+type OnePostArchive struct {
+	PostID       int
+	Title        string
+	PostContent  string
+	PostImageURL string
+	PostTime     time.Time
 }
 
 func (h *PostsHandler) GetArchive(w http.ResponseWriter, r *http.Request) {
@@ -26,20 +27,23 @@ func (h *PostsHandler) GetArchive(w http.ResponseWriter, r *http.Request) {
 		h.HandleError(w, http.StatusBadRequest)
 		return
 	}
-	data := listArchivePostsResp{}
+	data := listArchivePostsResp{
+		TitlePost: "ARCHIVE POSTS",
+	}
 	for _, postResp := range resp.GetList() {
-		data.archivePosts = append(data.archivePosts, onePostArchive{
-			postID:       postResp.GetPostID(),
-			title:        postResp.GetTitle(),
-			postContent:  postResp.GetPostContent(),
-			postImageURL: postResp.GetPostImageURL(),
-			postTime:     postResp.GetPostTime(),
+		data.ArchivePosts = append(data.ArchivePosts, OnePostArchive{
+			PostID:       postResp.GetPostID(),
+			Title:        postResp.GetTitle(),
+			PostContent:  postResp.GetPostContent(),
+			PostImageURL: postResp.GetPostImageURL(),
+			PostTime:     postResp.GetPostTime(),
 		})
 	}
 	log.Print("This GET /archive")
 	tmpl := template.Must(template.ParseFiles(constants.Archive))
 	err = tmpl.Execute(w, data)
 	if err != nil {
+		log.Print(err)
 		h.HandleError(w, http.StatusInternalServerError)
 		return
 	}

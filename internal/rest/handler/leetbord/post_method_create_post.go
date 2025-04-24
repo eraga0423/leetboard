@@ -33,11 +33,13 @@ func (h *PostsHandler) PostMethodCreatePost(w http.ResponseWriter, r *http.Reque
 
 	newFile, err := checkFile(r)
 	if err != nil {
+		log.Println("check file", err)
 		h.HandleError(w, http.StatusBadRequest)
 		return
 	}
 	newCookie, err := parseCookie(r)
 	if err != nil {
+		log.Println("parse cookie", err)
 		h.HandleError(w, http.StatusInternalServerError)
 		return
 	}
@@ -55,9 +57,13 @@ func (h *PostsHandler) PostMethodCreatePost(w http.ResponseWriter, r *http.Reque
 			contentType: newFile.contentType,
 		},
 	}
-
+	if h.ctrl == nil {
+		log.Print("This controller is nil")
+		return
+	}
 	_, err = h.ctrl.NewPost(ctx, NewReq)
 	if err != nil {
+		log.Print("dir: rest, method: post method create post. ERROR:  ", err)
 		h.HandleError(w, 400)
 		return
 	}

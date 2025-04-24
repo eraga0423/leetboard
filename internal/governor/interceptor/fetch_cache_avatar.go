@@ -43,10 +43,14 @@ func (i *Interceptor) FetchAndCacheAvatar(ctx context.Context) error {
 		}
 		err = i.db.InserCartoonCharacters(&newList)
 		if err != nil {
+
+			log.Println("failed to inser cartoon characters")
 			return err
 		}
 		err = i.redis.SetAvatarsInRedis(&newList, ctx)
 		if err != nil {
+
+			log.Print("failed to set avatars in redis")
 			return err
 		}
 		return nil

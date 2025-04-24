@@ -65,23 +65,31 @@ func (s *reqStorage) GetMetaData() multipart.File {
 }
 
 func (p *PostsGovernor) NewPost(ctx context.Context, request controller.NewPostReq) (controller.NewPostResp, error) {
+	imageURL := ""
+	log.Println("post: new post", "dir: governor")
 	name := request.GetFormName()
 	if name == "" {
 		name = request.GetDefaultName()
 	}
+	size := request.GetImage().GetObjectSize()
 	idSession := request.GetAuthorIDSession()
-	newReqStorage := reqStorage{
-		bucketName:  fmt.Sprintf("%s/%s", constants.BucketPosts, idSession),
-		objectName:  idSession,
-		objectSize:  request.GetImage().GetObjectSize(),
-		contentType: request.GetImage().GetContentType(),
-		metaData:    request.GetImage().GetFileIO(),
-	}
-
-	postImageURL, err := p.miniostor.UploadImage(ctx, &newReqStorage)
-	if err != nil {
-		log.Print("dir: ", "governor", "method: ", "minioUploadImage", err.Error())
-		return nil, err
+	if size != 0 {
+		newReqStorage := reqStorage{
+			bucketName:  fmt.Sprintf("%s/%s", constants.BucketPosts, idSession),
+			objectName:  idSession,
+			objectSize:  size,
+			contentType: request.GetImage().GetContentType(),
+			metaData:    request.GetImage().GetFileIO(),
+		}
+		if p.miniostor == nil {
+			return resp{}, fmt.Errorf("minio storage is nil")
+		}
+		postImageURL, err := p.miniostor.UploadImage(ctx, &newReqStorage)
+		if err != nil {
+			log.Print("dir: ", "governor", "method: ", "minioUploadImage", err.Error())
+			return nil, err
+		}
+		imageURL = postImageURL.GetImageURL()
 	}
 
 	newResp := &resp{
@@ -90,11 +98,15 @@ func (p *PostsGovernor) NewPost(ctx context.Context, request controller.NewPostR
 		nick:            name,
 		authorSessionID: idSession,
 		avatarImage:     request.GetAvatarImageURL(),
-		postImage:       postImageURL.GetImageURL(),
+		postImage:       imageURL,
 	}
-
-	_, err = p.db.CreatePost(newResp)
+	if p.db == nil {
+		log.Print("dir: ", "governor", "db is nil")
+		return newResp, nil
+	}
+	_, err := p.db.CreatePost(newResp)
 	if err != nil {
+		log.Print("dir: ", "governor", "method: ", "db.CreatePost", "  ERROR:  ", err.Error())
 		return nil, err
 	}
 	return nil, nil
