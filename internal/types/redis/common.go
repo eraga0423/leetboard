@@ -23,7 +23,6 @@ type RespAvatar interface {
 	GetImageURL() string
 	GetStatus() bool
 }
-
 type RespAvatars interface {
 	GetAvatars() []Avatar
 }
