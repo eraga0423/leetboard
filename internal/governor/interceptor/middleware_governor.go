@@ -5,8 +5,8 @@ import (
 	"context"
 	"crypto/rand"
 	"fmt"
+	"strings"
 )
-
 
 type respAvatar struct {
 	name      string
@@ -39,15 +39,26 @@ func (i *Interceptor) generateSessionID() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	newID[6] = (newID[6] & 0x0f) | 0x40
-	newID[8] = (newID[8] & 0x3f) | 0x80
-	return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x",
+	sessionID := fmt.Sprintf("%08x-%04x-%04x-%04x-%012x",
 		newID[0:4],
 		newID[4:6],
 		newID[6:8],
 		newID[8:10],
 		newID[10:16],
-	), nil
+	)
+
+	sessionID = strings.ToLower(sessionID)
+	sessionID = strings.ReplaceAll(sessionID, "-", "")
+	sessionID = strings.Trim(sessionID, ".-")
+
+	if len(sessionID) < 3 {
+		return "", fmt.Errorf("session ID is too short")
+	}
+	if len(sessionID) > 63 {
+		sessionID = sessionID[:63]
+	}
+
+	return sessionID, nil
 }
 
 func (a *respAvatar) GetID() int {

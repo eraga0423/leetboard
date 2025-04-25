@@ -7,6 +7,7 @@ type MinioStorage struct {
 	Password    string
 	APIPort     string
 	ConsolePort string
+	Host        string
 }
 
 func NewConfigMinio() *MinioStorage {
@@ -15,5 +16,6 @@ func NewConfigMinio() *MinioStorage {
 		Password:    os.Getenv("MINIO_ROOT_PASSWORD"),
 		APIPort:     os.Getenv("MINIO_API_PORT"),
 		ConsolePort: os.Getenv("MINIO_CONSOLE_PORT"),
+		Host:        os.Getenv("MINIO_HOST"),
 	}
 }

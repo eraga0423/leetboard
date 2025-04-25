@@ -47,7 +47,7 @@ func (i *Interceptor) FetchAndCacheAvatar(ctx context.Context) error {
 			log.Println("failed to inser cartoon characters")
 			return err
 		}
-		err = i.redis.SetAvatarsInRedis(&newList, ctx)
+		err = i.redis.SetAvatarsRedis(&newList, ctx)
 		if err != nil {
 
 			log.Print("failed to set avatars in redis")
@@ -70,7 +70,7 @@ func (i *Interceptor) FetchAndCacheAvatar(ctx context.Context) error {
 		})
 	}
 	log.Print("fetch and cache avatar4")
-	err = i.redis.SetAvatarsInRedis(&newList, ctx)
+	err = i.redis.SetAvatarsRedis(&newList, ctx)
 	log.Print("fetch and cache avatar5")
 	if err != nil {
 		return err

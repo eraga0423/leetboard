@@ -5,7 +5,7 @@ services:
     image: minio/minio
     container_name: minio
     ports:
-      - "${MINIO_API_PORT}:9000"
+      - "${MINIO_API_PORT}:${MINIO_API_PORT}"
       - "${MINIO_CONSOLE_PORT}:9001"
     environment:
       MINIO_ROOT_USER: "${MINIO_ROOT_USER}"
@@ -35,6 +35,7 @@ services:
       - REST_API_PORT=${REST_API_PORT}
       - REDIS_PORT=${REDIS_PORT}
       - REDIS_HOST=${REDIS_HOST}
+      - MINIO_HOST=${MINIO_HOST}
     healthcheck:
       test: ["CMD-SHELL", "curl --fail http://postgres:${PG_PORT} || exit 1"]
       interval: 10s

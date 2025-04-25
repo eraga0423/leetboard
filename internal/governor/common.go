@@ -1,7 +1,7 @@
 package governor
 
 import (
-	my_redis "1337b0rd/internal/redis"
+	redis_types "1337b0rd/internal/types/redis"
 	"1337b0rd/internal/types/storage"
 	"context"
 
@@ -27,7 +27,7 @@ func (g *Governor) ConfigGov(
 	_ context.Context,
 	conf *config.Config,
 	db database.Database,
-	r *my_redis.MyRedis,
+	r redis_types.TypesRedis,
 	minio storage.Storage,
 ) {
 	*g.Interceptor = *interceptor.New(conf, db, r)

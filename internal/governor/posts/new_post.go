@@ -6,7 +6,6 @@ import (
 	"log"
 	"mime/multipart"
 
-	"1337b0rd/internal/constants"
 	"1337b0rd/internal/types/controller"
 )
 
@@ -75,7 +74,7 @@ func (p *PostsGovernor) NewPost(ctx context.Context, request controller.NewPostR
 	idSession := request.GetAuthorIDSession()
 	if size != 0 {
 		newReqStorage := reqStorage{
-			bucketName:  fmt.Sprintf("%s/%s", constants.BucketPosts, idSession),
+			bucketName:  idSession,
 			objectName:  idSession,
 			objectSize:  size,
 			contentType: request.GetImage().GetContentType(),
@@ -100,10 +99,9 @@ func (p *PostsGovernor) NewPost(ctx context.Context, request controller.NewPostR
 		avatarImage:     request.GetAvatarImageURL(),
 		postImage:       imageURL,
 	}
-	if p.db == nil {
-		log.Print("dir: ", "governor", "db is nil")
-		return newResp, nil
-	}
+
+	log.Println(newResp) //////////////////////////////////////////
+
 	_, err := p.db.CreatePost(newResp)
 	if err != nil {
 		log.Print("dir: ", "governor", "method: ", "db.CreatePost", "  ERROR:  ", err.Error())

@@ -19,7 +19,7 @@ type avatars struct {
 	allAvatars []avatar
 }
 
-func (m MyRedis) SetAvatarsInRedis(avatars redistypes.ReqAvatars, ctx context.Context) error {
+func (m MyRedis) SetAvatarsRedis(avatars redistypes.ReqAvatars, ctx context.Context) error {
 	respAvatars := make([]avatar, 0)
 	for _, v := range avatars.GetAvatars() {
 		respAvatars = append(respAvatars, avatar{

@@ -1,14 +1,15 @@
 package my_redis
 
 import (
-	"1337b0rd/internal/types/controller"
+	redis_types "1337b0rd/internal/types/redis"
 	"context"
-	"github.com/redis/go-redis/v9"
 	"strconv"
 	"strings"
+
+	"github.com/redis/go-redis/v9"
 )
 
-func (m MyRedis) GetAvatarInRedis(ctx context.Context) (controller.RespAvatar, error) {
+func (m MyRedis) GetAvatarInRedis(ctx context.Context) (redis_types.RespAvatar, error) {
 	result := avatar{}
 
 	var cursor uint64
