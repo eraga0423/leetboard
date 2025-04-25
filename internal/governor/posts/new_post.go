@@ -6,7 +6,6 @@ import (
 	"log"
 	"mime/multipart"
 
-	"1337b0rd/internal/constants"
 	"1337b0rd/internal/types/controller"
 )
 
@@ -75,7 +74,7 @@ func (p *PostsGovernor) NewPost(ctx context.Context, request controller.NewPostR
 	idSession := request.GetAuthorIDSession()
 	if size != 0 {
 		newReqStorage := reqStorage{
-			bucketName:  fmt.Sprintf("%s/%s", constants.BucketPosts, idSession),
+			bucketName:  idSession,
 			objectName:  idSession,
 			objectSize:  size,
 			contentType: request.GetImage().GetContentType(),

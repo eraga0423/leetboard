@@ -2,6 +2,9 @@ package miniostorage
 
 import (
 	"context"
+	"crypto/rand"
+	"fmt"
+	"math/big"
 	"mime/multipart"
 	"time"
 
@@ -12,7 +15,6 @@ import (
 
 type dataImageReq struct {
 	bucketName  string
-	objectName  string
 	objectSize  int64
 	contentType string
 	metadata    multipart.File
@@ -24,24 +26,47 @@ type dataImageRes struct {
 func (m MinioStorage) UploadImage(ctx context.Context, req storage.DataImageReq) (storage.DataImageRes, error) {
 	newReq := dataImageReq{
 		bucketName:  req.GetBucketName(),
-		objectName:  req.GetObjectName(),
 		objectSize:  req.GetObjectSize(),
 		contentType: req.GetContentType(),
 		metadata:    req.GetMetaData(),
 	}
 
-	_, err := m.client.PutObject(ctx, newReq.bucketName, newReq.objectName, newReq.metadata, newReq.objectSize, minio.PutObjectOptions{
+	err := m.client.MakeBucket(ctx, newReq.bucketName, minio.MakeBucketOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create bucket: %v", err)
+	}
+	newObjectname, err := generateRandomObjectName()
+	if err != nil {
+		return nil, err
+	}
+	_, err = m.client.PutObject(ctx, newReq.bucketName, newObjectname, newReq.metadata, newReq.objectSize, minio.PutObjectOptions{
 		ContentType: newReq.contentType,
 	})
 	if err != nil {
 		return nil, err
 	}
-	newURL, err := m.client.PresignedGetObject(ctx, newReq.bucketName, newReq.objectName, time.Hour*24, nil)
+	newURL, err := m.client.PresignedGetObject(ctx, newReq.bucketName, newObjectname, time.Hour*24, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	return &dataImageRes{imageURL: newURL.String()}, nil
+}
+
+func generateRandomObjectName() (string, error) {
+	const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	objectNameLength := 16 // Длина имени объекта
+
+	var objectName string
+	for i := 0; i < objectNameLength; i++ {
+		index, err := rand.Int(rand.Reader, big.NewInt(int64(len(chars))))
+		if err != nil {
+			return "", fmt.Errorf("failed to generate random index: %v", err)
+		}
+		objectName += string(chars[index.Int64()])
+	}
+
+	return objectName, nil
 }
 
 func (d *dataImageRes) GetImageURL() string {
