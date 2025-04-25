@@ -10,11 +10,11 @@ import (
 type Interceptor struct {
 	conf        *config.Config
 	db          database.Database
-	redis       *redis_types.TypesRedis
+	redis       redis_types.TypesRedis
 	parseAvatar *rickmortyrest.RickAndMorty
 }
 
-func New(conf *config.Config, db database.Database, r *redis_types.TypesRedis) *Interceptor {
+func New(conf *config.Config, db database.Database, r redis_types.TypesRedis) *Interceptor {
 	return &Interceptor{
 		db:    db,
 		conf:  conf,

@@ -5,7 +5,7 @@ import "context"
 type TypesRedis interface {
 	SetAvatarsRedis(ReqAvatars, context.Context) error
 	GetAvatarInRedis(ctx context.Context) (RespAvatar, error)
-	RefreshAvatars(ctx context.Context) (RespAvatar, error)
+	RefreshAvatars(ctx context.Context) (RespAvatars, error)
 }
 type ReqAvatars interface {
 	GetAvatars() []Avatar

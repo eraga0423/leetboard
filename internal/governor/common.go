@@ -27,7 +27,7 @@ func (g *Governor) ConfigGov(
 	_ context.Context,
 	conf *config.Config,
 	db database.Database,
-	r *redis_types.TypesRedis,
+	r redis_types.TypesRedis,
 	minio storage.Storage,
 ) {
 	*g.Interceptor = *interceptor.New(conf, db, r)
