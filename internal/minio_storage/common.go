@@ -3,6 +3,7 @@ package miniostorage
 import (
 	"1337b0rd/internal/config"
 	"context"
+	"fmt"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"log"
@@ -22,8 +23,7 @@ func NewMinioStorage(conf *config.Config, ctx context.Context) *MinioStorage {
 }
 
 func newMinioClient(_ context.Context, conf *config.Config) *minio.Client {
-	endpoint := "minio:9000"
-	//fmt.Sprintf("localhost:%s", conf.Minio.APIPort)
+	endpoint := fmt.Sprintf("%s:%s", conf.Minio.Host, conf.Minio.APIPort)
 
 	client, err := minio.New(endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(conf.Minio.User, conf.Minio.Password, ""),
