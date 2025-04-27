@@ -2,6 +2,7 @@ package leetboard
 
 import (
 	"fmt"
+	"log/slog"
 	"time"
 
 	"1337b0rd/internal/types/database"
@@ -20,6 +21,7 @@ type postResp struct {
 }
 
 func (l *Leetboard) ListPosts() (database.ListPostsResp, error) {
+	slog.Info("start get getposts")
 	rows, err := l.db.Query(`
     SELECT 
     p.post_id,
@@ -61,7 +63,7 @@ WHERE (
 		}
 		resPost = append(resPost, p)
 	}
-
+	slog.Info("end get posts")
 	return allpost{posts: resPost}, nil
 }
 
