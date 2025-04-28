@@ -22,7 +22,7 @@ type archiveOnePostAuthor struct {
 	authorSessionID string
 }
 
-func archiveReturnOnePost(idPost int, db *sql.DB) (archiveOnePost, error) {
+func archiveReturnOnePost(idPost int, db *sql.DB) (*archiveOnePost, error) {
 	sql := db.QueryRow(`
 	SELECT 
 	p.title, 
@@ -30,7 +30,7 @@ func archiveReturnOnePost(idPost int, db *sql.DB) (archiveOnePost, error) {
 	p.post_image, 
 	p.post_time,
 	u.name,
-	u.user_avatar,
+	u.avatar_url,
 	u.session_id
 	FROM posts p
 	LEFT JOIN users_posts up ON up.post_id=p.post_id
@@ -59,20 +59,20 @@ AND p.post_id = $1`, idPost)
 		&o.author.authorSessionID,
 	)
 	if err != nil {
-		return archiveOnePost{}, err
+		return nil, err
 	}
 	if o.onePostTitle == "" {
-		return archiveOnePost{}, errors.New("post empty")
+		return nil, errors.New("post empty")
 	}
-	return o, nil
+	return &o, nil
 }
-func (r archiveOnePostResponse) GetOnePost() database.ArchiveRespOnePost  { return r.post }
-func (o archiveOnePost) GetTitle() string                                 { return o.onePostTitle }
-func (o archiveOnePost) GetPostContent() string                           { return o.onePostContent }
-func (o archiveOnePost) GetPostUrlImage() string                          { return o.onePostURLImage }
-func (o archiveOnePost) GetPostTime() time.Time                           { return o.onePostTime }
-func (o archiveOnePost) GetAuthorPost() database.ArchiveRespOnePostAuthor { return o.author }
+func (r *archiveOnePostResponse) GetOnePost() database.ArchiveRespOnePost  { return &r.post }
+func (o *archiveOnePost) GetTitle() string                                 { return o.onePostTitle }
+func (o *archiveOnePost) GetPostContent() string                           { return o.onePostContent }
+func (o *archiveOnePost) GetPostUrlImage() string                          { return o.onePostURLImage }
+func (o *archiveOnePost) GetPostTime() time.Time                           { return o.onePostTime }
+func (o *archiveOnePost) GetAuthorPost() database.ArchiveRespOnePostAuthor { return &o.author }
 
-func (o archiveOnePostAuthor) GetName() string      { return o.authorName }
-func (o archiveOnePostAuthor) GetImageURL() string  { return o.authorImageURL }
-func (o archiveOnePostAuthor) GetSessionID() string { return o.authorSessionID }
+func (o *archiveOnePostAuthor) GetName() string      { return o.authorName }
+func (o *archiveOnePostAuthor) GetImageURL() string  { return o.authorImageURL }
+func (o *archiveOnePostAuthor) GetSessionID() string { return o.authorSessionID }

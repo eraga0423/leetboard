@@ -64,33 +64,33 @@ WHERE (
 		resPost = append(resPost, p)
 	}
 	slog.Info("end get posts")
-	return allpost{posts: resPost}, nil
+	return &allpost{posts: resPost}, nil
 }
 
-func (a allpost) GetList() []database.ItemPostsResp {
+func (a *allpost) GetList() []database.ItemPostsResp {
 	resPosts := make([]database.ItemPostsResp, len(a.posts))
 	for num, post := range a.posts {
-		resPosts[num] = post
+		resPosts[num] = &post
 	}
 	return resPosts
 }
 
-func (p postResp) GetPostID() int {
+func (p *postResp) GetPostID() int {
 	return p.postID
 }
 
-func (p postResp) GetTitle() string {
+func (p *postResp) GetTitle() string {
 	return p.postTitle
 }
 
-func (p postResp) GetPostContent() string {
+func (p *postResp) GetPostContent() string {
 	return p.postContent
 }
 
-func (p postResp) GetPostImageURL() string {
+func (p *postResp) GetPostImageURL() string {
 	return p.postImage
 }
 
-func (p postResp) GetPostTime() time.Time {
+func (p *postResp) GetPostTime() time.Time {
 	return p.postTime
 }
