@@ -45,14 +45,14 @@ func (l *Leetboard) OneArchivePost(r database.ArchiveOnePostReq) (database.Archi
 		c.comment_time,
 		s.comment_child,
 		u1.name AS parent_name,
-		u1.user_avatar AS parent_avatar,
+		u1.avatar_url AS parent_avatar,
 		u1.session_id AS parent_session_id,
 		sub.post_id AS child_comment_post,
 		sub.comment_content AS child_content,
 		sub.comment_image AS child_image,
 		sub.comment_time AS child_time,
 		u2.name AS child_name,
-		u2.user_avatar AS child_avatar,
+		u2.avatar_url AS child_avatar,
 		u2.session_id AS child_session_id
 	FROM comments c
 	LEFT JOIN subcomments s ON s.comment_parent = c.comment_id
@@ -63,7 +63,6 @@ func (l *Leetboard) OneArchivePost(r database.ArchiveOnePostReq) (database.Archi
 	LEFT JOIN users u2 ON u2.user_id = cu2.user_id
 	WHERE c.post_id = $1
 `, idPost)
-
 	if err != nil {
 		return nil, err
 	}
@@ -125,37 +124,39 @@ func (l *Leetboard) OneArchivePost(r database.ArchiveOnePostReq) (database.Archi
 		commentList = append(commentList, *v)
 	}
 
-	return archiveOnePostResponse{
+	return &archiveOnePostResponse{
 		comments: commentList,
-		post:     onePost}, nil
+		post:     *onePost,
+	}, nil
 }
 
-func (r archiveOnePostResponse) GetComments() []database.ArchiveComment {
+func (r *archiveOnePostResponse) GetComments() []database.ArchiveComment {
 	comments := make([]database.ArchiveComment, len(r.comments))
 	for num, comment := range r.comments {
-		comments[num] = comment
+		comments[num] = &comment
 	}
 	return comments
 }
-func (c archiveCommentNode) GetParent() database.ArchiveOneComment {
-	return c.parent
+
+func (c *archiveCommentNode) GetParent() database.ArchiveOneComment {
+	return &c.parent
 }
 
-func (c archiveCommentNode) GetChildren() []database.ArchiveOneComment {
+func (c *archiveCommentNode) GetChildren() []database.ArchiveOneComment {
 	result := make([]database.ArchiveOneComment, len(c.children))
 	for i := range c.children {
-		result[i] = c.children[i]
+		result[i] = &c.children[i]
 	}
 	return result
 }
 
-func (c archiveOneCommentData) GetCommentID() int                            { return c.id }
-func (c archiveOneCommentData) GetPostID() int                               { return c.postID }
-func (c archiveOneCommentData) GetCommentContent() string                    { return c.content }
-func (c archiveOneCommentData) GetCommentImage() string                      { return c.image }
-func (c archiveOneCommentData) GetCommentTime() time.Time                    { return c.time }
-func (c archiveOneCommentData) GetAuthor() database.ArchiveRespCommentAuthor { return c.author }
+func (c *archiveOneCommentData) GetCommentID() int                            { return c.id }
+func (c *archiveOneCommentData) GetPostID() int                               { return c.postID }
+func (c *archiveOneCommentData) GetCommentContent() string                    { return c.content }
+func (c *archiveOneCommentData) GetCommentImage() string                      { return c.image }
+func (c *archiveOneCommentData) GetCommentTime() time.Time                    { return c.time }
+func (c *archiveOneCommentData) GetAuthor() database.ArchiveRespCommentAuthor { return &c.author }
 
-func (o archiveOneCommentAuthor) GetName() string      { return o.authorName }
-func (o archiveOneCommentAuthor) GetImageURL() string  { return o.authorImageURL }
-func (o archiveOneCommentAuthor) GetSessionID() string { return o.authorSessionID }
+func (o *archiveOneCommentAuthor) GetName() string      { return o.authorName }
+func (o *archiveOneCommentAuthor) GetImageURL() string  { return o.authorImageURL }
+func (o *archiveOneCommentAuthor) GetSessionID() string { return o.authorSessionID }

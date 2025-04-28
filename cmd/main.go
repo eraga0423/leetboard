@@ -1,14 +1,15 @@
 package main
 
 import (
-	miniostorage "1337b0rd/internal/minio_storage"
-	my_redis "1337b0rd/internal/redis"
 	"context"
 	"log"
 	"log/slog"
 	"os"
 	"os/signal"
 	"time"
+
+	miniostorage "1337b0rd/internal/minio_storage"
+	my_redis "1337b0rd/internal/redis"
 
 	"1337b0rd/internal/config"
 	"1337b0rd/internal/governor"
@@ -24,7 +25,7 @@ func main() {
 	gov := governor.New()
 
 	go func(ctx context.Context) {
-		ticker := time.NewTicker(time.Minute * 5)
+		ticker := time.NewTicker(time.Minute)
 		defer ticker.Stop()
 		for {
 			select {
@@ -39,7 +40,6 @@ func main() {
 				log.Print("auto save backup succesfully")
 			}
 		}
-
 	}(ctx)
 	////////////////////rickmortyrest.NewRickAndMorty()
 	r := rest.New(gov)

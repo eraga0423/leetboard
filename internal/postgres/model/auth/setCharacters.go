@@ -11,19 +11,20 @@ func (a *Auth) UpdateCharacters(d database.RequestCharacters) error {
 	var s string
 	for i, char := range charS {
 		if i == 0 {
-			s = fmt.Sprintf(`VALUES('%d','%v')`, char.SetCharacterId(), char.SetCharacterStatus())
+			s = fmt.Sprintf(`(%d,%v)`, char.SetCharacterId(), char.SetCharacterStatus())
 		} else {
 			s += ","
-			s1 := fmt.Sprintf(`('%d','%v')`, char.SetCharacterId(), char.SetCharacterStatus())
+			s1 := fmt.Sprintf(`(%d,%v)`, char.SetCharacterId(), char.SetCharacterStatus())
 			s += s1
 		}
 	}
-
-	_, err := a.db.Exec(`
+	query := fmt.Sprintf(`
 	UPDATE avatars
 	SET status = data.status
-	FROM ($1) AS data(id, status)
-	WHERE character_id = data.id`, s)
+	FROM (VALUES %s) AS data(id, status)
+	WHERE avatars.character_id = data.id
+	`, s)
+	_, err := a.db.Exec(query)
 	if err != nil {
 		return err
 	}

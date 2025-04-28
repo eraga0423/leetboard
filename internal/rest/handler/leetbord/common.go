@@ -43,9 +43,7 @@ func checkFile(r *http.Request) (metaData, error) {
 		}
 
 	}
-	if file == nil {
-		defer file.Close()
-	}
+	
 	contentType := header.Header.Get("Content-Type")
 	if contentType != "image/jpeg" && contentType != "image/png" {
 		return metaData{}, errors.New("content type not supported")

@@ -22,7 +22,7 @@ type onePostAuthor struct {
 	authorSessionID string
 }
 
-func returnOnePost(idPost int, db *sql.DB) (onePost, error) {
+func returnOnePost(idPost int, db *sql.DB) (*onePost, error) {
 	sql := db.QueryRow(`
 	SELECT 
 	p.title, 
@@ -30,7 +30,7 @@ func returnOnePost(idPost int, db *sql.DB) (onePost, error) {
 	p.post_image, 
 	p.post_time,
 	u.name,
-	u.user_avatar,
+	u.avatar_url,
 	u.session_id
 	FROM posts p
 	LEFT JOIN users_posts up ON up.post_id=p.post_id
@@ -59,20 +59,20 @@ AND p.post_id = $1`, idPost)
 		&o.author.authorSessionID,
 	)
 	if err != nil {
-		return onePost{}, err
+		return nil, err
 	}
 	if o.onePostTitle == "" {
-		return onePost{}, errors.New("post empty")
+		return nil, errors.New("post empty")
 	}
-	return o, nil
+	return &o, nil
 }
-func (r onePostResponse) GetOnePost() database.RespOnePost  { return r.post }
-func (o onePost) GetTitle() string                          { return o.onePostTitle }
-func (o onePost) GetPostContent() string                    { return o.onePostContent }
-func (o onePost) GetPostUrlImage() string                   { return o.onePostURLImage }
-func (o onePost) GetPostTime() time.Time                    { return o.onePostTime }
-func (o onePost) GetAuthorPost() database.RespOnePostAuthor { return o.author }
+func (r *onePostResponse) GetOnePost() database.RespOnePost  { return &r.post }
+func (o *onePost) GetTitle() string                          { return o.onePostTitle }
+func (o *onePost) GetPostContent() string                    { return o.onePostContent }
+func (o *onePost) GetPostUrlImage() string                   { return o.onePostURLImage }
+func (o *onePost) GetPostTime() time.Time                    { return o.onePostTime }
+func (o *onePost) GetAuthorPost() database.RespOnePostAuthor { return &o.author }
 
-func (o onePostAuthor) GetName() string      { return o.authorName }
-func (o onePostAuthor) GetImageURL() string  { return o.authorImageURL }
-func (o onePostAuthor) GetSessionID() string { return o.authorSessionID }
+func (o *onePostAuthor) GetName() string      { return o.authorName }
+func (o *onePostAuthor) GetImageURL() string  { return o.authorImageURL }
+func (o *onePostAuthor) GetSessionID() string { return o.authorSessionID }
