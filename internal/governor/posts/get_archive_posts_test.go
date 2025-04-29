@@ -2,18 +2,18 @@ package posts_governor
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
-	"1337b0rd/internal/types/controller"
 	"1337b0rd/internal/types/database"
 )
 
 type mockListPostsArchiveResp struct {
-	posts []controller.ItemArchivePostsResp
+	posts []database.ItemPostsArchiveResp
 }
 
-func (m *mockListPostsArchiveResp) GetArchiveList() []controller.ItemArchivePostsResp {
+func (m *mockListPostsArchiveResp) GetArchiveList() []database.ItemPostsArchiveResp {
 	return m.posts
 }
 
@@ -36,14 +36,77 @@ type mockDBArchive struct {
 	err  error
 }
 
-func (m *mockDBArchive) ListArchivePosts() (controller.ListArchivePostsResp, error) {
+func (m *mockDBArchive) ListArchivePosts() (database.ListPostsArchiveResp, error) {
 	return m.resp, m.err
 }
 
-func TestListArchivePosts_Succes(t *testing.T) {
-	ctx := context.Background()
-	pg := &PostsGovernor{
-		db: &mockDBArchive{},
+func TestPostGovernor_ListArchivePosts_Succes(t *testing.T) {
+	mockPost := &mockArchivePost{
+		postID:       1,
+		title:        "title",
+		postContent:  "content",
+		postImageURL: "http??sdsfsf",
+		postTime:     time.Now(),
 	}
-	resp, err := pg.ListArchivePosts(ctx)
+	mockresp := &mockListPostsArchiveResp{
+		posts: []database.ItemPostsArchiveResp{mockPost},
+	}
+	mockDB := &mockDBArchive{resp: mockresp}
+	gov := &PostsGovernor{db: mockDB}
+	res, err := gov.ListArchivePosts(context.Background())
+	if err != nil {
+		t.Fatalf("expected no errror, got %v", err)
+	}
+	list := res.GetList()
+	if len(list) != 1 {
+		t.Fatalf("expected 1 post, got %d", len(list))
+	}
+	if list[0].GetPostID() != mockPost.GetPostID() {
+		t.Errorf("expected post ID %d, got %d", mockPost.GetPostID(), list[0].GetPostID())
+	}
+}
+
+func TestPostsGovernor_ListArchivePosts_Error(t *testing.T) {
+	expectedErr := errors.New("db error")
+	mockDB := &mockDBArchive{err: expectedErr}
+	gov := &PostsGovernor{db: mockDB}
+	_, err := gov.ListArchivePosts(context.Background())
+	if err == nil {
+		t.Fatalf("expected an error, got none")
+	}
+	if err != expectedErr {
+		t.Errorf("expected error %v, got %v", expectedErr, err)
+	}
+}
+
+func (m *mockDBArchive) CreateComment(database.NewReqComment) error {
+	return nil
+}
+
+func (m *mockDBArchive) ListPosts() (database.ListPostsResp, error) {
+	return nil, nil
+}
+
+func (m *mockDBArchive) CreatePost(database.NewPostReq) (database.NewPostResp, error) {
+	return nil, nil
+}
+
+func (m *mockDBArchive) OnePost(database.OnePostReq) (database.OnePostResp, error) {
+	return nil, nil
+}
+
+func (m *mockDBArchive) OneArchivePost(database.ArchiveOnePostReq) (database.ArchiveOnePostResp, error) {
+	return nil, nil
+}
+
+func (m *mockDBArchive) ListCharacters() (database.ResponseCharacters, error) {
+	return nil, nil
+}
+
+func (m *mockDBArchive) UpdateCharacters(database.RequestCharacters) error {
+	return nil
+}
+
+func (m *mockDBArchive) InserCartoonCharacters(database.InsertCharacters) error {
+	return nil
 }
