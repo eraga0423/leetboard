@@ -22,6 +22,7 @@ type OnePostArchive struct {
 }
 
 func (h *PostsHandler) GetArchive(w http.ResponseWriter, r *http.Request) {
+	tmpl := template.Must(template.ParseFiles(constants.Archive))
 	resp, err := h.ctrl.ListArchivePosts(r.Context())
 	if err != nil {
 		h.HandleError(w, http.StatusBadRequest)
@@ -40,7 +41,7 @@ func (h *PostsHandler) GetArchive(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 	log.Print("This GET /archive")
-	tmpl := template.Must(template.ParseFiles(constants.Archive))
+	
 	err = tmpl.Execute(w, data)
 	if err != nil {
 		log.Print(err)
