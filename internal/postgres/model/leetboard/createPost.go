@@ -10,6 +10,8 @@ import (
 )
 
 func (l *Leetboard) CreatePost(req database.NewPostReq) (database.NewPostResp, error) {
+	
+
 	// post
 	title := req.GetTitle()
 	content := req.GetPostContent()

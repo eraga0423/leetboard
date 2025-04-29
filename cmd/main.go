@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"io"
 	"log"
 	"log/slog"
 	"os"
@@ -45,7 +46,22 @@ func main() {
 	r := rest.New(gov)
 	conf := config.NewConfig()
 	ms := miniostorage.NewMinioStorage(conf, ctx)
-	logger := slog.New(slog.NewTextHandler(os.Stdout, nil)) ///////////
+
+	// логирование начало
+	file, err := os.OpenFile("log.txt", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o666)
+	if err != nil {
+		log.Fatalf("Не удалось открыть лог-файл: %v", err)
+	}
+	defer file.Close()
+
+	// Создаём мульти-вывод: в stdout и в файл одновременно
+	multiWriter := io.MultiWriter(os.Stdout, file)
+	handler := slog.NewTextHandler(multiWriter, &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	})
+
+	logger := slog.New(handler)
+	// логирование конец
 	p, err := postgres.New(&conf.Postgres, logger)
 	if err != nil {
 		slog.Any("failed start database", "postgres")
