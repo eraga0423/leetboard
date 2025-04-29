@@ -30,6 +30,8 @@ func (h *PostsHandler) GetPostID(w http.ResponseWriter, r *http.Request) {
 		h.HandleError(w, http.StatusInternalServerError)
 		return
 	}
+
+	slog.Info("data", data) /////////////////////////////////////раскрыть интерфейс ////////////////////////////
 	fmt.Println("This GET /post/id")
 	err = tmpl.Execute(w, data)
 	if err != nil {
@@ -37,6 +39,7 @@ func (h *PostsHandler) GetPostID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
 func (i *reqID) GetPostID() int {
 	return i.id
 }
