@@ -3,6 +3,7 @@ package posts_governor
 import (
 	"context"
 	"log"
+	"log/slog"
 	"time"
 
 	"1337b0rd/internal/types/controller"
@@ -27,6 +28,7 @@ func (r *PostsGovernor) ListPosts(ctx context.Context) (controller.ListPostsResp
 	}
 
 	r.all.posts = newResp
+	slog.Info("resp gov", "r.all.posts", r.all.posts) //////////////////////////////////////
 	return &r.all, nil
 }
 
@@ -42,11 +44,11 @@ type postResp struct {
 }
 
 func (p *allPost) GetList() []controller.ItemPostsResp {
-	var res []controller.ItemPostsResp
-	for _, v := range p.posts {
-		res = append(res, &v)
+	res := make([]controller.ItemPostsResp, len(p.posts))
+	for i, v := range p.posts {
+		res[i] = &v
 	}
-	return nil
+	return res
 }
 
 func (p *postResp) GetPostID() int {
@@ -62,7 +64,7 @@ func (p *postResp) GetPostContent() string {
 }
 
 func (p *postResp) GetPostImageURL() string {
-	return p.GetPostImageURL()
+	return p.PostImage
 }
 
 func (p *postResp) GetPostTime() time.Time {

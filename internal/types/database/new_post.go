@@ -3,7 +3,9 @@ package database
 type NewPostReq interface {
 	GetTitle() string
 	GetPostContent() string
-	GetImage() string
+	GetPostImageURL() string
+	GetAuthorAvatarURL() string
+	GetAuthorName() string
 	GetAuthorSession() (idSessionUser string)
 }
 

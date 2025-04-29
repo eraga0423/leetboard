@@ -1,17 +1,29 @@
 package leetboard
 
 import (
+	"database/sql"
+	"errors"
+	"log/slog"
 	"time"
 
 	"1337b0rd/internal/types/database"
 )
 
 func (a *Leetboard) CreateComment(req database.NewReqComment) error {
+	// comment
 	post := req.GetPostID()
-	parentComID := req.GetParentCommentID()
 	content := req.GetCommentContent()
 	comImage := req.GetCommentImage()
+
+	// parent comment
+	parentComID := req.GetParentCommentID()
+
+	// comment's author
 	authSessionID := req.GetAuthorSession()
+	authorName := req.GetAuthorName()
+	authorAvatar := req.GetAuthorAvatarURL()
+
+	// time
 	timeNow := time.Now()
 
 	tx, err := a.db.Begin()
@@ -20,7 +32,7 @@ func (a *Leetboard) CreateComment(req database.NewReqComment) error {
 	}
 	defer TxAfter(tx, err)
 
-	sql := tx.QueryRow(`
+	mydb := tx.QueryRow(`
 	INSERT INTO comments
 	(post_id, comment_content, comment_image, comment_time)
 	VALUE($1, $2, $3, $4)
@@ -28,7 +40,7 @@ func (a *Leetboard) CreateComment(req database.NewReqComment) error {
 	`, post, content, comImage, timeNow,
 	)
 	var commentID int
-	err = sql.Scan(
+	err = mydb.Scan(
 		&commentID,
 	)
 	if err != nil {
@@ -46,15 +58,30 @@ func (a *Leetboard) CreateComment(req database.NewReqComment) error {
 		}
 	}
 	var authorID int
-	sql = tx.QueryRow(`
+	mydb = tx.QueryRow(`
 	SELECT user_id
 	FROM users
 	WHERE session_id = $1
 	`, authSessionID)
-	err = sql.Scan(
+	err = mydb.Scan(
 		&authorID,
 	)
-	if err != nil {
+	if errors.Is(err, sql.ErrNoRows) {
+		slog.Info("this session_id is first")
+		// new user insert
+		mydb = tx.QueryRow(`
+		INSERT INTO users 
+		(name, avatar_url, session_id)
+		VALUES($1, $2, $3)
+		RETURNING user_id
+		`, authorName, authorAvatar, authSessionID)
+		err = mydb.Scan(
+			&authorID,
+		)
+		if err != nil {
+			return err
+		}
+	} else if err != nil {
 		return err
 	}
 

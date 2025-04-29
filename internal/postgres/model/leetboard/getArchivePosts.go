@@ -61,33 +61,33 @@ WHERE (
 		resPost = append(resPost, p)
 	}
 
-	return allArchivepost{posts: resPost}, nil
+	return &allArchivepost{posts: resPost}, nil
 }
 
-func (a allArchivepost) GetArchiveList() []database.ItemPostsArchiveResp {
+func (a *allArchivepost) GetArchiveList() []database.ItemPostsArchiveResp {
 	resPosts := make([]database.ItemPostsArchiveResp, len(a.posts))
 	for num, post := range a.posts {
-		resPosts[num] = post
+		resPosts[num] = &post
 	}
 	return resPosts
 }
 
-func (p postArchiveResp) GetPostID() int {
+func (p *postArchiveResp) GetPostID() int {
 	return p.postID
 }
 
-func (p postArchiveResp) GetTitle() string {
+func (p *postArchiveResp) GetTitle() string {
 	return p.postTitle
 }
 
-func (p postArchiveResp) GetPostContent() string {
+func (p *postArchiveResp) GetPostContent() string {
 	return p.postContent
 }
 
-func (p postArchiveResp) GetPostImageURL() string {
+func (p *postArchiveResp) GetPostImageURL() string {
 	return p.postImage
 }
 
-func (p postArchiveResp) GetPostTime() time.Time {
+func (p *postArchiveResp) GetPostTime() time.Time {
 	return p.postTime
 }

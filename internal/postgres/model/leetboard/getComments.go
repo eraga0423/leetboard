@@ -45,14 +45,14 @@ func (l *Leetboard) OnePost(r database.OnePostReq) (database.OnePostResp, error)
 		c.comment_time,
 		s.comment_child,
 		u1.name AS parent_name,
-		u1.user_avatar AS parent_avatar,
+		u1.avatar_url AS parent_avatar,
 		u1.session_id AS parent_session_id,
 		sub.post_id AS child_comment_post,
 		sub.comment_content AS child_content,
 		sub.comment_image AS child_image,
 		sub.comment_time AS child_time,
 		u2.name AS child_name,
-		u2.user_avatar AS child_avatar,
+		u2.avatar_url AS child_avatar,
 		u2.session_id AS child_session_id
 	FROM comments c
 	LEFT JOIN subcomments s ON s.comment_parent = c.comment_id
@@ -125,37 +125,37 @@ func (l *Leetboard) OnePost(r database.OnePostReq) (database.OnePostResp, error)
 		commentList = append(commentList, *v)
 	}
 
-	return onePostResponse{
+	return &onePostResponse{
 		comments: commentList,
-		post:     onePost}, nil
+		post:     *onePost}, nil
 }
 
-func (r onePostResponse) GetComments() []database.Comment {
+func (r *onePostResponse) GetComments() []database.Comment {
 	comments := make([]database.Comment, len(r.comments))
 	for num, comment := range r.comments {
-		comments[num] = comment
+		comments[num] = &comment
 	}
 	return comments
 }
-func (c commentNode) GetParent() database.OneComment {
-	return c.parent
+func (c *commentNode) GetParent() database.OneComment {
+	return &c.parent
 }
 
-func (c commentNode) GetChildren() []database.OneComment {
+func (c *commentNode) GetChildren() []database.OneComment {
 	result := make([]database.OneComment, len(c.children))
 	for i := range c.children {
-		result[i] = c.children[i]
+		result[i] = &c.children[i]
 	}
 	return result
 }
 
-func (c oneCommentData) GetCommentID() int                     { return c.id }
-func (c oneCommentData) GetPostID() int                        { return c.postID }
-func (c oneCommentData) GetCommentContent() string             { return c.content }
-func (c oneCommentData) GetCommentImage() string               { return c.image }
-func (c oneCommentData) GetCommentTime() time.Time             { return c.time }
-func (c oneCommentData) GetAuthor() database.RespCommentAuthor { return c.author }
+func (c *oneCommentData) GetCommentID() int                     { return c.id }
+func (c *oneCommentData) GetPostID() int                        { return c.postID }
+func (c *oneCommentData) GetCommentContent() string             { return c.content }
+func (c *oneCommentData) GetCommentImage() string               { return c.image }
+func (c *oneCommentData) GetCommentTime() time.Time             { return c.time }
+func (c *oneCommentData) GetAuthor() database.RespCommentAuthor { return &c.author }
 
-func (o oneCommentAuthor) GetName() string      { return o.authorName }
-func (o oneCommentAuthor) GetImageURL() string  { return o.authorImageURL }
-func (o oneCommentAuthor) GetSessionID() string { return o.authorSessionID }
+func (o *oneCommentAuthor) GetName() string      { return o.authorName }
+func (o *oneCommentAuthor) GetImageURL() string  { return o.authorImageURL }
+func (o *oneCommentAuthor) GetSessionID() string { return o.authorSessionID }

@@ -2,6 +2,7 @@ package posts_handler
 
 import (
 	"log"
+	"log/slog"
 	"net/http"
 	"text/template"
 	"time"
@@ -29,7 +30,7 @@ func (h *PostsHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
 			PostTime:    v.GetPostTime(),
 		})
 	}
-
+	slog.Info("rest", "data", data) ///////////////////////////////////////
 	err = tmpl.Execute(w, data)
 	if err != nil {
 		h.HandleError(w, 400)
