@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>{{.TitlePost}}</title>
+    <title>{{.OnePost.Title}}</title>
     <link rel="stylesheet" href="/static/css/style.css" />
   </head>
   <body>
@@ -11,52 +11,68 @@
       <button onclick="location.href='/archive'">Перейти в архив</button>
     </div>
 
-    <h2>{{.Title}}</h2>
+    <h2>{{.OnePost.Title}}</h2>
     <ul>
-      <li>{{.Nick}}</li>
-      <li>{{.Post}}</li>
+      <li>{{.OnePost.AuthorPost.Name}}</li>
+      <li>{{.OnePost.Content}}</li>
     </ul>
-    {{if .ImageURL}}
+
+    {{if .OnePost.ImageURL}}
     <br />
-    <img src="{{.ImageURL}}" alt="{{.Title}}" width="200" />
+    <img src="{{.OnePost.ImageURL}}" alt="{{.OnePost.Title}}" width="200" />
     {{end}}
+
     <h3>Комментарии:</h3>
+
     {{if .Comments}}
     <ul>
       {{range .Comments}}
       <!-- Родительский комментарий -->
-      <li id="comment-{{.parentComment.commentID}}">
-          <b>{{.ParentComment.Author.Name}} (ID: {{.ParentComment.CommentID}})</b>: {{.ParentComment.CommentContent}}<br>
-          <a href="#comment-form" onclick="replyTo({{.ParentComment.CommentID}})">Ответить</a>
-        </li>
-      <!-- Дочерние комментарии (вложенный 1 уровень) -->
-        {{range .ChildrenComment}}
-          <li style="margin-left: 30px;" id="comment-{{.CommentID}}">
-            └─ <b>{{.author.name}} (ID: {{.СommentID}})</b> → ответ на #{{.postID}} {{$.parentComment.author.name}}:<br>
-            {{.commentContent}}<br>
-            <a href="#comment-form" onclick="replyTo({{.CommentID}})">Ответить</a>
-          </li>
-        {{end}}
+      <li id="comment-{{.ParentComment.CommentID}}">
+        <b>{{.ParentComment.Author.Name}} (ID: {{.ParentComment.CommentID}})</b
+        >: {{.ParentComment.CommentContent}}<br />
+        <a href="#comment-form" onclick="replyTo({{.ParentComment.CommentID}})"
+          >Ответить</a
+        >
+      </li>
 
-      {{end}}
+      <!-- Дочерние комментарии (1 уровень вложенности) -->
+      {{range .ChildrenComment}}
+      <li style="margin-left: 30px" id="comment-{{.CommentID}}">
+        └─ <b>{{.Author.Name}} (ID: {{.CommentID}})</b> → ответ на #{{.PostID}}
+        {{$.ParentComment.Author.Name}}:<br />
+        {{.CommentContent}}<br />
+        <a href="#comment-form" onclick="replyTo({{.CommentID}})">Ответить</a>
+      </li>
+      {{end}} {{end}}
     </ul>
     {{else}}
     <p>Комментариев нету.</p>
     {{end}}
-    <form method="POST" action="{{.IDPost}}/comment" id="comment-form">
-      <input type="hidden" name="post_id" value="{{.IDPost}}" />
+
+    <form
+      method="POST"
+      action="/{{.OnePost.AuthorPost.SessionID}}/comment"
+      id="comment-form"
+    >
+      <input
+        type="hidden"
+        name="post_id"
+        value="{{.OnePost.AuthorPost.SessionID}}"
+      />
       <input type="hidden" name="parent_id" id="parent-comment-id" value="0" />
       <label for="new_comment">Введите коммент:</label>
       <input type="text" id="new_comment" name="comment_content" required />
       <button type="submit">Отправить</button>
     </form>
+
     <script>
       function replyTo(commentID) {
         document.getElementById("parent-comment-id").value = commentID;
-        document.getElementById("new_comment").placeholder = "Ответ на #" + commentID;
+        document.getElementById("new_comment").placeholder =
+          "Ответ на #" + commentID;
         document.getElementById("new_comment").focus();
       }
     </script>
-
   </body>
 </html>
