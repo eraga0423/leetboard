@@ -1,10 +1,8 @@
 package database
 
-
-
 type NewReqComment interface {
 	GetAuthorName() string
-	GetAuthorAvatarURL()string
+	GetAuthorAvatarURL() string
 	GetPostID() int
 	GetParentCommentID() int
 	GetCommentContent() string
@@ -12,4 +10,6 @@ type NewReqComment interface {
 	GetAuthorSession() (idSessionUser string)
 }
 
-
+type NewRespComment interface {
+	TxRollback() (idSessionUser string)
+}

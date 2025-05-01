@@ -68,7 +68,10 @@ func (m *mockDB) InserCartoonCharacters(database.InsertCharacters) error       {
 func (m *mockDB) ListArchivePosts() (database.ListPostsArchiveResp, error)     { return nil, nil }
 func (m *mockDB) ListCharacters() (database.ResponseCharacters, error)         { return nil, nil }
 func (m *mockDB) CreatePost(database.NewPostReq) (database.NewPostResp, error) { return nil, nil }
-func (m *mockDB) CreateComment(database.NewReqComment) error                   { return nil }
+func (m *mockDB) CreateComment(database.NewReqComment) (database.NewRespComment, error) {
+	return nil, nil
+}
+
 func (m *mockDB) OneArchivePost(database.ArchiveOnePostReq) (database.ArchiveOnePostResp, error) {
 	return nil, nil
 }

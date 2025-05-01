@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"fmt"
+	"log/slog"
 	"math/big"
 	"mime/multipart"
 	"time"
@@ -33,7 +34,12 @@ func (m MinioStorage) UploadImage(ctx context.Context, req storage.DataImageReq)
 
 	err := m.client.MakeBucket(ctx, newReq.bucketName, minio.MakeBucketOptions{})
 	if err != nil {
-		return nil, fmt.Errorf("failed to create bucket: %v", err)
+		exists, errBucket := m.client.BucketExists(ctx, newReq.bucketName)
+		if errBucket == nil && exists {
+			slog.Info("bucket already exists", "bucket", newReq.bucketName)
+		} else {
+			return nil, fmt.Errorf("failed to create bucket: %v", err)
+		}
 	}
 	newObjectname, err := generateRandomObjectName()
 	if err != nil {

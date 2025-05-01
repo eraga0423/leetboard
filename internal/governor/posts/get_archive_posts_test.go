@@ -79,8 +79,8 @@ func TestPostsGovernor_ListArchivePosts_Error(t *testing.T) {
 	}
 }
 
-func (m *mockDBArchive) CreateComment(database.NewReqComment) error {
-	return nil
+func (m *mockDBArchive) CreateComment(database.NewReqComment) (database.NewRespComment, error) {
+	return nil, nil
 }
 
 func (m *mockDBArchive) ListPosts() (database.ListPostsResp, error) {

@@ -11,7 +11,7 @@ type Post interface {
 	CreatePost(NewPostReq) (NewPostResp, error)
 	OnePost(OnePostReq) (OnePostResp, error)
 	OneArchivePost(ArchiveOnePostReq) (ArchiveOnePostResp, error)
-	CreateComment(NewReqComment) error
+	CreateComment(NewReqComment) (NewRespComment, error)
 	ListArchivePosts() (ListPostsArchiveResp, error)
 }
 
