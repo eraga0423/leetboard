@@ -9,7 +9,7 @@ import (
 	"1337b0rd/internal/types/database"
 )
 
-func (a *Leetboard) CreateComment(req database.NewReqComment) error {
+func (a *Leetboard) CreateComment(req database.NewReqComment) (database.NewRespComment, error) {
 	// comment
 	post := req.GetPostID()
 	content := req.GetCommentContent()
@@ -28,7 +28,7 @@ func (a *Leetboard) CreateComment(req database.NewReqComment) error {
 
 	tx, err := a.db.Begin()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer TxAfter(tx, err)
 
@@ -44,7 +44,7 @@ func (a *Leetboard) CreateComment(req database.NewReqComment) error {
 		&commentID,
 	)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if parentComID != 0 {
 		_, err := tx.Exec(`
@@ -54,7 +54,7 @@ func (a *Leetboard) CreateComment(req database.NewReqComment) error {
 	`, parentComID, commentID,
 		)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
 	var authorID int
@@ -79,10 +79,10 @@ func (a *Leetboard) CreateComment(req database.NewReqComment) error {
 			&authorID,
 		)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	} else if err != nil {
-		return err
+		return nil, err
 	}
 
 	_, err = tx.Exec(`
@@ -92,7 +92,29 @@ func (a *Leetboard) CreateComment(req database.NewReqComment) error {
 	`, commentID, authorID,
 	)
 	if err != nil {
-		return err
+		return nil, err
+	}
+	var d txRollBackStruct
+	d.tx = tx
+
+	return &d, nil
+}
+
+type txRollBackStruct struct {
+	tx *sql.Tx
+}
+
+func (t *txRollBackStruct) TxRollback(b bool) error {
+	if b {
+		err := t.tx.Rollback()
+		if err != nil {
+			return err
+		}
+	} else {
+		err := t.tx.Commit()
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

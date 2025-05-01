@@ -11,5 +11,5 @@ type NewReqComment interface {
 }
 
 type NewRespComment interface {
-	TxRollback() (idSessionUser string)
+	TxRollback(bool) error
 }

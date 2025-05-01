@@ -10,6 +10,6 @@ type NewPostReq interface {
 }
 
 type NewPostResp interface {
-	TxRollback() error
+	TxRollback(bool) error
 	CreationPostResp() (idPost int)
 }
