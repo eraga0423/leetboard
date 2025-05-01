@@ -70,7 +70,7 @@ func (g *PostsGovernor) NewComment(req controller.NewCommentReq, ctx context.Con
 		imageCommentURL: commentImageURl,
 		postID:          postIDInt,
 	}
-	err = g.db.CreateComment(newRespDB)
+	_, err = g.db.CreateComment(newRespDB)
 	if err != nil {
 		return nil, err
 	}
