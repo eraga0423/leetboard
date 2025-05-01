@@ -125,11 +125,11 @@ func (p *PostsGovernor) NewPost(ctx context.Context, request controller.NewPostR
 		}
 		err = p.miniostor.UploadImage(ctx, &newReqStorage)
 		if err != nil {
+			log.Print("dir: ", "governor", "method: ", "minioUploadImage", err.Error())
 			err = resp.TxRollback(true)
 			if err != nil {
 				return nil, err
 			}
-			log.Print("dir: ", "governor", "method: ", "minioUploadImage", err.Error())
 			return nil, err
 		}
 	}
