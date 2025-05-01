@@ -10,7 +10,8 @@ import (
 	"1337b0rd/internal/types/database"
 )
 
-func (l *Leetboard) CreatePost(ctx context.Context,req database.NewPostReq) (database.NewPostResp, error) {
+func (l *Leetboard) CreatePost(ctx context.Context, req database.NewPostReq) (database.NewPostResp, error) {
+	log := l.logger.With(slog.String("handler", "createPost"))
 	// post
 	title := req.GetTitle()
 	content := req.GetPostContent()
@@ -27,6 +28,7 @@ func (l *Leetboard) CreatePost(ctx context.Context,req database.NewPostReq) (dat
 	// start
 	tx, err := l.db.Begin()
 	if err != nil {
+		log.ErrorContext(ctx, "Error starting transaction", slog.Any("error", err))
 		return nil, err
 	}
 	defer TxAfter(tx, err)

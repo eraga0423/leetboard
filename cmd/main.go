@@ -108,8 +108,8 @@ func main() {
 
 	// gracefullshutdown начало
 	go func(cancelFunc context.CancelFunc) {
-		shutdown := make(chan os.Signal, 1)   
-		signal.Notify(shutdown, os.Interrupt) 
+		shutdown := make(chan os.Signal, 1)
+		signal.Notify(shutdown, os.Interrupt)
 
 		sig := <-shutdown
 		slog.Any("signal", sig)
