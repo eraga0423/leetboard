@@ -10,8 +10,6 @@ import (
 )
 
 func (l *Leetboard) CreatePost(req database.NewPostReq) (database.NewPostResp, error) {
-	
-
 	// post
 	title := req.GetTitle()
 	content := req.GetPostContent()
@@ -100,13 +98,33 @@ func (l *Leetboard) CreatePost(req database.NewPostReq) (database.NewPostResp, e
 	if err != nil {
 		return nil, err
 	}
-	return idPost{newId: int(postID)}, nil
+	var n newPostRespStruct
+	n.newId = int(postID)
+
+	n.tx = tx
+	return &n, nil
 }
 
-type idPost struct {
+type newPostRespStruct struct {
 	newId int
+	tx    *sql.Tx
 }
 
-func (i idPost) CreationPostResp() int {
+func (i *newPostRespStruct) CreationPostResp() int {
 	return i.newId
+}
+
+func (t newPostRespStruct) TxRollback(b bool) error {
+	if b {
+		err := t.tx.Rollback()
+		if err != nil {
+			return err
+		}
+	} else {
+		err := t.tx.Commit()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
