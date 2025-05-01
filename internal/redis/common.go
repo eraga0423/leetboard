@@ -1,9 +1,12 @@
 package my_redis
 
 import (
+	"fmt"
+	"log/slog"
+
 	"1337b0rd/internal/config"
 	"1337b0rd/internal/types/controller"
-	"fmt"
+
 	"github.com/redis/go-redis/v9"
 )
 
@@ -13,8 +16,7 @@ type MyRedis struct {
 	newClient *redis.Client
 }
 
-func NewMyRedis(ctrl controller.Controller, config *config.Config) *MyRedis {
-
+func NewMyRedis(ctrl controller.Controller, config *config.Config, log *slog.Logger) *MyRedis {
 	return &MyRedis{
 		ctrl:   ctrl,
 		config: config,
