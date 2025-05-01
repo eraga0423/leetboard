@@ -23,8 +23,10 @@ type avatar struct {
 func (i *Interceptor) FetchAndCacheAvatar(ctx context.Context, logger *slog.Logger) error {
 	databaseList, err := i.db.ListCharacters(ctx)
 	if err != nil {
-		logger.ErrorContext(ctx, "failed to get cartoon characters from database", slog.Any("error", err))
-		return fmt.Errorf("failed to get cartoon characters from database :%w", err)
+		if err.Error() != "characters are emppty" {
+			logger.ErrorContext(ctx, "failed to get cartoon characters from database", slog.Any("error", err))
+			return fmt.Errorf("failed to get cartoon characters from database :%w", err)
+		}
 	}
 
 	newList := reqAvatars{}

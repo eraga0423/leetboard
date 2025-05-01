@@ -50,8 +50,8 @@ func (r *Rest) Start(ctx context.Context, cancelFunc context.CancelFunc, conf *c
 	go func(cancelFunc context.CancelFunc) {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			r.logger.ErrorContext(ctx, "Error when start listenandserve", slog.Any("error", err))
+			cancelFunc()
 		}
-		cancelFunc()
 	}(cancelFunc)
 
 	<-ctx.Done()
