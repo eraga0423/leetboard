@@ -20,7 +20,7 @@ func New(conf *config.PostgresConfig, logger *slog.Logger) (*Postgres, error) {
 	}
 
 	return &Postgres{
-		Model: model.New(logger.With(), db),
+		Model: model.New(logger.With(slog.String("module", "model")), db),
 	}, nil
 }
 
