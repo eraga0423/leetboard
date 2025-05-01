@@ -18,7 +18,7 @@ func New(
 	db *sql.DB,
 ) *Model {
 	return &Model{
-		Auth:      auth.New(logger.With(), db),
-		Leetboard: leetboard.New(logger.With(), db),
+		Auth:      auth.New(logger.With(slog.String("module", "Auth")), db),
+		Leetboard: leetboard.New(logger.With(slog.String("module", "Leetboard")), db),
 	}
 }

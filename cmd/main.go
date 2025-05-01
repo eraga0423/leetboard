@@ -66,12 +66,12 @@ func main() {
 	// реализуется тайм тиккер - конец
 
 	// rickmortyrest.NewRickAndMorty()
-	r := rest.New(gov)
+	r := rest.New(gov, logger)
 	conf := config.NewConfig()
 	ms := miniostorage.NewMinioStorage(conf, ctx)
 
 	// postgres начало
-	p, err := postgres.New(&conf.Postgres, logger.With(slog.String("service", "postgre")))
+	p, err := postgres.New(&conf.Postgres, logger.With(slog.String("service", "postgres")))
 	if err != nil {
 		logger.ErrorContext(ctx, "failed to start postgre", slog.Any("error", err))
 	}
@@ -102,14 +102,14 @@ func main() {
 	err = gov.Interceptor.FetchAndCacheAvatar(ctx, logger.With(slog.String("service", "fetch and cache avatar")))
 	if err != nil {
 		logger.ErrorContext(ctx, "failed to start configGov", slog.Any("error", err))
-		return
+		cancel()
 	}
 	// скачивание аватаров и присваивание в базу данных конец
 
 	// gracefullshutdown начало
 	go func(cancelFunc context.CancelFunc) {
-		shutdown := make(chan os.Signal, 1)   // Create channel to signify s signal being sent
-		signal.Notify(shutdown, os.Interrupt) // When an interrupt is sent, notify the channel
+		shutdown := make(chan os.Signal, 1)   
+		signal.Notify(shutdown, os.Interrupt) 
 
 		sig := <-shutdown
 		slog.Any("signal", sig)
@@ -118,7 +118,7 @@ func main() {
 			log.Print(err)
 			return
 		}
-		log.Print("auto save backup succesfully")
+		logger.Info("you switch off programm")
 		cancelFunc()
 	}(cancel)
 	// gracefullshutdown конец
@@ -127,4 +127,6 @@ func main() {
 	<-ctx.Done()
 	// ждет чтобы все go rutine завершились
 	wg.Wait()
+
+	logger.Info("All the goroutins by programm are closed")
 }

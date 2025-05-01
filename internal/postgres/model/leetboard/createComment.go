@@ -1,15 +1,19 @@
 package leetboard
 
 import (
+	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"log/slog"
 	"time"
 
 	"1337b0rd/internal/types/database"
 )
 
-func (a *Leetboard) CreateComment(req database.NewReqComment) (database.NewRespComment, error) {
+func (a *Leetboard) CreateComment(ctx context.Context, req database.NewReqComment) (database.NewRespComment, error) {
+	log := a.logger.With(slog.String("handler", "CreateComment"))
+
 	// comment
 	post := req.GetPostID()
 	content := req.GetCommentContent()
@@ -28,7 +32,8 @@ func (a *Leetboard) CreateComment(req database.NewReqComment) (database.NewRespC
 
 	tx, err := a.db.Begin()
 	if err != nil {
-		return nil, err
+		log.ErrorContext(ctx, "Begin starts a transaction error", slog.Any("error", err))
+		return nil, fmt.Errorf("Error when start transaction: %w", err)
 	}
 	defer TxAfter(tx, err)
 
@@ -44,7 +49,8 @@ func (a *Leetboard) CreateComment(req database.NewReqComment) (database.NewRespC
 		&commentID,
 	)
 	if err != nil {
-		return nil, err
+		log.ErrorContext(ctx, "insert comment's error", slog.Any("error", err))
+		return nil, fmt.Errorf("Error when insert comments: %w", err)
 	}
 	if parentComID != 0 {
 		_, err := tx.Exec(`
@@ -54,7 +60,8 @@ func (a *Leetboard) CreateComment(req database.NewReqComment) (database.NewRespC
 	`, parentComID, commentID,
 		)
 		if err != nil {
-			return nil, err
+			log.ErrorContext(ctx, "insert subcomment's error", slog.Any("error", err))
+			return nil, fmt.Errorf("Error when insert subcomments: %w", err)
 		}
 	}
 	var authorID int
@@ -67,7 +74,7 @@ func (a *Leetboard) CreateComment(req database.NewReqComment) (database.NewRespC
 		&authorID,
 	)
 	if errors.Is(err, sql.ErrNoRows) {
-		slog.Info("this session_id is first")
+		log.Info("this session_id is first", "author name:", authorName)
 		// new user insert
 		mydb = tx.QueryRow(`
 		INSERT INTO users 
@@ -79,10 +86,12 @@ func (a *Leetboard) CreateComment(req database.NewReqComment) (database.NewRespC
 			&authorID,
 		)
 		if err != nil {
-			return nil, err
+			log.ErrorContext(ctx, "insert user error", slog.Any("error", err))
+			return nil, fmt.Errorf("Error when insert user: %w", err)
 		}
 	} else if err != nil {
-		return nil, err
+		log.ErrorContext(ctx, "select user id error", slog.Any("error", err))
+		return nil, fmt.Errorf("Error when select user id: %w", err)
 	}
 
 	_, err = tx.Exec(`
@@ -92,7 +101,8 @@ func (a *Leetboard) CreateComment(req database.NewReqComment) (database.NewRespC
 	`, commentID, authorID,
 	)
 	if err != nil {
-		return nil, err
+		log.ErrorContext(ctx, "select user id error", slog.Any("error", err))
+		return nil, fmt.Errorf("Error when select user id: %w", err)
 	}
 	var d txRollBackStruct
 	d.tx = tx
