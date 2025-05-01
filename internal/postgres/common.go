@@ -33,6 +33,5 @@ func NewDB(conf *config.PostgresConfig) (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return db, nil
 }

@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
+	"sync"
 	"time"
 
 	miniostorage "1337b0rd/internal/minio_storage"
@@ -24,29 +25,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	gov := governor.New()
-
-	go func(ctx context.Context) {
-		ticker := time.NewTicker(time.Minute)
-		defer ticker.Stop()
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case <-ticker.C:
-				err := gov.Interceptor.BackupAvatars(ctx)
-				if err != nil {
-					log.Print(err)
-					return
-				}
-				log.Print("auto save backup succesfully")
-			}
-		}
-	}(ctx)
-	////////////////////rickmortyrest.NewRickAndMorty()
-	r := rest.New(gov)
-	conf := config.NewConfig()
-	ms := miniostorage.NewMinioStorage(conf, ctx)
-
+	var wg sync.WaitGroup
 	// логирование начало
 	file, err := os.OpenFile("log.txt", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o666)
 	if err != nil {
@@ -62,26 +41,72 @@ func main() {
 
 	logger := slog.New(handler)
 	// логирование конец
-	p, err := postgres.New(&conf.Postgres, logger)
+
+	// реализуется тайм тиккер - начало
+	wg.Add(1)
+	go func(ctx context.Context, cancelFunc context.CancelFunc, logger *slog.Logger, wg *sync.WaitGroup) {
+		ticker := time.NewTicker(time.Minute * 5)
+		defer ticker.Stop()
+		defer wg.Done()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				err := gov.Interceptor.BackupAvatars(ctx)
+				if err != nil {
+					logger.ErrorContext(ctx, "backup avatars could not update", "error", err)
+					cancelFunc()
+					return
+				}
+				logger.Info("Auto save backup work succesfully")
+			}
+		}
+	}(ctx, cancel, logger.With(slog.String("service", "backup avatars")), &wg)
+	// реализуется тайм тиккер - конец
+
+	// rickmortyrest.NewRickAndMorty()
+	r := rest.New(gov)
+	conf := config.NewConfig()
+	ms := miniostorage.NewMinioStorage(conf, ctx)
+
+	// postgres начало
+	p, err := postgres.New(&conf.Postgres, logger.With(slog.String("service", "postgre")))
 	if err != nil {
-		slog.Any("failed start database", "postgres")
-		panic(err)
+		logger.ErrorContext(ctx, "failed to start postgre", slog.Any("error", err))
 	}
-	go func(ctx context.Context, cancelFunc context.CancelFunc, apiConfig config.APIConfig) {
-		err := r.Start(ctx, &apiConfig)
+	// postgres конец
+
+	// rest подключение
+	wg.Add(1)
+	go func(ctx context.Context, cancelFunc context.CancelFunc, apiConfig config.APIConfig, logger *slog.Logger, wg *sync.WaitGroup) {
+		err := r.Start(ctx, cancelFunc, &apiConfig, logger.With(slog.String("service", "rest")))
 		if err != nil {
-			log.Fatal(err)
+			logger.ErrorContext(ctx, "failed to start rest", slog.Any("error", err))
 		}
 
 		cancelFunc()
-	}(ctx, cancel, conf.API)
-	myRedis := my_redis.NewMyRedis(gov, conf)
+		wg.Done()
+	}(ctx, cancel, conf.API, logger, &wg)
+	// rest конец
+
+	// redis подключение
+	myRedis := my_redis.NewMyRedis(gov, conf, logger.With(slog.String("service", "redis")))
+	// redis конец
+
+	// формирование конструктура начало
 	gov.ConfigGov(ctx, conf, p, myRedis, ms)
-	err = gov.Interceptor.FetchAndCacheAvatar(ctx)
+	// формирование конструктура конец
+
+	// скачивание аватаров и присваивание в базу данных начало
+	err = gov.Interceptor.FetchAndCacheAvatar(ctx, logger.With(slog.String("service", "fetch and cache avatar")))
 	if err != nil {
-		log.Println(err)
+		logger.ErrorContext(ctx, "failed to start configGov", slog.Any("error", err))
 		return
 	}
+	// скачивание аватаров и присваивание в базу данных конец
+
+	// gracefullshutdown начало
 	go func(cancelFunc context.CancelFunc) {
 		shutdown := make(chan os.Signal, 1)   // Create channel to signify s signal being sent
 		signal.Notify(shutdown, os.Interrupt) // When an interrupt is sent, notify the channel
@@ -96,6 +121,10 @@ func main() {
 		log.Print("auto save backup succesfully")
 		cancelFunc()
 	}(cancel)
+	// gracefullshutdown конец
 
+	// ждет функцию cancel
 	<-ctx.Done()
+	// ждет чтобы все go rutine завершились
+	wg.Wait()
 }

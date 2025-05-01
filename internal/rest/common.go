@@ -1,12 +1,14 @@
 package rest
 
 import (
-	"1337b0rd/internal/config"
 	"context"
 	"fmt"
 	"log"
+	"log/slog"
 	"mime"
 	"net/http"
+
+	"1337b0rd/internal/config"
 
 	"1337b0rd/internal/rest/handler"
 	"1337b0rd/internal/rest/middleware"
@@ -32,7 +34,7 @@ func New(ctrl controller.Controller) *Rest {
 	}
 }
 
-func (r *Rest) Start(ctx context.Context, conf *config.APIConfig) error {
+func (r *Rest) Start(ctx context.Context, cancelFunc context.CancelFunc, conf *config.APIConfig, logger *slog.Logger) error {
 	err := mime.AddExtensionType(".css", "text/css")
 	if err != nil {
 		log.Print("add extension type css error")
@@ -43,10 +45,21 @@ func (r *Rest) Start(ctx context.Context, conf *config.APIConfig) error {
 		Handler: mux,
 		Addr:    fmt.Sprintf(":%s", conf.Rest.Port),
 	}
+
 	log.Print("server start port: ", conf.Rest.Port)
-	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		log.Print("add extension type css error", err.Error())
-		return err
+	go func(cancelFunc context.CancelFunc) {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Print("add extension type css error", err.Error())
+		}
+		cancelFunc()
+	}(cancelFunc)
+
+	<-ctx.Done()
+	if err := srv.Shutdown(ctx); err != nil {
+		fmt.Printf("Ошибка при завершении работы сервера: %v\n", err)
+	} else {
+		fmt.Println("Сервер успешно завершен.")
 	}
+
 	return nil
 }

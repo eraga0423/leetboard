@@ -2,7 +2,8 @@ package interceptor
 
 import (
 	"context"
-	"log"
+	"fmt"
+	"log/slog"
 
 	"1337b0rd/internal/types/database"
 	redistypes "1337b0rd/internal/types/redis"
@@ -19,15 +20,16 @@ type avatar struct {
 	status   bool
 }
 
-func (i *Interceptor) FetchAndCacheAvatar(ctx context.Context) error {
-	log.Print("fetch and cache avatar")
+func (i *Interceptor) FetchAndCacheAvatar(ctx context.Context, logger *slog.Logger) error {
 	databaseList, err := i.db.ListCharacters()
-	log.Print("fetch and cache avatar1")
+	if err != nil {
+		logger.ErrorContext(ctx, "failed to get cartoon characters from database", slog.Any("error", err))
+		return fmt.Errorf("failed to get cartoon characters from database :%w", err)
+	}
 
-	log.Print("fetch and cache avatar2")
 	newList := reqAvatars{}
 	if len(databaseList.GetCharacters()) == 0 {
-		log.Print("characters are emptyy")
+		logger.Info("characters are empty")
 		list, err := i.parseAvatar.ParseDataJson()
 		if err != nil {
 			return err
@@ -43,23 +45,18 @@ func (i *Interceptor) FetchAndCacheAvatar(ctx context.Context) error {
 		}
 		err = i.db.InserCartoonCharacters(&newList)
 		if err != nil {
-
-			log.Println("failed to inser cartoon characters")
-			return err
+			logger.ErrorContext(ctx, "failed to insert cartoon characters", slog.Any("error", err))
+			return fmt.Errorf("failed to insert cartoon :%w", err)
 		}
 		err = i.redis.SetAvatarsRedis(&newList, ctx)
 		if err != nil {
 
-			log.Print("failed to set avatars in redis")
-			return err
+			logger.ErrorContext(ctx, "failed to set cartoon characters to redis", slog.Any("error", err))
+			return fmt.Errorf("failed to set cartoon characters to redis :%w", err)
 		}
 		return nil
 	}
-	if err != nil {
-		log.Print("fetch and cache avatar3")
-		return err
-	}
-	log.Print("fetch and cache avatar3")
+
 	list := databaseList.GetCharacters()
 	for _, v := range list {
 		newList.avatars = append(newList.avatars, avatar{
@@ -69,13 +66,13 @@ func (i *Interceptor) FetchAndCacheAvatar(ctx context.Context) error {
 			status:   v.GetCharacterStatus(),
 		})
 	}
-	log.Print("fetch and cache avatar4")
+
 	err = i.redis.SetAvatarsRedis(&newList, ctx)
-	log.Print("fetch and cache avatar5")
 	if err != nil {
-		return err
+		logger.ErrorContext(ctx, "failed to set cartoon characters to redis", slog.Any("error", err))
+		return fmt.Errorf("failed to set cartoon characters to redis :%w", err)
 	}
-	log.Print("fetch and cache avatar5")
+
 	return nil
 }
 
