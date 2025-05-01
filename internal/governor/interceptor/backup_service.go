@@ -1,8 +1,9 @@
 package interceptor
 
 import (
-	"1337b0rd/internal/types/database"
 	"context"
+
+	"1337b0rd/internal/types/database"
 )
 
 type redisAvatars struct {
@@ -14,7 +15,6 @@ type redisAvatar struct {
 }
 
 func (i *Interceptor) BackupAvatars(ctx context.Context) error {
-	// time.Sleep(5 * time.Minute)
 	redisResp, err := i.redis.RefreshAvatars(ctx)
 	if err != nil {
 		return err
@@ -27,7 +27,7 @@ func (i *Interceptor) BackupAvatars(ctx context.Context) error {
 			status: v.GetStatus(),
 		})
 	}
-	err = i.db.UpdateCharacters(&newRedisAvatars)
+	err = i.db.UpdateCharacters(ctx, &newRedisAvatars)
 	if err != nil {
 		return err
 	}
@@ -45,6 +45,7 @@ func (r *redisAvatars) SetCharacters() []database.SetCharacter {
 func (r *redisAvatar) SetCharacterId() int {
 	return r.id
 }
+
 func (r *redisAvatar) SetCharacterStatus() bool {
 	return r.status
 }

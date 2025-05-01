@@ -13,4 +13,5 @@ type DataImageReq interface {
 }
 type DataImageRes interface {
 	GetImageURL() string
+	GetNewBucketName() string
 }
