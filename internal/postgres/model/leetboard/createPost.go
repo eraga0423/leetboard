@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"log/slog"
 	"time"
 
@@ -29,7 +30,7 @@ func (l *Leetboard) CreatePost(ctx context.Context, req database.NewPostReq) (da
 	tx, err := l.db.Begin()
 	if err != nil {
 		log.ErrorContext(ctx, "Error starting transaction", slog.Any("error", err))
-		return nil, err
+		return nil, fmt.Errorf("When starting transaction,  error:%w", err)
 	}
 	defer TxAfter(tx, err)
 
@@ -46,7 +47,8 @@ func (l *Leetboard) CreatePost(ctx context.Context, req database.NewPostReq) (da
 		&postID,
 	)
 	if err != nil {
-		return nil, err
+		log.ErrorContext(ctx, "Error inserting data to posts", slog.Any("error", err))
+		return nil, fmt.Errorf("When inserting data to posts, error:%w", err)
 	}
 
 	// user script
@@ -62,7 +64,7 @@ func (l *Leetboard) CreatePost(ctx context.Context, req database.NewPostReq) (da
 	)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		slog.Info("this session_id is first")
+		log.Info("this session_id is first", "name:", authorName)
 		// new user insert
 		mydb = tx.QueryRow(`
 		INSERT INTO users 
@@ -74,7 +76,8 @@ func (l *Leetboard) CreatePost(ctx context.Context, req database.NewPostReq) (da
 			&authorID,
 		)
 		if err != nil {
-			return nil, err
+			log.ErrorContext(ctx, "Error inserting data to users", slog.Any("error", err))
+			return nil, fmt.Errorf("When inserting data to users, error:%w", err)
 		}
 
 	} else {
@@ -87,7 +90,8 @@ func (l *Leetboard) CreatePost(ctx context.Context, req database.NewPostReq) (da
 			WHERE session_id = $2
 			`, authorName, authSessionID)
 			if err != nil {
-				return nil, err
+				log.ErrorContext(ctx, "Error updating data to users", slog.Any("error", err))
+				return nil, fmt.Errorf("When updating data to users, error:%w", err)
 			}
 		}
 	}
@@ -99,7 +103,8 @@ func (l *Leetboard) CreatePost(ctx context.Context, req database.NewPostReq) (da
 	`, postID, authorID,
 	)
 	if err != nil {
-		return nil, err
+		log.ErrorContext(ctx, "Error inserting data to users_posts", slog.Any("error", err))
+		return nil, fmt.Errorf("When inserting data to users_posts, error:%w", err)
 	}
 	var n newPostRespStruct
 	n.newId = int(postID)
