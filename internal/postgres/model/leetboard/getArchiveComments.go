@@ -1,6 +1,7 @@
 package leetboard
 
 import (
+	"context"
 	"time"
 
 	"1337b0rd/internal/types/database"
@@ -30,7 +31,7 @@ type archiveOnePostResponse struct {
 	post     archiveOnePost
 }
 
-func (l *Leetboard) OneArchivePost(r database.ArchiveOnePostReq) (database.ArchiveOnePostResp, error) {
+func (l *Leetboard) OneArchivePost(ctx context.Context, r database.ArchiveOnePostReq) (database.ArchiveOnePostResp, error) {
 	idPost := r.ReqPostID()
 	onePost, err := archiveReturnOnePost(idPost, l.db)
 	if err != nil {

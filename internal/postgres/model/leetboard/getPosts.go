@@ -1,6 +1,7 @@
 package leetboard
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"time"
@@ -20,7 +21,7 @@ type postResp struct {
 	postTime    time.Time
 }
 
-func (l *Leetboard) ListPosts() (database.ListPostsResp, error) {
+func (l *Leetboard) ListPosts(ctx context.Context) (database.ListPostsResp, error) {
 	slog.Info("start get getposts")
 	rows, err := l.db.Query(`
     SELECT 
