@@ -1,12 +1,13 @@
 package auth
 
 import (
+	"context"
 	"fmt"
 
 	"1337b0rd/internal/types/database"
 )
 
-func (a *Auth) UpdateCharacters(d database.RequestCharacters) error {
+func (a *Auth) UpdateCharacters(ctx context.Context, d database.RequestCharacters) error {
 	charS := d.SetCharacters()
 	var s string
 	for i, char := range charS {

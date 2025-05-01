@@ -1,12 +1,13 @@
 package auth
 
 import (
+	"context"
 	"fmt"
 
 	"1337b0rd/internal/types/database"
 )
 
-func (a *Auth) InserCartoonCharacters(d database.InsertCharacters) error {
+func (a *Auth) InserCartoonCharacters(ctx context.Context, d database.InsertCharacters) error {
 	charS := d.Insert()
 	var s string
 	for i, char := range charS {

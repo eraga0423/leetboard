@@ -1,6 +1,7 @@
 package leetboard
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"log/slog"
@@ -9,7 +10,7 @@ import (
 	"1337b0rd/internal/types/database"
 )
 
-func (l *Leetboard) CreatePost(req database.NewPostReq) (database.NewPostResp, error) {
+func (l *Leetboard) CreatePost(ctx context.Context,req database.NewPostReq) (database.NewPostResp, error) {
 	// post
 	title := req.GetTitle()
 	content := req.GetPostContent()

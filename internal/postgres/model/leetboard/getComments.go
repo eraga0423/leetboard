@@ -1,6 +1,7 @@
 package leetboard
 
 import (
+	"context"
 	"time"
 
 	"1337b0rd/internal/types/database"
@@ -30,7 +31,7 @@ type onePostResponse struct {
 	post     onePost
 }
 
-func (l *Leetboard) OnePost(r database.OnePostReq) (database.OnePostResp, error) {
+func (l *Leetboard) OnePost(ctx context.Context, r database.OnePostReq) (database.OnePostResp, error) {
 	idPost := r.ReqPostID()
 	onePost, err := returnOnePost(idPost, l.db)
 	if err != nil {
@@ -63,7 +64,6 @@ func (l *Leetboard) OnePost(r database.OnePostReq) (database.OnePostResp, error)
 	LEFT JOIN users u2 ON u2.user_id = cu2.user_id
 	WHERE c.post_id = $1
 `, idPost)
-
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +127,8 @@ func (l *Leetboard) OnePost(r database.OnePostReq) (database.OnePostResp, error)
 
 	return &onePostResponse{
 		comments: commentList,
-		post:     *onePost}, nil
+		post:     *onePost,
+	}, nil
 }
 
 func (r *onePostResponse) GetComments() []database.Comment {
@@ -137,6 +138,7 @@ func (r *onePostResponse) GetComments() []database.Comment {
 	}
 	return comments
 }
+
 func (c *commentNode) GetParent() database.OneComment {
 	return &c.parent
 }

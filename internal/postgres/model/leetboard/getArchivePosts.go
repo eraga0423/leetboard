@@ -1,6 +1,7 @@
 package leetboard
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -19,7 +20,7 @@ type postArchiveResp struct {
 	postTime    time.Time
 }
 
-func (l *Leetboard) ListArchivePosts() (database.ListPostsArchiveResp, error) {
+func (l *Leetboard) ListArchivePosts(ctx context.Context) (database.ListPostsArchiveResp, error) {
 	rows, err := l.db.Query(`
     SELECT 
     p.post_id,

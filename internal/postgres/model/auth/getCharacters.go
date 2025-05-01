@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"errors"
 
 	"1337b0rd/internal/types/database"
@@ -17,7 +18,7 @@ type characterSResp struct {
 	characters []characterResp
 }
 
-func (a *Auth) ListCharacters() (database.ResponseCharacters, error) {
+func (a *Auth) ListCharacters(ctx context.Context) (database.ResponseCharacters, error) {
 	sql, err := a.db.Query(`
 	SELECT 
 	character_id,

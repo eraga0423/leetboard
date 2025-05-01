@@ -101,8 +101,8 @@ func (a *Leetboard) CreateComment(ctx context.Context, req database.NewReqCommen
 	`, commentID, authorID,
 	)
 	if err != nil {
-		log.ErrorContext(ctx, "select user id error", slog.Any("error", err))
-		return nil, fmt.Errorf("Error when select user id: %w", err)
+		log.ErrorContext(ctx, "insert comments_users error", slog.Any("error", err))
+		return nil, fmt.Errorf("Error when insert comments_users: %w", err)
 	}
 	var d txRollBackStruct
 	d.tx = tx
