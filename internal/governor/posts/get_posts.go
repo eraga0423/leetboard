@@ -11,7 +11,7 @@ import (
 
 func (r *PostsGovernor) ListPosts(ctx context.Context) (controller.ListPostsResp, error) {
 	var newResp []postResp
-	dataBaseResp, err := r.db.ListPosts()
+	dataBaseResp, err := r.db.ListPosts(ctx)
 	if err != nil {
 		log.Print("method:", " listsPost", " err:", err, " dir:", " governor")
 		return nil, err

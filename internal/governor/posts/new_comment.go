@@ -41,11 +41,11 @@ func (g *PostsGovernor) NewComment(req controller.NewCommentReq, ctx context.Con
 			bucketName:  fmt.Sprintf("%s/%s", constants.BucketComments, sessionID),
 			objectName:  sessionID,
 		}
-		respStorage, err := g.miniostor.UploadImage(ctx, &newStorage)
+		err := g.miniostor.UploadImage(ctx, &newStorage)
 		if err != nil {
 			return nil, err
 		}
-		commentImageURl = respStorage.GetImageURL()
+		// commentImageURl = respStorage.GetImageURL()
 	}
 
 	parentCommentID := req.GetParentCommentID()
@@ -70,7 +70,7 @@ func (g *PostsGovernor) NewComment(req controller.NewCommentReq, ctx context.Con
 		imageCommentURL: commentImageURl,
 		postID:          postIDInt,
 	}
-	_, err = g.db.CreateComment(newRespDB)
+	_, err = g.db.CreateComment(ctx, newRespDB)
 	if err != nil {
 		return nil, err
 	}

@@ -1,9 +1,10 @@
 package posts_governor
 
 import (
-	"1337b0rd/internal/types/controller"
 	"context"
 	"time"
+
+	"1337b0rd/internal/types/controller"
 )
 
 type listArchivePostsResp struct {
@@ -17,8 +18,8 @@ type onePostArchive struct {
 	postTime     time.Time
 }
 
-func (g *PostsGovernor) ListArchivePosts(_ context.Context) (controller.ListArchivePostsResp, error) {
-	resp, err := g.db.ListArchivePosts()
+func (g *PostsGovernor) ListArchivePosts(ctx context.Context) (controller.ListArchivePostsResp, error) {
+	resp, err := g.db.ListArchivePosts(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +42,6 @@ func (a *listArchivePostsResp) GetList() []controller.ItemArchivePostsResp {
 	archives := make([]controller.ItemArchivePostsResp, len(a.archivePosts))
 	for i, post := range a.archivePosts {
 		archives[i] = &post
-
 	}
 	return archives
 }
@@ -49,15 +49,19 @@ func (a *listArchivePostsResp) GetList() []controller.ItemArchivePostsResp {
 func (a *onePostArchive) GetPostID() int {
 	return a.postID
 }
+
 func (a *onePostArchive) GetTitle() string {
 	return a.title
 }
+
 func (a *onePostArchive) GetPostContent() string {
 	return a.postContent
 }
+
 func (a *onePostArchive) GetPostImageURL() string {
 	return a.postImageURL
 }
+
 func (a *onePostArchive) GetPostTime() time.Time {
 	return a.postTime
 }

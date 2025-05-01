@@ -7,7 +7,6 @@ import (
 	"log/slog"
 	"math/big"
 	"mime/multipart"
-	"time"
 
 	"1337b0rd/internal/types/storage"
 
@@ -19,44 +18,40 @@ type dataImageReq struct {
 	objectSize  int64
 	contentType string
 	metadata    multipart.File
+	objectName  string
 }
 type dataImageRes struct {
 	imageURL string
 }
+type newParseResp struct {
+	objectName string
+	newURL     string
+}
 
-func (m MinioStorage) UploadImage(ctx context.Context, req storage.DataImageReq) (storage.DataImageRes, error) {
+func (m *MinioStorage) UploadImage(ctx context.Context, req storage.DataImageReq) error {
 	newReq := dataImageReq{
 		bucketName:  req.GetBucketName(),
 		objectSize:  req.GetObjectSize(),
 		contentType: req.GetContentType(),
 		metadata:    req.GetMetaData(),
+		objectName:  req.GetObjectName(),
 	}
-
 	err := m.client.MakeBucket(ctx, newReq.bucketName, minio.MakeBucketOptions{})
 	if err != nil {
 		exists, errBucket := m.client.BucketExists(ctx, newReq.bucketName)
 		if errBucket == nil && exists {
 			slog.Info("bucket already exists", "bucket", newReq.bucketName)
 		} else {
-			return nil, fmt.Errorf("failed to create bucket: %v", err)
+			return fmt.Errorf("failed to create bucket: %v", err)
 		}
 	}
-	newObjectname, err := generateRandomObjectName()
-	if err != nil {
-		return nil, err
-	}
-	_, err = m.client.PutObject(ctx, newReq.bucketName, newObjectname, newReq.metadata, newReq.objectSize, minio.PutObjectOptions{
+	_, err = m.client.PutObject(ctx, newReq.bucketName, newReq.objectName, newReq.metadata, newReq.objectSize, minio.PutObjectOptions{
 		ContentType: newReq.contentType,
 	})
 	if err != nil {
-		return nil, err
+		return fmt.Errorf("failed to create bucket: %v", err)
 	}
-	newURL, err := m.client.PresignedGetObject(ctx, newReq.bucketName, newObjectname, time.Hour*24, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return &dataImageRes{imageURL: newURL.String()}, nil
+	return nil
 }
 
 func generateRandomObjectName() (string, error) {
@@ -77,4 +72,26 @@ func generateRandomObjectName() (string, error) {
 
 func (d *dataImageRes) GetImageURL() string {
 	return d.imageURL
+}
+
+func (m *MinioStorage) ParseURL(ctx context.Context, req storage.DataImageReq) (storage.DataImageRes, error) {
+	newReq := dataImageReq{bucketName: req.GetBucketName()}
+	newObjectname, err := generateRandomObjectName()
+	if err != nil {
+		return nil, err
+	}
+	newURL := fmt.Sprintf("https://%s/%s/%s", m.conf.Minio.Host, newReq.bucketName, newObjectname)
+
+	return &newParseResp{
+		objectName: newObjectname,
+		newURL:     newURL,
+	}, nil
+}
+
+func (u *newParseResp) GetImageURL() string {
+	return u.newURL
+}
+
+func (u *newParseResp) GetNewBucketName() string {
+	return u.objectName
 }

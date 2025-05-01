@@ -1,11 +1,12 @@
 package posts_governor
 
 import (
-	"1337b0rd/internal/types/controller"
-	"1337b0rd/internal/types/database"
 	"context"
 	"log"
 	"time"
+
+	"1337b0rd/internal/types/controller"
+	"1337b0rd/internal/types/database"
 )
 
 type respOnePostGov struct {
@@ -79,11 +80,10 @@ type newPostReq struct {
 }
 
 func (p *PostsGovernor) OnePostGov(req controller.OnePostReq, ctx context.Context) (controller.OnePostResp, error) {
-
 	request := newPostReq{
 		postID: req.GetPostID(),
 	}
-	resp, err := p.db.OnePost(&request)
+	resp, err := p.db.OnePost(ctx, &request)
 	if err != nil {
 		log.Print("dir: postgres,  method: onePost, error:  ", err.Error())
 		return nil, err
@@ -107,7 +107,6 @@ func (p *PostsGovernor) OnePostGov(req controller.OnePostReq, ctx context.Contex
 	}
 
 	return &newRespOnePostGov, nil
-
 }
 
 func (n *newPostReq) ReqPostID() int {

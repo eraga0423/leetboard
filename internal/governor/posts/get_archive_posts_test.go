@@ -36,7 +36,7 @@ type mockDBArchive struct {
 	err  error
 }
 
-func (m *mockDBArchive) ListArchivePosts() (database.ListPostsArchiveResp, error) {
+func (m *mockDBArchive) ListArchivePosts(context.Context) (database.ListPostsArchiveResp, error) {
 	return m.resp, m.err
 }
 
@@ -79,34 +79,34 @@ func TestPostsGovernor_ListArchivePosts_Error(t *testing.T) {
 	}
 }
 
-func (m *mockDBArchive) CreateComment(database.NewReqComment) (database.NewRespComment, error) {
+func (m *mockDBArchive) CreateComment(context.Context, database.NewReqComment) (database.NewRespComment, error) {
 	return nil, nil
 }
 
-func (m *mockDBArchive) ListPosts() (database.ListPostsResp, error) {
+func (m *mockDBArchive) ListPosts(context.Context) (database.ListPostsResp, error) {
 	return nil, nil
 }
 
-func (m *mockDBArchive) CreatePost(database.NewPostReq) (database.NewPostResp, error) {
+func (m *mockDBArchive) CreatePost(context.Context, database.NewPostReq) (database.NewPostResp, error) {
 	return nil, nil
 }
 
-func (m *mockDBArchive) OnePost(database.OnePostReq) (database.OnePostResp, error) {
+func (m *mockDBArchive) OnePost(context.Context, database.OnePostReq) (database.OnePostResp, error) {
 	return nil, nil
 }
 
-func (m *mockDBArchive) OneArchivePost(database.ArchiveOnePostReq) (database.ArchiveOnePostResp, error) {
+func (m *mockDBArchive) OneArchivePost(context.Context, database.ArchiveOnePostReq) (database.ArchiveOnePostResp, error) {
 	return nil, nil
 }
 
-func (m *mockDBArchive) ListCharacters() (database.ResponseCharacters, error) {
+func (m *mockDBArchive) ListCharacters(context.Context) (database.ResponseCharacters, error) {
 	return nil, nil
 }
 
-func (m *mockDBArchive) UpdateCharacters(database.RequestCharacters) error {
+func (m *mockDBArchive) UpdateCharacters(context.Context, database.RequestCharacters) error {
 	return nil
 }
 
-func (m *mockDBArchive) InserCartoonCharacters(database.InsertCharacters) error {
+func (m *mockDBArchive) InserCartoonCharacters(context.Context, database.InsertCharacters) error {
 	return nil
 }

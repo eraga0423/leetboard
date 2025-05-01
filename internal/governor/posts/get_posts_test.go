@@ -35,7 +35,7 @@ type mockDB struct {
 	err  error
 }
 
-func (m *mockDB) ListPosts() (database.ListPostsResp, error) {
+func (m *mockDB) ListPosts(context.Context) (database.ListPostsResp, error) {
 	return m.resp, m.err
 }
 
@@ -64,16 +64,28 @@ func TestPostsGovernor_List_Succes(t *testing.T) {
 	}
 }
 
-func (m *mockDB) InserCartoonCharacters(database.InsertCharacters) error       { return nil }
-func (m *mockDB) ListArchivePosts() (database.ListPostsArchiveResp, error)     { return nil, nil }
-func (m *mockDB) ListCharacters() (database.ResponseCharacters, error)         { return nil, nil }
-func (m *mockDB) CreatePost(database.NewPostReq) (database.NewPostResp, error) { return nil, nil }
-func (m *mockDB) CreateComment(database.NewReqComment) (database.NewRespComment, error) {
+func (m *mockDB) InserCartoonCharacters(context.Context, database.InsertCharacters) error { return nil }
+func (m *mockDB) ListArchivePosts(context.Context) (database.ListPostsArchiveResp, error) {
 	return nil, nil
 }
 
-func (m *mockDB) OneArchivePost(database.ArchiveOnePostReq) (database.ArchiveOnePostResp, error) {
+func (m *mockDB) ListCharacters(context.Context) (database.ResponseCharacters, error) {
 	return nil, nil
 }
-func (m *mockDB) OnePost(database.OnePostReq) (database.OnePostResp, error) { return nil, nil }
-func (m *mockDB) UpdateCharacters(database.RequestCharacters) error         { return nil }
+
+func (m *mockDB) CreatePost(context.Context, database.NewPostReq) (database.NewPostResp, error) {
+	return nil, nil
+}
+
+func (m *mockDB) CreateComment(context.Context, database.NewReqComment) (database.NewRespComment, error) {
+	return nil, nil
+}
+
+func (m *mockDB) OneArchivePost(context.Context, database.ArchiveOnePostReq) (database.ArchiveOnePostResp, error) {
+	return nil, nil
+}
+
+func (m *mockDB) OnePost(context.Context, database.OnePostReq) (database.OnePostResp, error) {
+	return nil, nil
+}
+func (m *mockDB) UpdateCharacters(context.Context, database.RequestCharacters) error { return nil }

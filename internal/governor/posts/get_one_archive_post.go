@@ -1,11 +1,12 @@
 package posts_governor
 
 import (
-	"1337b0rd/internal/types/controller"
-	"1337b0rd/internal/types/database"
 	"context"
 	"log"
 	"time"
+
+	"1337b0rd/internal/types/controller"
+	"1337b0rd/internal/types/database"
 )
 
 type archiveOnePostResp struct {
@@ -50,7 +51,7 @@ type archiveOnePostReq struct {
 func (g *PostsGovernor) OneArchivePostGov(onePostReq controller.ArchiveOnePostReq, ctx context.Context) (controller.ArchiveOnePostResp, error) {
 	postID := archiveOnePostReq{}
 	postID.postArchiveID = onePostReq.GetPostID()
-	resp, err := g.db.OneArchivePost(&postID)
+	resp, err := g.db.OneArchivePost(ctx, &postID)
 	if err != nil {
 		log.Print("dir: postgres,  method: oneArchivePost, error:  ", err.Error())
 		return nil, err
@@ -87,6 +88,7 @@ func newOnePost(resp database.ArchiveOnePostResp) archiveRespOnePost {
 	}
 	return newOneArchivePost
 }
+
 func newRespParentComment(parentComment database.ArchiveOneComment) archiveOneComment {
 	respComment := archiveOneComment{
 		commentID: parentComment.GetCommentID(),
@@ -102,6 +104,7 @@ func newRespParentComment(parentComment database.ArchiveOneComment) archiveOneCo
 	}
 	return respComment
 }
+
 func newRespChildComment(childComment []database.ArchiveOneComment) []archiveOneComment {
 	var newArchiveChildComment []archiveOneComment
 	for _, v := range childComment {
@@ -117,7 +120,6 @@ func newRespChildComment(childComment []database.ArchiveOneComment) []archiveOne
 			commentImageURL: v.GetCommentImage(),
 			commentTime:     v.GetCommentTime(),
 		})
-
 	}
 	return newArchiveChildComment
 }
@@ -150,7 +152,6 @@ func (a *archiveComment) GetChildren() []controller.ArchiveOneComment {
 	res := make([]controller.ArchiveOneComment, len(a.children))
 	for i, v := range a.children {
 		res[i] = &v
-
 	}
 
 	return res

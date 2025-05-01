@@ -87,25 +87,21 @@ func (p *PostsGovernor) NewPost(ctx context.Context, request controller.NewPostR
 	}
 	size := request.GetImage().GetObjectSize()
 	idSession := request.GetAuthorIDSession()
+	newReqStorage := reqStorage{
+		bucketName:  idSession,
+		objectName:  idSession,
+		objectSize:  size,
+		contentType: request.GetImage().GetContentType(),
+		metaData:    request.GetImage().GetFileIO(),
+	}
 	if size != 0 {
-		newReqStorage := reqStorage{
-			bucketName:  idSession,
-			objectName:  idSession,
-			objectSize:  size,
-			contentType: request.GetImage().GetContentType(),
-			metaData:    request.GetImage().GetFileIO(),
-		}
-		if p.miniostor == nil {
-			return resp{}, fmt.Errorf("minio storage is nil")
-		}
-		postImageURL, err := p.miniostor.UploadImage(ctx, &newReqStorage)
+
+		tempURL, err := p.miniostor.ParseURL(ctx, &newReqStorage)
 		if err != nil {
-			log.Print("dir: ", "governor", "method: ", "minioUploadImage", err.Error())
 			return nil, err
 		}
-		imageURL = postImageURL.GetImageURL()
+		imageURL = tempURL.GetImageURL()
 	}
-
 	newResp := &resp{
 		title:   request.GetTitle(),
 		content: request.GetPostContent(),
@@ -118,10 +114,25 @@ func (p *PostsGovernor) NewPost(ctx context.Context, request controller.NewPostR
 
 	log.Println(newResp) //////////////////////////////////////////
 
-	_, err := p.db.CreatePost(newResp)
+	resp, err := p.db.CreatePost(ctx, newResp)
 	if err != nil {
 		log.Print("dir: ", "governor", "method: ", "db.CreatePost", "  ERROR:  ", err.Error())
 		return nil, err
 	}
+	if size != 0 {
+		if p.miniostor == nil {
+			return nil, fmt.Errorf("minio storage is nil")
+		}
+		err = p.miniostor.UploadImage(ctx, &newReqStorage)
+		if err != nil {
+			err = resp.TxRollback(true)
+			if err != nil {
+				return nil, err
+			}
+			log.Print("dir: ", "governor", "method: ", "minioUploadImage", err.Error())
+			return nil, err
+		}
+	}
+	resp.TxRollback(false)
 	return nil, nil
 }
