@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 	"sync"
+	"syscall"
 	"time"
 
 	miniostorage "1337b0rd/internal/minio_storage"
@@ -27,7 +28,7 @@ func main() {
 	gov := governor.New()
 	var wg sync.WaitGroup
 	// логирование начало
-	file, err := os.OpenFile("log.txt", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o666)
+	file, err := os.OpenFile("log/log.txt", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o777)
 	if err != nil {
 		log.Fatalf("Не удалось открыть лог-файл: %v", err)
 	}
@@ -107,18 +108,17 @@ func main() {
 	// скачивание аватаров и присваивание в базу данных конец
 
 	// gracefullshutdown начало
-	go func(cancelFunc context.CancelFunc) {
-		shutdown := make(chan os.Signal, 1)
-		signal.Notify(shutdown, os.Interrupt)
+	shutdown := make(chan os.Signal, 1)
+	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)
 
+	go func(cancelFunc context.CancelFunc) {
 		sig := <-shutdown
-		slog.Any("signal", sig)
+		logger.Info("you switch off programm", "signal", sig)
 		err := gov.Interceptor.BackupAvatars(ctx)
 		if err != nil {
-			log.Print(err)
-			return
+			logger.Error("Failed to backup avatars on shutdown", "error", err)
 		}
-		logger.Info("you switch off programm")
+
 		cancelFunc()
 	}(cancel)
 	// gracefullshutdown конец

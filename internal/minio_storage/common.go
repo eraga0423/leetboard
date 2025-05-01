@@ -19,13 +19,13 @@ type MinioStorage struct {
 func NewMinioStorage(conf *config.Config, ctx context.Context) *MinioStorage {
 	client := newMinioClient(ctx, conf)
 	return &MinioStorage{
-		// conf:   conf,
+		conf:   conf,
 		client: client,
 	}
 }
 
 func newMinioClient(_ context.Context, conf *config.Config) *minio.Client {
-	endpoint := fmt.Sprintf("%s:%s", conf.Minio.APIPort, conf.Minio.APIPort)
+	endpoint := fmt.Sprintf("%s:%s", conf.Minio.Host, conf.Minio.APIPort)
 
 	client, err := minio.New(endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(conf.Minio.User, conf.Minio.Password, ""),
