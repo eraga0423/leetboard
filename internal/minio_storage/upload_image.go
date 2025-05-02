@@ -51,6 +51,22 @@ func (m *MinioStorage) UploadImage(ctx context.Context, req storage.DataImageReq
 	if err != nil {
 		return fmt.Errorf("failed to create bucket: %v", err)
 	}
+	policy := fmt.Sprintf(`{
+		"Version": "2012-10-17",
+		"Statement": [
+		  {
+			"Effect": "Allow",
+			"Principal": {"AWS": ["*"]},
+			"Action": ["s3:GetObject"],
+			"Resource": ["arn:aws:s3:::%s/*"]
+		  }
+		]
+	  }`, newReq.bucketName)
+
+	err = m.client.SetBucketPolicy(ctx, newReq.bucketName, policy)
+	if err != nil {
+		return fmt.Errorf("bucket policy %v", err)
+	}
 	return nil
 }
 
@@ -80,7 +96,7 @@ func (m *MinioStorage) ParseURL(ctx context.Context, req storage.DataImageReq) (
 	if err != nil {
 		return nil, err
 	}
-	newURL := fmt.Sprintf("https://%s/%s/%s", m.conf.Minio.Host, newReq.bucketName, newObjectname)
+	newURL := fmt.Sprintf("http://%s/%s/%s", m.conf.Minio.PublicHost, newReq.bucketName, newObjectname)
 
 	return &newParseResp{
 		objectName: newObjectname,
@@ -92,6 +108,6 @@ func (u *newParseResp) GetImageURL() string {
 	return u.newURL
 }
 
-func (u *newParseResp) GetNewBucketName() string {
+func (u *newParseResp) GetNewObjectName() string {
 	return u.objectName
 }

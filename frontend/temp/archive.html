@@ -8,20 +8,17 @@
   <body>
     <div class="buttonArchiveNew">
       <button onclick="location.href='/create'">NEW POST</button>
-      <button onclick="location.href='/archive'">ARCHIVE</button>
+      <button onclick="location.href='/catalog'">CATALOG</button>
     </div>
     <h2>ARCHIVE POSTS</h2>
     <div class="buttonContainer">
       <ul>
-        {{range .ArchivePosts}}
-          {{.Title}}
+        {{range .ArchivePosts}} {{.Title}}
         <li>
           <button
             class="buttonPost"
             onclick="location.href='/archive/{{.PostID}}'"
-          >
-            {{.Title}}
-          </button>
+          ></button>
         </li>
         {{else}}
         <li>NO POSTS.</li>

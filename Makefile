@@ -4,6 +4,6 @@ up:
 down:
 	docker-compose down
 clear:
-	make down
+	docker-compose down
 	docker volume prune
 	docker-compose down --rmi all
