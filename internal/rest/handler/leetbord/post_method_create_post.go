@@ -67,7 +67,7 @@ func (h *PostsHandler) PostMethodCreatePost(w http.ResponseWriter, r *http.Reque
 		h.HandleError(w, 400)
 		return
 	}
-
+	http.Redirect(w, r, "/catalog", http.StatusSeeOther)
 	log.Print("this new request:   ", NewReq)
 }
 

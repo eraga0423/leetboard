@@ -11,6 +11,7 @@ import (
 )
 
 func (h *PostsHandler) GetPosts(w http.ResponseWriter, r *http.Request) {
+	slog.Info("get posts")
 	tmpl := template.Must(template.ParseFiles(constants.Catalog))
 	var data AllPost
 	ctx := r.Context()

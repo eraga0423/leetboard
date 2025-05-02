@@ -82,6 +82,7 @@ func (p *PostsGovernor) NewPost(ctx context.Context, request controller.NewPostR
 	imageURL := ""
 	log.Println("post: new post", "dir: governor")
 	name := request.GetFormName()
+	newObjectName := ""
 	if name == "" {
 		name = request.GetDefaultName()
 	}
@@ -89,30 +90,27 @@ func (p *PostsGovernor) NewPost(ctx context.Context, request controller.NewPostR
 	idSession := request.GetAuthorIDSession()
 	newReqStorage := reqStorage{
 		bucketName:  idSession,
-		objectName:  idSession,
 		objectSize:  size,
 		contentType: request.GetImage().GetContentType(),
 		metaData:    request.GetImage().GetFileIO(),
 	}
 	if size != 0 {
 
-		tempURL, err := p.miniostor.ParseURL(ctx, &newReqStorage)
+		temp, err := p.miniostor.ParseURL(ctx, &newReqStorage)
 		if err != nil {
 			return nil, err
 		}
-		imageURL = tempURL.GetImageURL()
+		imageURL = temp.GetImageURL()
+		newObjectName = temp.GetNewObjectName()
 	}
 	newResp := &resp{
-		title:   request.GetTitle(),
-		content: request.GetPostContent(),
-		nick:    name,
-
+		title:           request.GetTitle(),
+		content:         request.GetPostContent(),
+		nick:            name,
 		authorSessionID: idSession,
 		avatarImage:     request.GetAvatarImageURL(),
 		postImage:       imageURL,
 	}
-
-	log.Println(newResp) //////////////////////////////////////////
 
 	resp, err := p.db.CreatePost(ctx, newResp)
 	if err != nil {
@@ -120,12 +118,20 @@ func (p *PostsGovernor) NewPost(ctx context.Context, request controller.NewPostR
 		return nil, err
 	}
 	if size != 0 {
+		newReqStorage := reqStorage{
+			bucketName:  idSession,
+			objectSize:  size,
+			objectName:  newObjectName,
+			contentType: request.GetImage().GetContentType(),
+			metaData:    request.GetImage().GetFileIO(),
+		}
 		if p.miniostor == nil {
 			return nil, fmt.Errorf("minio storage is nil")
 		}
+
 		err = p.miniostor.UploadImage(ctx, &newReqStorage)
 		if err != nil {
-			log.Print("dir: ", "governor", "method: ", "minioUploadImage", err.Error())
+			log.Print("dir: ", "governor", "method: ", "minioUploadImage", "error", err.Error())
 			err = resp.TxRollback(true)
 			if err != nil {
 				return nil, err
@@ -133,6 +139,9 @@ func (p *PostsGovernor) NewPost(ctx context.Context, request controller.NewPostR
 			return nil, err
 		}
 	}
-	resp.TxRollback(false)
+	err = resp.TxRollback(false)
+	if err != nil {
+		return nil, err
+	}
 	return nil, nil
 }

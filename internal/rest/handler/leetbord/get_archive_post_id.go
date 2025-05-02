@@ -15,40 +15,42 @@ type archiveReqID struct {
 	id int
 }
 
-type respOnePostArchive struct {
-	onePost  onePostArchive
-	comments []commentArchive
+type RespOnePostArchive struct {
+	OnePost  OnePostArchiveId
+	Comments []CommentArchive
 }
-type commentArchive struct {
-	parentComment   oneCommentArchive
-	childrenComment []oneCommentArchive
+type CommentArchive struct {
+	ParentComment   OneCommentArchive
+	ChildrenComment []OneCommentArchive
 }
 
-type oneCommentArchive struct {
-	commentID      int
-	postID         int
-	author         authorArchive
-	commentContent string
-	commentImage   string
-	commentTime    time.Time
+type OneCommentArchive struct {
+	CommentID      int
+	PostID         int
+	Author         AuthorArchive
+	CommentContent string
+	CommentImage   string
+	CommentTime    time.Time
 }
-type authorArchive struct {
-	name      string
-	imageURL  string
-	sessionID string
+type AuthorArchive struct {
+	Name      string
+	ImageURL  string
+	SessionID string
 }
-type onePostArchive struct {
-	title      string
-	content    string
-	imageURL   string
-	postTime   time.Time
-	authorPost authorArchive
+type OnePostArchiveId struct {
+	Title      string
+	Content    string
+	ImageURL   string
+	PostTime   time.Time
+	AuthorPost AuthorArchive
 }
 
 func (h *PostsHandler) GetPostIDArchive(w http.ResponseWriter, r *http.Request) {
+	slog.Info("this metod get post id archive", "dir", "rest")
 	ctx := r.Context()
-	tmpl := template.Must(template.ParseFiles(constants.Post))
+	tmpl := template.Must(template.ParseFiles(constants.ArchivePost))
 	id := r.PathValue("id")
+	slog.Info(id)
 	intID, err := strconv.Atoi(id)
 	if err != nil {
 		h.HandleError(w, http.StatusInternalServerError)
@@ -65,26 +67,28 @@ func (h *PostsHandler) GetPostIDArchive(w http.ResponseWriter, r *http.Request) 
 		slog.Info("method", "gov", err)
 		return
 	}
+	respMain := RespOnePostArchive{}
 	comments := res.GetComments()
 	postResp := newArchivePost(res)
-	var newRespComment []commentArchive
+	var newRespComment []CommentArchive
 	for _, v := range comments {
 		parentResp := newArchiveParentComment(v.GetParent())
 		childResp := newArchiveChildrenComment(v.GetChildren())
-		newRespComment = append(newRespComment, commentArchive{
-			parentComment:   parentResp,
-			childrenComment: childResp,
+		newRespComment = append(newRespComment, CommentArchive{
+			ParentComment:   parentResp,
+			ChildrenComment: childResp,
 		})
-		respMain := respOnePostArchive{
-			onePost:  postResp,
-			comments: newRespComment,
+		respMain = RespOnePostArchive{
+			OnePost:  postResp,
+			Comments: newRespComment,
 		}
-		err = tmpl.Execute(w, respMain)
-		if err != nil {
-			h.HandleError(w, http.StatusInternalServerError)
-			slog.Info("method", "front", err)
-			return
-		}
+
+	}
+	err = tmpl.Execute(w, respMain)
+	if err != nil {
+		h.HandleError(w, http.StatusInternalServerError)
+		slog.Info("method", "front", err)
+		return
 	}
 }
 
@@ -92,51 +96,51 @@ func (a *archiveReqID) GetPostID() int {
 	return a.id
 }
 
-func newArchivePost(req controller.ArchiveOnePostResp) onePostArchive {
+func newArchivePost(req controller.ArchiveOnePostResp) OnePostArchiveId {
 	respAuthPost := req.GetOnePost().GetAuthorPost()
 	respOnePost := req.GetOnePost()
-	newOnePost := onePostArchive{
-		title:    respOnePost.GetTitle(),
-		content:  respOnePost.GetPostContent(),
-		imageURL: respAuthPost.GetImageURL(),
-		postTime: respOnePost.GetPostTime(),
-		authorPost: authorArchive{
-			name:      respAuthPost.GetName(),
-			imageURL:  respAuthPost.GetImageURL(),
-			sessionID: respAuthPost.GetSessionID(),
+	newOnePost := OnePostArchiveId{
+		Title:    respOnePost.GetTitle(),
+		Content:  respOnePost.GetPostContent(),
+		ImageURL: respAuthPost.GetImageURL(),
+		PostTime: respOnePost.GetPostTime(),
+		AuthorPost: AuthorArchive{
+			Name:      respAuthPost.GetName(),
+			ImageURL:  respAuthPost.GetImageURL(),
+			SessionID: respAuthPost.GetSessionID(),
 		},
 	}
 	return newOnePost
 }
 
-func newArchiveParentComment(parent controller.ArchiveOneComment) oneCommentArchive {
-	respComment := oneCommentArchive{
-		commentID: parent.GetCommentID(),
-		postID:    parent.GetPostID(),
-		author: authorArchive{
-			name:      parent.GetAuthor().GetName(),
-			imageURL:  parent.GetAuthor().GetImageURL(),
-			sessionID: parent.GetAuthor().GetSessionID(),
+func newArchiveParentComment(parent controller.ArchiveOneComment) OneCommentArchive {
+	respComment := OneCommentArchive{
+		CommentID: parent.GetCommentID(),
+		PostID:    parent.GetPostID(),
+		Author: AuthorArchive{
+			Name:      parent.GetAuthor().GetName(),
+			ImageURL:  parent.GetAuthor().GetImageURL(),
+			SessionID: parent.GetAuthor().GetSessionID(),
 		},
-		commentContent: parent.GetCommentContent(),
-		commentTime:    parent.GetCommentTime(),
+		CommentContent: parent.GetCommentContent(),
+		CommentTime:    parent.GetCommentTime(),
 	}
 	return respComment
 }
 
-func newArchiveChildrenComment(child []controller.ArchiveOneComment) []oneCommentArchive {
-	newComment := make([]oneCommentArchive, len(child))
+func newArchiveChildrenComment(child []controller.ArchiveOneComment) []OneCommentArchive {
+	newComment := make([]OneCommentArchive, len(child))
 	for _, comment := range child {
-		newComment = append(newComment, oneCommentArchive{
-			commentID: comment.GetCommentID(),
-			postID:    comment.GetPostID(),
-			author: authorArchive{
-				name:      comment.GetAuthor().GetName(),
-				imageURL:  comment.GetAuthor().GetImageURL(),
-				sessionID: comment.GetAuthor().GetSessionID(),
+		newComment = append(newComment, OneCommentArchive{
+			CommentID: comment.GetCommentID(),
+			PostID:    comment.GetPostID(),
+			Author: AuthorArchive{
+				Name:      comment.GetAuthor().GetName(),
+				ImageURL:  comment.GetAuthor().GetImageURL(),
+				SessionID: comment.GetAuthor().GetSessionID(),
 			},
-			commentContent: comment.GetCommentContent(),
-			commentTime:    comment.GetCommentTime(),
+			CommentContent: comment.GetCommentContent(),
+			CommentTime:    comment.GetCommentTime(),
 		},
 		)
 	}

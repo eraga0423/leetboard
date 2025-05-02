@@ -3,6 +3,7 @@ package posts_handler
 import (
 	"fmt"
 	"log"
+	"log/slog"
 	"net/http"
 	"text/template"
 
@@ -14,6 +15,7 @@ type resp struct {
 }
 
 func (h *PostsHandler) GetCreatePost(w http.ResponseWriter, r *http.Request) {
+	slog.Info("get create post")
 	tmpl := template.Must(template.ParseFiles(constants.CreatePost))
 	data := resp{
 		TitlePost: "NEW POST",

@@ -1,9 +1,12 @@
 package posts_handler
 
 import (
-	"1337b0rd/internal/types/controller"
+	"fmt"
+	"log/slog"
 	"mime/multipart"
 	"net/http"
+
+	"1337b0rd/internal/types/controller"
 )
 
 type metadataComment struct {
@@ -22,18 +25,25 @@ type respNewComment struct {
 }
 
 func (h *PostsHandler) NewComment(w http.ResponseWriter, r *http.Request) {
+	slog.Info("new comment", "", "")
 	ctx := r.Context()
-	postID := r.FormValue("post_id") //////////////////////////////////////////////////////
+	postID := r.PathValue("id") //////////////////////////////////////////////////////
+	slog.Info("postID", "val", postID)
 	parentCommentID := r.FormValue("parent_id")
+	slog.Info("parentID", "val", parentCommentID)
 	commentContent := r.FormValue("comment_content")
+	slog.Info("content", "val", commentContent)
 	newCookie, err := parseCookie(r)
 	if err != nil {
+		slog.Any("parse cookie error: %w", err)
 		h.HandleError(w, http.StatusInternalServerError)
 		return
 	}
 	newImage, err := checkFile(r)
 	if err != nil {
+		slog.Any("check file error: %w", err)
 		h.HandleError(w, http.StatusBadRequest)
+		return
 	}
 
 	newResp := &respNewComment{
@@ -51,9 +61,11 @@ func (h *PostsHandler) NewComment(w http.ResponseWriter, r *http.Request) {
 	}
 	_, err = h.ctrl.NewComment(newResp, ctx)
 	if err != nil {
+		slog.Any("new comment error: %w", err)
 		h.HandleError(w, http.StatusInternalServerError)
 		return
 	}
+	http.Redirect(w, r, fmt.Sprintf("/post/%s", postID), http.StatusSeeOther)
 }
 func (c *respNewComment) GetPostID() string                           { return c.postID }
 func (c *respNewComment) GetAvatarImageURL() string                   { return c.avatarImageURL }
