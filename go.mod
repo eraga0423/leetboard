@@ -7,6 +7,7 @@ toolchain go1.23.8
 require (
 	github.com/lib/pq v1.10.9
 	github.com/minio/minio-go/v7 v7.0.89
+	github.com/redis/go-redis/v9 v9.7.3
 )
 
 require (
@@ -22,7 +23,6 @@ require (
 	github.com/minio/crc64nvme v1.0.1 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/redis/go-redis/v9 v9.7.3 // indirect
 	github.com/rs/xid v1.6.0 // indirect
 	golang.org/x/crypto v0.36.0 // indirect
 	golang.org/x/net v0.37.0 // indirect
