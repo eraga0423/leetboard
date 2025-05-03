@@ -78,13 +78,20 @@ func (s *reqStorage) GetMetaData() multipart.File {
 	return s.metaData
 }
 
+type newPostResp struct {
+	newName string
+}
+
 func (p *PostsGovernor) NewPost(ctx context.Context, request controller.NewPostReq) (controller.NewPostResp, error) {
 	imageURL := ""
 	log.Println("post: new post", "dir: governor")
 	name := request.GetFormName()
 	newObjectName := ""
+	newName := newPostResp{}
 	if name == "" {
 		name = request.GetDefaultName()
+	} else if name != "" {
+		newName.newName = name
 	}
 	size := request.GetImage().GetObjectSize()
 	idSession := request.GetAuthorIDSession()
@@ -143,5 +150,10 @@ func (p *PostsGovernor) NewPost(ctx context.Context, request controller.NewPostR
 	if err != nil {
 		return nil, err
 	}
-	return nil, nil
+
+	return &newName, nil
+}
+
+func (r *newPostResp) GetNewName() string {
+	return r.newName
 }

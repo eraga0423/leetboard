@@ -1,34 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <link rel="icon" href="/temp/3665934.png" type="image/png" />
     <meta charset="UTF-8" />
-    <title>ARCHIVE POST</title>
+    <title>{{.OnePost.Title}}</title>
     <link rel="stylesheet" href="/static/css/style.css" />
   </head>
   <body>
     <div class="buttonArchiveNew">
-      <button onclick="location.href='/create'">NEW POST</button>
+      <button onclick="location.href='/catalog'">CATALOG</button>
       <button onclick="location.href='/archive'">ARCHIVE</button>
     </div>
-    <h2>{{.Title}}</h2>
-    <div class="buttonContainer">
+
+    <h2>{{.OnePost.Title}}</h2>
     <ul>
-      <li>{{.Nick}}</li>
-      <li>{{.Post}}</li>
+      <li><b>{{.OnePost.AuthorPost.Name}}</b></li>
+      <li>{{.OnePost.Content}}</li>
+      <li>{{.OnePost.PostTime}}</li>
     </ul>
-    {{if .ImageURL}}
-    <br />
-    <img src="{{.ImageURL}}" alt="{{.Title}}" width="200" />
+
+    {{if .OnePost.ImageURL}}
+    <img src="{{.OnePost.ImageURL}}" alt="image" width="300" />
     {{end}}
-    <h3>Комментарий:</h3>
-    {{if .Comments}}
-    <ul>
-      {{range .Comments}}
-      <li><b>{{.Nick}} (ID: {{.UserID}})</b> {{.Content}}</li>
+
+    <h3>Comments</h3>
+
+    {{range .Comments}}
+    <div class="comment">
+      <div class="parentComment">
+        <b>{{.ParentComment.Author.Name}} (ID: {{.ParentComment.CommentID}})</b>
+        <p>{{.ParentComment.CommentContent}}</p>
+        <small>{{.ParentComment.CommentTime}}</small>
+      </div>
+
+      {{range .ChildrenComment}}
+      <div class="childComment">
+        <b>{{.Author.Name}} (ID: {{.CommentID}})</b>
+        <p>{{.CommentContent}}</p>
+        <small>{{.CommentTime}}</small>
+      </div>
       {{end}}
-    </ul>
-    {{else}}
-    <p>Комментариев нету.</p>
+    </div>
     {{end}}
   </body>
 </html>

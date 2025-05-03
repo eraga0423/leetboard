@@ -127,7 +127,7 @@ func newParentComment(parent controller.OneComment) OneComment {
 }
 
 func newChildComments(child []controller.OneComment) []OneComment {
-	newComment := make([]OneComment, len(child))
+	newComment := make([]OneComment, 0, len(child))
 	for _, com := range child {
 		newComment = append(newComment, OneComment{
 			CommentID: com.GetCommentID(),

@@ -70,6 +70,7 @@ func (h *PostsHandler) GetPostIDArchive(w http.ResponseWriter, r *http.Request) 
 	respMain := RespOnePostArchive{}
 	comments := res.GetComments()
 	postResp := newArchivePost(res)
+	respMain.OnePost = postResp
 	var newRespComment []CommentArchive
 	for _, v := range comments {
 		parentResp := newArchiveParentComment(v.GetParent())
@@ -78,12 +79,8 @@ func (h *PostsHandler) GetPostIDArchive(w http.ResponseWriter, r *http.Request) 
 			ParentComment:   parentResp,
 			ChildrenComment: childResp,
 		})
-		respMain = RespOnePostArchive{
-			OnePost:  postResp,
-			Comments: newRespComment,
-		}
-
 	}
+	respMain.Comments = newRespComment
 	err = tmpl.Execute(w, respMain)
 	if err != nil {
 		h.HandleError(w, http.StatusInternalServerError)
@@ -129,7 +126,7 @@ func newArchiveParentComment(parent controller.ArchiveOneComment) OneCommentArch
 }
 
 func newArchiveChildrenComment(child []controller.ArchiveOneComment) []OneCommentArchive {
-	newComment := make([]OneCommentArchive, len(child))
+	newComment := make([]OneCommentArchive, 0, len(child))
 	for _, comment := range child {
 		newComment = append(newComment, OneCommentArchive{
 			CommentID: comment.GetCommentID(),

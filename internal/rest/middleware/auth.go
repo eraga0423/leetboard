@@ -31,7 +31,7 @@ func (m *Middleware) Authentificator(next http.Handler) http.Handler {
 
 			}
 		}()
-		cookie, err := r.Cookie("session_id")
+		cookie, err := r.Cookie(constants.SessionIDKey)
 		ctx := r.Context()
 		if err != nil || cookie.Value == "" {
 			newAvatar, err := m.ctrl.InterceptorGov(ctx)
@@ -45,10 +45,6 @@ func (m *Middleware) Authentificator(next http.Handler) http.Handler {
 				id:        newAvatar.GetID(),
 				sessionID: newAvatar.GetSessionID(),
 			}
-			// if err != nil {
-			// 	http.Error(w, "error generate id", http.StatusInternalServerError)
-			// 	return
-			// }
 			cookie = &http.Cookie{
 				Name:     constants.SessionIDKey,
 				Value:    newRespAvatar.sessionID,
@@ -81,20 +77,17 @@ func (m *Middleware) Authentificator(next http.Handler) http.Handler {
 				Expires:  time.Now().Add(7 * 24 * time.Hour),
 			}
 			http.SetCookie(w, cookieID)
+
+			ctx = withSessionID(ctx, cookie.Value)
+			r = r.WithContext(ctx)
+
 			next.ServeHTTP(w, r)
 			return
 		}
-		next.ServeHTTP(w, r)
-	})
-}
 
-func (m *Middleware) Logger(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		slog.Info("Incoming HTTP request",
-			"protocol", r.Proto, // Пример: "HTTP/1.1"
-			"method", r.Method, // Пример: "GET", "POST"
-			"uri", r.RequestURI, // Пример: "/post/123?reply=1"
-		)
+		ctx = withSessionID(ctx, cookie.Value)
+		r = r.WithContext(ctx)
+
 		next.ServeHTTP(w, r)
 	})
 }
