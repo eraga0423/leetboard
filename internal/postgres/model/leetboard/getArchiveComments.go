@@ -2,6 +2,8 @@ package leetboard
 
 import (
 	"context"
+	"fmt"
+	"log/slog"
 	"time"
 
 	"1337b0rd/internal/types/database"
@@ -32,10 +34,13 @@ type archiveOnePostResponse struct {
 }
 
 func (l *Leetboard) OneArchivePost(ctx context.Context, r database.ArchiveOnePostReq) (database.ArchiveOnePostResp, error) {
+	log := l.logger.With(slog.String("handler", "OneArchivePost"))
+
 	idPost := r.ReqPostID()
 	onePost, err := archiveReturnOnePost(idPost, l.db)
 	if err != nil {
-		return nil, err
+		log.ErrorContext(ctx, "Error getting one post", slog.Any("error", err))
+		return nil, fmt.Errorf("When getting one post,  error:%w", err)
 	}
 	rows, err := l.db.Query(`
 	SELECT 
@@ -65,7 +70,8 @@ func (l *Leetboard) OneArchivePost(ctx context.Context, r database.ArchiveOnePos
 	WHERE c.post_id = $1
 `, idPost)
 	if err != nil {
-		return nil, err
+		log.ErrorContext(ctx, "Error selecting comments", slog.Any("error", err))
+		return nil, fmt.Errorf("When selecting comments,  error:%w", err)
 	}
 	defer rows.Close()
 

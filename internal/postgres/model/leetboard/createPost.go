@@ -4,13 +4,15 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"log/slog"
 	"time"
 
 	"1337b0rd/internal/types/database"
 )
 
-func (l *Leetboard) CreatePost(ctx context.Context,req database.NewPostReq) (database.NewPostResp, error) {
+func (l *Leetboard) CreatePost(ctx context.Context, req database.NewPostReq) (database.NewPostResp, error) {
+	log := l.logger.With(slog.String("handler", "createPost"))
 	// post
 	title := req.GetTitle()
 	content := req.GetPostContent()
@@ -27,7 +29,8 @@ func (l *Leetboard) CreatePost(ctx context.Context,req database.NewPostReq) (dat
 	// start
 	tx, err := l.db.Begin()
 	if err != nil {
-		return nil, err
+		log.ErrorContext(ctx, "Error starting transaction", slog.Any("error", err))
+		return nil, fmt.Errorf("When starting transaction,  error:%w", err)
 	}
 	defer TxAfter(tx, err)
 
@@ -44,7 +47,8 @@ func (l *Leetboard) CreatePost(ctx context.Context,req database.NewPostReq) (dat
 		&postID,
 	)
 	if err != nil {
-		return nil, err
+		log.ErrorContext(ctx, "Error inserting data to posts", slog.Any("error", err))
+		return nil, fmt.Errorf("When inserting data to posts, error:%w", err)
 	}
 
 	// user script
@@ -60,7 +64,7 @@ func (l *Leetboard) CreatePost(ctx context.Context,req database.NewPostReq) (dat
 	)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		slog.Info("this session_id is first")
+		log.Info("this session_id is first", "name:", authorName)
 		// new user insert
 		mydb = tx.QueryRow(`
 		INSERT INTO users 
@@ -72,7 +76,8 @@ func (l *Leetboard) CreatePost(ctx context.Context,req database.NewPostReq) (dat
 			&authorID,
 		)
 		if err != nil {
-			return nil, err
+			log.ErrorContext(ctx, "Error inserting data to users", slog.Any("error", err))
+			return nil, fmt.Errorf("When inserting data to users, error:%w", err)
 		}
 
 	} else {
@@ -85,7 +90,8 @@ func (l *Leetboard) CreatePost(ctx context.Context,req database.NewPostReq) (dat
 			WHERE session_id = $2
 			`, authorName, authSessionID)
 			if err != nil {
-				return nil, err
+				log.ErrorContext(ctx, "Error updating data to users", slog.Any("error", err))
+				return nil, fmt.Errorf("When updating data to users, error:%w", err)
 			}
 		}
 	}
@@ -97,7 +103,8 @@ func (l *Leetboard) CreatePost(ctx context.Context,req database.NewPostReq) (dat
 	`, postID, authorID,
 	)
 	if err != nil {
-		return nil, err
+		log.ErrorContext(ctx, "Error inserting data to users_posts", slog.Any("error", err))
+		return nil, fmt.Errorf("When inserting data to users_posts, error:%w", err)
 	}
 	var n newPostRespStruct
 	n.newId = int(postID)

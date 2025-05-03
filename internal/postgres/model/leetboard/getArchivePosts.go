@@ -3,6 +3,7 @@ package leetboard
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"1337b0rd/internal/types/database"
@@ -21,6 +22,8 @@ type postArchiveResp struct {
 }
 
 func (l *Leetboard) ListArchivePosts(ctx context.Context) (database.ListPostsArchiveResp, error) {
+	log := l.logger.With(slog.String("handler", "ListArchivePost"))
+
 	rows, err := l.db.Query(`
     SELECT 
     p.post_id,
@@ -40,8 +43,8 @@ WHERE (
     p.post_time < NOW() - INTERVAL '10 minutes'
 )`)
 	if err != nil {
-		fmt.Println(err)
-		return nil, err
+		log.ErrorContext(ctx, "Error selecting posts", slog.Any("error", err))
+		return nil, fmt.Errorf("Error when selecting posts: %w", err)
 	}
 	defer rows.Close()
 
@@ -57,7 +60,8 @@ WHERE (
 			&p.postTime,
 		)
 		if err != nil {
-			return nil, err
+			log.ErrorContext(ctx, "Error set posts of selecting to structs", slog.Any("error", err))
+			return nil, fmt.Errorf("Error set posts of selecting to structs: %w", err)
 		}
 		resPost = append(resPost, p)
 	}

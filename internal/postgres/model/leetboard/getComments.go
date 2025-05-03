@@ -2,6 +2,8 @@ package leetboard
 
 import (
 	"context"
+	"fmt"
+	"log/slog"
 	"time"
 
 	"1337b0rd/internal/types/database"
@@ -32,10 +34,13 @@ type onePostResponse struct {
 }
 
 func (l *Leetboard) OnePost(ctx context.Context, r database.OnePostReq) (database.OnePostResp, error) {
+	log := l.logger.With(slog.Any("handler", "onePost"))
+
 	idPost := r.ReqPostID()
 	onePost, err := returnOnePost(idPost, l.db)
 	if err != nil {
-		return nil, err
+		log.ErrorContext(ctx, "Error when get one post", slog.Any("error", err))
+		return nil, fmt.Errorf("Error when get one post, error:%w", err)
 	}
 	rows, err := l.db.Query(`
 	SELECT 
@@ -65,7 +70,8 @@ func (l *Leetboard) OnePost(ctx context.Context, r database.OnePostReq) (databas
 	WHERE c.post_id = $1
 `, idPost)
 	if err != nil {
-		return nil, err
+		log.ErrorContext(ctx, "Error when select comments", slog.Any("error", err))
+		return nil, fmt.Errorf("Error when select comments, error:%w", err)
 	}
 	defer rows.Close()
 
@@ -84,7 +90,8 @@ func (l *Leetboard) OnePost(ctx context.Context, r database.OnePostReq) (databas
 			&childID, &childPostID, &childContent, &childImage, &childTime, &childName, &childAvatar, &childSession,
 		)
 		if err != nil {
-			return nil, err
+			log.ErrorContext(ctx, "Error when set of selecting comments to structs", slog.Any("error", err))
+			return nil, fmt.Errorf("Error when set of selecting comments to structs, error:%w", err)
 		}
 
 		if _, ok := commentMap[parentID]; !ok {
