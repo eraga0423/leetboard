@@ -4,7 +4,9 @@ import (
 	"log"
 	"mime/multipart"
 	"net/http"
+	"time"
 
+	"1337b0rd/internal/constants"
 	"1337b0rd/internal/types/controller"
 )
 
@@ -61,11 +63,21 @@ func (h *PostsHandler) PostMethodCreatePost(w http.ResponseWriter, r *http.Reque
 		log.Print("This controller is nil")
 		return
 	}
-	_, err = h.ctrl.NewPost(ctx, NewReq)
+	respNewPost, err := h.ctrl.NewPost(ctx, NewReq)
 	if err != nil {
 		log.Print("dir: rest, method: post method create post. ERROR:  ", err)
 		h.HandleError(w, 400)
 		return
+	}
+	if respNewPost.GetNewName() != "" {
+		cookieName := &http.Cookie{
+			Name:     constants.Name,
+			Value:    respNewPost.GetNewName(),
+			Path:     "/",
+			HttpOnly: true,
+			Expires:  time.Now().Add(7 * 24 * time.Hour),
+		}
+		http.SetCookie(w, cookieName)
 	}
 	http.Redirect(w, r, "/catalog", http.StatusSeeOther)
 	log.Print("this new request:   ", NewReq)
