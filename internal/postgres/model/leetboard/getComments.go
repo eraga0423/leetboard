@@ -2,6 +2,7 @@ package leetboard
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log/slog"
 	"time"
@@ -81,13 +82,15 @@ func (l *Leetboard) OnePost(ctx context.Context, r database.OnePostReq) (databas
 		var parentContent, parentImage, parentName, parentAvatar, parentSession string
 		var parentTime time.Time
 
-		var childID, childPostID int
-		var childContent, childImage, childName, childAvatar, childSession string
-		var childTime time.Time
+		var childID, childPostID sql.NullInt64
+		var childContent, childImage, childName, childAvatar, childSession sql.NullString
+		var childTime sql.NullTime
 
 		err := rows.Scan(
-			&parentID, &parentPostID, &parentContent, &parentImage, &parentTime, &parentName, &parentAvatar, &parentSession,
-			&childID, &childPostID, &childContent, &childImage, &childTime, &childName, &childAvatar, &childSession,
+			&parentID, &parentPostID, &parentContent, &parentImage, &parentTime, &childID, // up to index 5
+			&parentName, &parentAvatar, &parentSession, // 6–8
+			&childPostID, &childContent, &childImage, &childTime, // 9–12
+			&childName, &childAvatar, &childSession, // 13–15
 		)
 		if err != nil {
 			log.ErrorContext(ctx, "Error when set of selecting comments to structs", slog.Any("error", err))
@@ -101,7 +104,8 @@ func (l *Leetboard) OnePost(ctx context.Context, r database.OnePostReq) (databas
 					postID:  parentPostID,
 					content: parentContent,
 					image:   parentImage,
-					time:    parentTime,
+
+					time: parentTime,
 					author: oneCommentAuthor{
 						authorName:      parentName,
 						authorImageURL:  parentAvatar,
@@ -111,17 +115,17 @@ func (l *Leetboard) OnePost(ctx context.Context, r database.OnePostReq) (databas
 			}
 		}
 
-		if childID != 0 {
+		if childID.Int64 != 0 {
 			commentMap[parentID].children = append(commentMap[parentID].children, oneCommentData{
-				id:      childID,
-				postID:  childPostID,
-				content: childContent,
-				image:   childImage,
-				time:    childTime,
+				id:      int(childID.Int64),
+				postID:  int(childPostID.Int64),
+				content: childContent.String,
+				image:   childImage.String,
+				time:    childTime.Time,
 				author: oneCommentAuthor{
-					authorName:      childName,
-					authorImageURL:  childAvatar,
-					authorSessionID: childSession,
+					authorName:      childName.String,
+					authorImageURL:  childAvatar.String,
+					authorSessionID: childSession.String,
 				},
 			})
 		}

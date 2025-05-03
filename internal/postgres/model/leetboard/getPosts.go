@@ -48,7 +48,8 @@ WHERE (
 	}
 	defer rows.Close()
 
-	var resPost []postResp
+	resPost := make(map[int]postResp)
+	var responsePost []postResp
 	for rows.Next() {
 		var p postResp
 		err := rows.Scan(
@@ -62,10 +63,15 @@ WHERE (
 		if err != nil {
 			return nil, err
 		}
-		resPost = append(resPost, p)
+		val, exist := resPost[p.postID]
+		if !exist {
+			responsePost = append(responsePost, p)
+			resPost[p.postID] = val
+		}
+
 	}
 	slog.Info("end get posts")
-	return &allpost{posts: resPost}, nil
+	return &allpost{posts: responsePost}, nil
 }
 
 func (a *allpost) GetList() []database.ItemPostsResp {
