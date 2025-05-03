@@ -2,6 +2,7 @@ package posts_handler
 
 import (
 	"log"
+	"log/slog"
 	"net/http"
 	"text/template"
 	"time"
@@ -22,6 +23,7 @@ type OnePostArchive struct {
 }
 
 func (h *PostsHandler) GetArchive(w http.ResponseWriter, r *http.Request) {
+	slog.Info("get archive")
 	tmpl := template.Must(template.ParseFiles(constants.Archive))
 	resp, err := h.ctrl.ListArchivePosts(r.Context())
 	if err != nil {
@@ -41,12 +43,11 @@ func (h *PostsHandler) GetArchive(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 	log.Print("This GET /archive")
-	
+
 	err = tmpl.Execute(w, data)
 	if err != nil {
 		log.Print(err)
 		h.HandleError(w, http.StatusInternalServerError)
 		return
 	}
-
 }

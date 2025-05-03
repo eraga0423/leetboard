@@ -39,6 +39,7 @@ type Author struct {
 	SessionID string
 }
 type OnePost struct {
+	PostID     int
 	Title      string
 	Content    string
 	ImageURL   string
@@ -47,11 +48,13 @@ type OnePost struct {
 }
 
 func (h *PostsHandler) GetPostID(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("This GET /post/id")
 	ctx := r.Context()
 	tmpl := template.Must(template.ParseFiles(constants.Post))
 	id := r.PathValue("id")
 	intID, err := strconv.Atoi(id)
 	if err != nil {
+		slog.Info("method", "atoi", err)
 		h.HandleError(w, http.StatusInternalServerError)
 		return
 	}
@@ -59,12 +62,12 @@ func (h *PostsHandler) GetPostID(w http.ResponseWriter, r *http.Request) {
 	req = &reqID{id: intID}
 	data, err := h.ctrl.OnePostGov(req, ctx)
 	if err != nil {
-		slog.Info("method", "gov", err)
+		slog.Error("method", "gov", err)
 		h.HandleError(w, http.StatusInternalServerError)
 		return
 	}
 	var newComment []Comment
-	newPost := newPost(data)
+	newPost := newPost(data, intID)
 	for _, v := range data.GetComments() {
 		newParent := newParentComment(v.GetParent())
 		newChild := newChildComments(v.GetChildren())
@@ -77,7 +80,7 @@ func (h *PostsHandler) GetPostID(w http.ResponseWriter, r *http.Request) {
 		OnePost:  newPost,
 		Comments: newComment,
 	}
-	fmt.Println("This GET /post/id")
+
 	err = tmpl.Execute(w, mainResp)
 	if err != nil {
 		h.HandleError(w, http.StatusInternalServerError)
@@ -90,7 +93,7 @@ func (i *reqID) GetPostID() int {
 	return i.id
 }
 
-func newPost(req controller.OnePostResp) OnePost {
+func newPost(req controller.OnePostResp, postID int) OnePost {
 	respAuthPost := req.GetOnePost().GetAuthorPost()
 	respOnePost := req.GetOnePost()
 	newOnePost := OnePost{
@@ -103,6 +106,7 @@ func newPost(req controller.OnePostResp) OnePost {
 			ImageURL:  respAuthPost.GetImageURL(),
 			SessionID: respAuthPost.GetSessionID(),
 		},
+		PostID: postID,
 	}
 	return newOnePost
 }
@@ -123,7 +127,7 @@ func newParentComment(parent controller.OneComment) OneComment {
 }
 
 func newChildComments(child []controller.OneComment) []OneComment {
-	newComment := make([]OneComment, len(child))
+	newComment := make([]OneComment, 0, len(child))
 	for _, com := range child {
 		newComment = append(newComment, OneComment{
 			CommentID: com.GetCommentID(),

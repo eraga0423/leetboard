@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <link rel="icon" href="/temp/3665934.png" type="image/png" />
     <meta charset="UTF-8" />
     <title>{{.OnePost.Title}}</title>
     <link rel="stylesheet" href="/static/css/style.css" />
   </head>
   <body>
     <div>
-      <button onclick="location.href='/create'">создать новый пост</button>
-      <button onclick="location.href='/archive'">Перейти в архив</button>
+      <button onclick="location.href='/create'">CREATE POST</button>
+      <button onclick="location.href='/archive'">ARCHIVE</button>
     </div>
 
     <h2>{{.OnePost.Title}}</h2>
@@ -52,14 +53,11 @@
 
     <form
       method="POST"
-      action="/{{.OnePost.AuthorPost.SessionID}}/comment"
+      action="/post/{{.OnePost.PostID}}"
       id="comment-form"
+      enctype="multipart/form-data"
     >
-      <input
-        type="hidden"
-        name="post_id"
-        value="{{.OnePost.AuthorPost.SessionID}}"
-      />
+      <input type="hidden" name="post_id" value="{{.OnePost.PostID}}" />
       <input type="hidden" name="parent_id" id="parent-comment-id" value="0" />
       <label for="new_comment">Введите коммент:</label>
       <input type="text" id="new_comment" name="comment_content" required />

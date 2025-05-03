@@ -40,8 +40,8 @@ func (a *Leetboard) CreateComment(ctx context.Context, req database.NewReqCommen
 	mydb := tx.QueryRow(`
 	INSERT INTO comments
 	(post_id, comment_content, comment_image, comment_time)
-	VALUE($1, $2, $3, $4)
-	RETURING comment_id
+	VALUES($1, $2, $3, $4)
+	RETURNING comment_id
 	`, post, content, comImage, timeNow,
 	)
 	var commentID int
@@ -56,7 +56,7 @@ func (a *Leetboard) CreateComment(ctx context.Context, req database.NewReqCommen
 		_, err := tx.Exec(`
 	INSERT INTO subcomments
 	(comment_parent, comment_child)
-	VALUE($1, $2)
+	VALUES($1, $2)
 	`, parentComID, commentID,
 		)
 		if err != nil {
@@ -97,7 +97,7 @@ func (a *Leetboard) CreateComment(ctx context.Context, req database.NewReqCommen
 	_, err = tx.Exec(`
 	INSERT INTO comments_users
 	(comment_id, user_id)
-	VALUE($1, $2)
+	VALUES($1, $2)
 	`, commentID, authorID,
 	)
 	if err != nil {

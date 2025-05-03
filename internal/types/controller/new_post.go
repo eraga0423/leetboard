@@ -20,4 +20,6 @@ type ItemMetaData interface {
 	GetContentType() string
 }
 
-type NewPostResp interface{}
+type NewPostResp interface {
+	GetNewName() string
+}

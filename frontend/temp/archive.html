@@ -2,19 +2,18 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>{{.TitlePost}}</title>
+    <title>ARCHIVE POST</title>
     <link rel="stylesheet" href="/static/css/style.css" />
   </head>
   <body>
     <div class="buttonArchiveNew">
       <button onclick="location.href='/create'">NEW POST</button>
-      <button onclick="location.href='/archive'">ARCHIVE</button>
+      <button onclick="location.href='/catalog'">CATALOG</button>
     </div>
-    <h2>ARCHIVE POSTS</h2>
+    <h2>ARCHIVE POST</h2>
     <div class="buttonContainer">
       <ul>
         {{range .ArchivePosts}}
-          {{.Title}}
         <li>
           <button
             class="buttonPost"

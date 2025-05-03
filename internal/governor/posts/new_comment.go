@@ -2,11 +2,10 @@ package posts_governor
 
 import (
 	"context"
-	"fmt"
+	"log/slog"
 	"mime/multipart"
 	"strconv"
 
-	"1337b0rd/internal/constants"
 	"1337b0rd/internal/types/controller"
 )
 
@@ -32,22 +31,21 @@ func (g *PostsGovernor) NewComment(req controller.NewCommentReq, ctx context.Con
 	fileSize := req.GetImageComment().GetObjectSize()
 	sessionID := req.GetSessionID()
 	commentImageURl := ""
-
+	newObjectName := ""
+	newStorage := metaDataComment{
+		fileIO:      req.GetImageComment().GetFileIO(),
+		objectSize:  fileSize,
+		contentType: req.GetImageComment().GetContentType(),
+		bucketName:  sessionID,
+	}
 	if fileSize != 0 {
-		newStorage := metaDataComment{
-			fileIO:      req.GetImageComment().GetFileIO(),
-			objectSize:  fileSize,
-			contentType: req.GetImageComment().GetContentType(),
-			bucketName:  fmt.Sprintf("%s/%s", constants.BucketComments, sessionID),
-			objectName:  sessionID,
-		}
-		err := g.miniostor.UploadImage(ctx, &newStorage)
+		resp, err := g.miniostor.ParseURL(ctx, &newStorage)
 		if err != nil {
 			return nil, err
 		}
-		// commentImageURl = respStorage.GetImageURL()
+		newObjectName = resp.GetNewObjectName()
+		commentImageURl = resp.GetImageURL()
 	}
-
 	parentCommentID := req.GetParentCommentID()
 	postIDInt, err := strconv.Atoi(req.GetPostID())
 	if err != nil {
@@ -70,7 +68,29 @@ func (g *PostsGovernor) NewComment(req controller.NewCommentReq, ctx context.Con
 		imageCommentURL: commentImageURl,
 		postID:          postIDInt,
 	}
-	_, err = g.db.CreateComment(ctx, newRespDB)
+	resp, err := g.db.CreateComment(ctx, newRespDB)
+	if err != nil {
+		return nil, err
+	}
+	if fileSize != 0 {
+		newStorage := metaDataComment{
+			bucketName:  sessionID,
+			fileIO:      req.GetImageComment().GetFileIO(),
+			objectSize:  fileSize,
+			contentType: req.GetImageComment().GetContentType(),
+			objectName:  newObjectName,
+		}
+		err := g.miniostor.UploadImage(ctx, &newStorage)
+		if err != nil {
+			err = resp.TxRollback(true)
+			if err != nil {
+				return nil, err
+			}
+			slog.Error("error upload image")
+			return nil, err
+		}
+	}
+	err = resp.TxRollback(false)
 	if err != nil {
 		return nil, err
 	}
