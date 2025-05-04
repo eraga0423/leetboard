@@ -43,12 +43,13 @@ WHERE (
     p.post_time < NOW() - INTERVAL '10 minutes'
 )`)
 	if err != nil {
-		log.ErrorContext(ctx, "Error selecting posts", slog.Any("error", err))
-		return nil, fmt.Errorf("Error when selecting posts: %w", err)
+		log.ErrorContext(ctx, "Error selecting archive_posts", slog.Any("error", err))
+		return nil, fmt.Errorf("Error when selecting archive_posts: %w", err)
 	}
 	defer rows.Close()
 
-	var resPost []postArchiveResp
+	resPost := make(map[int]postArchiveResp)
+	var responseArchivePost []postArchiveResp
 	for rows.Next() {
 		var p postArchiveResp
 		err := rows.Scan(
@@ -60,13 +61,18 @@ WHERE (
 			&p.postTime,
 		)
 		if err != nil {
-			log.ErrorContext(ctx, "Error set posts of selecting to structs", slog.Any("error", err))
-			return nil, fmt.Errorf("Error set posts of selecting to structs: %w", err)
+			log.ErrorContext(ctx, "Error set archive_posts of selecting to structs", slog.Any("error", err))
+			return nil, fmt.Errorf("Error set archive_posts of selecting to structs: %w", err)
 		}
-		resPost = append(resPost, p)
+		val, exist := resPost[p.postID]
+		if !exist {
+			responseArchivePost = append(responseArchivePost, p)
+			resPost[p.postID] = val
+		}
+
 	}
 
-	return &allArchivepost{posts: resPost}, nil
+	return &allArchivepost{posts: responseArchivePost}, nil
 }
 
 func (a *allArchivepost) GetArchiveList() []database.ItemPostsArchiveResp {

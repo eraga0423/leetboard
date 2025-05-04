@@ -2,6 +2,7 @@ package leetboard
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log/slog"
 	"time"
@@ -70,8 +71,8 @@ func (l *Leetboard) OneArchivePost(ctx context.Context, r database.ArchiveOnePos
 	WHERE c.post_id = $1
 `, idPost)
 	if err != nil {
-		log.ErrorContext(ctx, "Error selecting comments", slog.Any("error", err))
-		return nil, fmt.Errorf("When selecting comments,  error:%w", err)
+		log.ErrorContext(ctx, "Error selecting archive_comments", slog.Any("error", err))
+		return nil, fmt.Errorf("When selecting archive_comments,  error:%w", err)
 	}
 	defer rows.Close()
 
@@ -81,16 +82,19 @@ func (l *Leetboard) OneArchivePost(ctx context.Context, r database.ArchiveOnePos
 		var parentContent, parentImage, parentName, parentAvatar, parentSession string
 		var parentTime time.Time
 
-		var childID, childPostID int
-		var childContent, childImage, childName, childAvatar, childSession string
-		var childTime time.Time
+		var childID, childPostID sql.NullInt64
+		var childContent, childImage, childName, childAvatar, childSession sql.NullString
+		var childTime sql.NullTime
 
 		err := rows.Scan(
-			&parentID, &parentPostID, &parentContent, &parentImage, &parentTime, &parentName, &parentAvatar, &parentSession,
-			&childID, &childPostID, &childContent, &childImage, &childTime, &childName, &childAvatar, &childSession,
+			&parentID, &parentPostID, &parentContent, &parentImage, &parentTime, &childID, // up to index 5
+			&parentName, &parentAvatar, &parentSession, // 6–8
+			&childPostID, &childContent, &childImage, &childTime, // 9–12
+			&childName, &childAvatar, &childSession, // 13–15
 		)
 		if err != nil {
-			return nil, err
+			log.ErrorContext(ctx, "Error when set of selecting archive_comments to structs", slog.Any("error", err))
+			return nil, fmt.Errorf("Error when set of selecting archive_comments to structs, error:%w", err)
 		}
 
 		if _, ok := commentMap[parentID]; !ok {
@@ -110,17 +114,17 @@ func (l *Leetboard) OneArchivePost(ctx context.Context, r database.ArchiveOnePos
 			}
 		}
 
-		if childID != 0 {
+		if childID.Int64 != 0 {
 			commentMap[parentID].children = append(commentMap[parentID].children, archiveOneCommentData{
-				id:      childID,
-				postID:  childPostID,
-				content: childContent,
-				image:   childImage,
-				time:    childTime,
+				id:      int(childID.Int64),
+				postID:  int(childPostID.Int64),
+				content: childContent.String,
+				image:   childImage.String,
+				time:    childTime.Time,
 				author: archiveOneCommentAuthor{
-					authorName:      childName,
-					authorImageURL:  childAvatar,
-					authorSessionID: childSession,
+					authorName:      childName.String,
+					authorImageURL:  childAvatar.String,
+					authorSessionID: childSession.String,
 				},
 			})
 		}
