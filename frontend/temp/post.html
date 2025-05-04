@@ -28,27 +28,27 @@
     {{if .Comments}}
     <ul>
       {{range .Comments}}
+      {{$parent := .ParentComment}}
+
       <!-- Родительский комментарий -->
-      <li id="comment-{{.ParentComment.CommentID}}">
-        <b>{{.ParentComment.Author.Name}} (ID: {{.ParentComment.CommentID}})</b
-        >: {{.ParentComment.CommentContent}}<br />
-        <a href="#comment-form" onclick="replyTo({{.ParentComment.CommentID}})"
-          >Ответить</a
+      <li id="comment-{{$parent.CommentID}}">
+        <b>{{$parent.Author.Name}} (ID: {{$parent.CommentID}})</b>: {{$parent.CommentContent}}<br />
+        <a href="#comment-form" onclick="replyTo({{$parent.CommentID}})">Reply</a
         >
       </li>
 
       <!-- Дочерние комментарии (1 уровень вложенности) -->
       {{range .ChildrenComment}}
       <li style="margin-left: 30px" id="comment-{{.CommentID}}">
-        └─ <b>{{.Author.Name}} (ID: {{.CommentID}})</b> → ответ на #{{.PostID}}
-        {{$.ParentComment.Author.Name}}:<br />
+        └─ <b>{{.Author.Name}} (ID: {{.CommentID}})</b> → reply to #{{$parent.CommentID}}
+        {{$parent.Author.Name}}:<br />
         {{.CommentContent}}<br />
-        <a href="#comment-form" onclick="replyTo({{.CommentID}})">Ответить</a>
+        <a href="#comment-form" onclick="replyTo({{.CommentID}})">reply</a>
       </li>
       {{end}} {{end}}
     </ul>
     {{else}}
-    <p>Комментариев нету.</p>
+    <p>No comments</p>
     {{end}}
 
     <form

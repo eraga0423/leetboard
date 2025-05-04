@@ -2,7 +2,9 @@ package posts_governor
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"log/slog"
 	"time"
 
 	"1337b0rd/internal/types/controller"
@@ -88,12 +90,20 @@ func (p *PostsGovernor) OnePostGov(req controller.OnePostReq, ctx context.Contex
 		log.Print("dir: postgres,  method: onePost, error:  ", err.Error())
 		return nil, err
 	}
-
+	//////////////////////
+	for _, v := range resp.GetComments() {
+		fmt.Println(v.GetParent().GetCommentID())
+		for _, i := range v.GetChildren() {
+			fmt.Println(i.GetCommentID())
+		}
+	}
+	/////////////////
 	newRespPost := newResponsePost(resp)
 	respComments := resp.GetComments()
 	var newRespComment []comment
 	for _, v := range respComments {
 		newParentComment := newResponseParentComment(v.GetParent())
+
 		newChildComments := newResponseChildComments(v.GetChildren())
 		newRespComment = append(newRespComment, comment{
 			parentComment:   newParentComment,
@@ -105,7 +115,7 @@ func (p *PostsGovernor) OnePostGov(req controller.OnePostReq, ctx context.Contex
 		onePost:  newRespPost,
 		comments: newRespComment,
 	}
-
+	slog.Info("govERNOR", newRespComment)
 	return &newRespOnePostGov, nil
 }
 
@@ -147,8 +157,8 @@ func newResponseParentComment(parentComment database.OneComment) oneComment {
 
 func newResponseChildComments(childComments []database.OneComment) []oneComment {
 	newComments := make([]oneComment, len(childComments))
-	for _, comment := range childComments {
-		newComments = append(newComments, oneComment{
+	for i, comment := range childComments {
+		newComments[i] = oneComment{
 			commentID: comment.GetCommentID(),
 			postID:    comment.GetPostID(),
 			author: authorGov{
@@ -158,7 +168,7 @@ func newResponseChildComments(childComments []database.OneComment) []oneComment 
 			},
 			commentContent: comment.GetCommentContent(),
 			commentTime:    comment.GetCommentTime(),
-		})
+		}
 	}
 	return newComments
 }

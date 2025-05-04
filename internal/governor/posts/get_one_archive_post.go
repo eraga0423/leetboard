@@ -56,6 +56,7 @@ func (g *PostsGovernor) OneArchivePostGov(onePostReq controller.ArchiveOnePostRe
 		log.Print("dir: postgres,  method: oneArchivePost, error:  ", err.Error())
 		return nil, err
 	}
+
 	newRespPostArchive := newOnePost(resp)
 	respComment := resp.GetComments()
 	var newRespComments []archiveComment
@@ -166,4 +167,4 @@ func (a *archiveOneComment) GetCommentTime() time.Time                      { re
 
 func (a *archiveRespCommentAuthor) GetName() string      { return a.name }
 func (a *archiveRespCommentAuthor) GetImageURL() string  { return a.imageURL }
-func (a *archiveRespCommentAuthor) GetSessionID() string { return a.imageURL }
+func (a *archiveRespCommentAuthor) GetSessionID() string { return a.sessionID }

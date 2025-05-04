@@ -130,9 +130,36 @@ func (l *Leetboard) OneArchivePost(ctx context.Context, r database.ArchiveOnePos
 		}
 	}
 
+	var parentId, childId []int
+	for _, value := range commentMap {
+		parentId = append(parentId, value.parent.id)
+		for _, i := range value.children {
+			childId = append(childId, i.id)
+		}
+	}
+	for _, c := range childId {
+		for _, p := range parentId {
+			if c == p {
+				delete(commentMap, c)
+			}
+		}
+	}
+
 	var commentList []archiveCommentNode
 	for _, v := range commentMap {
-		commentList = append(commentList, *v)
+		var childCommentData []archiveOneCommentData
+		var parentCommentData archiveOneCommentData
+		parentCommentData = v.parent
+		for _, child := range v.children {
+			if child.id != 0 {
+				childCommentData = append(childCommentData, child)
+			}
+		}
+		commentList = append(commentList, archiveCommentNode{
+			parent:   parentCommentData,
+			children: childCommentData,
+		})
+
 	}
 
 	return &archiveOnePostResponse{
