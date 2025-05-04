@@ -131,9 +131,36 @@ func (l *Leetboard) OnePost(ctx context.Context, r database.OnePostReq) (databas
 		}
 	}
 
+	var parentId, childId []int
+	for _, value := range commentMap {
+		parentId = append(parentId, value.parent.id)
+		for _, i := range value.children {
+			childId = append(childId, i.id)
+		}
+	}
+	for _, c := range childId {
+		for _, p := range parentId {
+			if c == p {
+				delete(commentMap, c)
+			}
+		}
+	}
+
 	var commentList []commentNode
 	for _, v := range commentMap {
-		commentList = append(commentList, *v)
+		var childCommentData []oneCommentData
+		var parentCommentData oneCommentData
+		parentCommentData = v.parent
+		for _, child := range v.children {
+			if child.id != 0 {
+				childCommentData = append(childCommentData, child)
+			}
+		}
+		commentList = append(commentList, commentNode{
+			parent:   parentCommentData,
+			children: childCommentData,
+		})
+
 	}
 
 	return &onePostResponse{
@@ -155,9 +182,9 @@ func (c *commentNode) GetParent() database.OneComment {
 }
 
 func (c *commentNode) GetChildren() []database.OneComment {
-	result := make([]database.OneComment, len(c.children))
-	for i := range c.children {
-		result[i] = &c.children[i]
+	var result []database.OneComment
+	for _, v := range c.children {
+		result = append(result, &v)
 	}
 	return result
 }

@@ -80,6 +80,7 @@ func (h *PostsHandler) GetPostID(w http.ResponseWriter, r *http.Request) {
 		OnePost:  newPost,
 		Comments: newComment,
 	}
+	slog.Info("rest: data from get one post", mainResp)
 
 	err = tmpl.Execute(w, mainResp)
 	if err != nil {
@@ -127,7 +128,7 @@ func newParentComment(parent controller.OneComment) OneComment {
 }
 
 func newChildComments(child []controller.OneComment) []OneComment {
-	newComment := make([]OneComment, 0, len(child))
+	newComment := []OneComment{}
 	for _, com := range child {
 		newComment = append(newComment, OneComment{
 			CommentID: com.GetCommentID(),

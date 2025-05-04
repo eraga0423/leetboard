@@ -99,7 +99,7 @@ func newArchivePost(req controller.ArchiveOnePostResp) OnePostArchiveId {
 	newOnePost := OnePostArchiveId{
 		Title:    respOnePost.GetTitle(),
 		Content:  respOnePost.GetPostContent(),
-		ImageURL: respAuthPost.GetImageURL(),
+		ImageURL: respOnePost.GetPostUrlImage(),
 		PostTime: respOnePost.GetPostTime(),
 		AuthorPost: AuthorArchive{
 			Name:      respAuthPost.GetName(),
