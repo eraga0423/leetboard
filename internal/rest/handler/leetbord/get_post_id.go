@@ -80,7 +80,6 @@ func (h *PostsHandler) GetPostID(w http.ResponseWriter, r *http.Request) {
 		OnePost:  newPost,
 		Comments: newComment,
 	}
-	slog.Info("rest: data from get one post", mainResp)
 
 	err = tmpl.Execute(w, mainResp)
 	if err != nil {

@@ -1,11 +1,12 @@
 package interceptor
 
 import (
-	"1337b0rd/internal/types/controller"
 	"context"
 	"crypto/rand"
 	"fmt"
 	"strings"
+
+	"1337b0rd/internal/types/controller"
 )
 
 type respAvatar struct {
@@ -64,9 +65,11 @@ func (i *Interceptor) generateSessionID() (string, error) {
 func (a *respAvatar) GetID() int {
 	return a.id
 }
+
 func (a *respAvatar) GetImageURL() string {
 	return a.imageUrl
 }
+
 func (a *respAvatar) GetName() string {
 	return a.name
 }

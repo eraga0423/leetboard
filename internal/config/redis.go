@@ -13,5 +13,4 @@ func NewRedisConfig() *RedisConfig {
 		Port: os.Getenv("REDIS_PORT"),
 	}
 	return r
-
 }

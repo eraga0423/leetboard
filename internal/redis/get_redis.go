@@ -1,10 +1,11 @@
 package my_redis
 
 import (
-	redis_types "1337b0rd/internal/types/redis"
 	"context"
 	"strconv"
 	"strings"
+
+	redis_types "1337b0rd/internal/types/redis"
 
 	"github.com/redis/go-redis/v9"
 )

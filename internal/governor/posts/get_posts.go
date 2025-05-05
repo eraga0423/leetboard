@@ -3,7 +3,6 @@ package posts_governor
 import (
 	"context"
 	"log"
-	"log/slog"
 	"time"
 
 	"1337b0rd/internal/types/controller"
@@ -28,7 +27,6 @@ func (r *PostsGovernor) ListPosts(ctx context.Context) (controller.ListPostsResp
 	}
 
 	r.all.posts = newResp
-	slog.Info("resp gov", "r.all.posts", r.all.posts) //////////////////////////////////////
 	return &r.all, nil
 }
 

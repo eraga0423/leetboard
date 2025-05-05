@@ -1,8 +1,9 @@
 package interceptor
 
 import (
-	"1337b0rd/internal/types/controller"
 	"context"
+
+	"1337b0rd/internal/types/controller"
 )
 
 type respAvatars struct {
@@ -45,12 +46,15 @@ func (r *respAvatars) GetAvatars() []controller.Avatar {
 func (r *oneAvatar) GetName() string {
 	return r.name
 }
+
 func (r *oneAvatar) GetID() int {
 	return r.id
 }
+
 func (r *oneAvatar) GetImageURL() string {
 	return r.imageURL
 }
+
 func (r *oneAvatar) GetStatus() bool {
 	return r.status
 }

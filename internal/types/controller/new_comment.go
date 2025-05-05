@@ -16,5 +16,4 @@ type MetaDataComment interface {
 	GetObjectSize() int64
 	GetContentType() string
 }
-type NewCommentResp interface {
-}
+type NewCommentResp interface{}

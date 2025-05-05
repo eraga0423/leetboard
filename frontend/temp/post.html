@@ -8,6 +8,7 @@
   </head>
   <body>
     <div>
+      <button onclick="location.href='/catalog'">CATALOG</button>
       <button onclick="location.href='/create'">CREATE POST</button>
       <button onclick="location.href='/archive'">ARCHIVE</button>
     </div>
@@ -27,21 +28,20 @@
 
     {{if .Comments}}
     <ul>
-      {{range .Comments}}
-      {{$parent := .ParentComment}}
+      {{range .Comments}} {{$parent := .ParentComment}}
 
-      <!-- Родительский комментарий -->
       <li id="comment-{{$parent.CommentID}}">
-        <b>{{$parent.Author.Name}} (ID: {{$parent.CommentID}})</b>: {{$parent.CommentContent}}<br />
-        <a href="#comment-form" onclick="replyTo({{$parent.CommentID}})">Reply</a
+        <b>{{$parent.Author.Name}} (ID: {{$parent.CommentID}})</b>:
+        {{$parent.CommentContent}}<br />
+        <a href="#comment-form" onclick="replyTo({{$parent.CommentID}})"
+          >Reply</a
         >
       </li>
 
-      <!-- Дочерние комментарии (1 уровень вложенности) -->
       {{range .ChildrenComment}}
       <li style="margin-left: 30px" id="comment-{{.CommentID}}">
-        └─ <b>{{.Author.Name}} (ID: {{.CommentID}})</b> → reply to #{{$parent.CommentID}}
-        {{$parent.Author.Name}}:<br />
+        └─ <b>{{.Author.Name}} (ID: {{.CommentID}})</b> → reply to
+        #{{$parent.CommentID}} {{$parent.Author.Name}}:<br />
         {{.CommentContent}}<br />
         <a href="#comment-form" onclick="replyTo({{.CommentID}})">reply</a>
       </li>
@@ -68,7 +68,7 @@
       function replyTo(commentID) {
         document.getElementById("parent-comment-id").value = commentID;
         document.getElementById("new_comment").placeholder =
-          "Ответ на #" + commentID;
+          "Reply to #" + commentID;
         document.getElementById("new_comment").focus();
       }
     </script>

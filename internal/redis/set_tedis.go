@@ -1,11 +1,12 @@
 package my_redis
 
 import (
-	redistypes "1337b0rd/internal/types/redis"
 	"context"
 	"fmt"
 	"strconv"
 	"strings"
+
+	redistypes "1337b0rd/internal/types/redis"
 )
 
 type avatar struct {
@@ -52,13 +53,11 @@ func (m MyRedis) RefreshAvatars(ctx context.Context) (redistypes.RespAvatars, er
 		keys, nextCursor, err := m.newClient.Scan(ctx, cursor, "avatar:*", 100).Result()
 		if err != nil {
 			return nil, err
-
 		}
 		for _, v := range keys {
 			results, err := m.newClient.HGetAll(ctx, v).Result()
 			if err != nil {
 				return nil, err
-
 			}
 			newID, err := strconv.Atoi(strings.TrimPrefix(v, "avatar:"))
 			if err != nil {
@@ -88,15 +87,19 @@ func (m MyRedis) RefreshAvatars(ctx context.Context) (redistypes.RespAvatars, er
 func (a *avatar) GetID() int {
 	return a.id
 }
+
 func (a *avatar) GetName() string {
 	return a.name
 }
+
 func (a *avatar) GetImageURL() string {
 	return a.image
 }
+
 func (a *avatar) GetStatus() bool {
 	return a.status
 }
+
 func (a *avatars) GetAvatars() []redistypes.Avatar {
 	resAvatars := make([]redistypes.Avatar, len(a.allAvatars))
 	for i, allAvatar := range a.allAvatars {

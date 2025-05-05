@@ -2,7 +2,6 @@ package posts_governor
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"log/slog"
 	"time"
@@ -90,14 +89,6 @@ func (p *PostsGovernor) OnePostGov(req controller.OnePostReq, ctx context.Contex
 		log.Print("dir: postgres,  method: onePost, error:  ", err.Error())
 		return nil, err
 	}
-	//////////////////////
-	for _, v := range resp.GetComments() {
-		fmt.Println(v.GetParent().GetCommentID())
-		for _, i := range v.GetChildren() {
-			fmt.Println(i.GetCommentID())
-		}
-	}
-	/////////////////
 	newRespPost := newResponsePost(resp)
 	respComments := resp.GetComments()
 	var newRespComment []comment

@@ -1,10 +1,11 @@
 package rickmortyrest
 
 import (
-	"1337b0rd/internal/types/rick_morty"
 	"encoding/json"
 	"log"
 	"net/http"
+
+	"1337b0rd/internal/types/rick_morty"
 )
 
 type parseJson struct {
@@ -31,6 +32,7 @@ func (p *RickAndMorty) ParseDataJson() (rick_morty.RespDataJson, error) {
 	}
 	return &data, err
 }
+
 func (p *parseJsons) RespParseDataJson() []rick_morty.DataJson {
 	newJsons := make([]rick_morty.DataJson, len(p.Posts))
 	for i, post := range p.Posts {
@@ -38,12 +40,15 @@ func (p *parseJsons) RespParseDataJson() []rick_morty.DataJson {
 	}
 	return newJsons
 }
+
 func (p *parseJson) GetName() string {
 	return p.Name
 }
+
 func (p *parseJson) GetImage() string {
 	return p.Image
 }
+
 func (p *parseJson) GetId() int {
 	return p.ID
 }

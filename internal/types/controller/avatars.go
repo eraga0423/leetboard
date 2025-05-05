@@ -5,7 +5,6 @@ type RespAvatar interface {
 	GetImageURL() string
 	GetID() int
 	GetSessionID() string
-
 }
 
 type RespAvatars interface {

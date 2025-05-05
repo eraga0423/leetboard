@@ -1,11 +1,12 @@
 package posts_handler
 
 import (
-	"1337b0rd/internal/constants"
-	"1337b0rd/internal/types/controller"
 	"errors"
 	"mime/multipart"
 	"net/http"
+
+	"1337b0rd/internal/constants"
+	"1337b0rd/internal/types/controller"
 )
 
 type PostsHandler struct {
@@ -24,13 +25,11 @@ type metaData struct {
 }
 
 func checkFile(r *http.Request) (metaData, error) {
-
 	err := r.ParseMultipartForm(10 << 20)
 	if err != nil {
 		return metaData{}, err
 	}
 	file, header, err := r.FormFile("image")
-
 	if err != nil {
 		if errors.Is(err, http.ErrMissingFile) {
 			return metaData{
@@ -41,9 +40,8 @@ func checkFile(r *http.Request) (metaData, error) {
 		} else {
 			return metaData{}, err
 		}
-
 	}
-	
+
 	contentType := header.Header.Get("Content-Type")
 	if contentType != "image/jpeg" && contentType != "image/png" {
 		return metaData{}, errors.New("content type not supported")
